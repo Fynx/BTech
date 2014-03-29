@@ -1,0 +1,250 @@
+#ifndef WEAPON_BASE_H
+#define WEAPON_BASE_H
+
+#include <QtWidgets>
+#include "BTCommon/CommonStrings.h"
+#include "BTCommon/EnumSerialization.h"
+#include "BTCommon/FileIO.h"
+#include "BTCommon/Uid.h"
+#include "BTCommon/Utils.h"
+
+class WeaponBase
+{
+
+public:
+	WeaponBase();
+	WeaponBase(const QString &name, UID uid = EmptyUid);
+	WeaponBase(const WeaponBase &weapon);
+	WeaponBase(const QString &name,
+		   BTech::WeaponType weaponType,
+	           int minRange,
+	           int maxShortRange,
+	           int maxMediumRange,
+	           int maxLongRange,
+	           int heat,
+	           int damage,
+	           int tonnage,
+	           int criticalSpaces,
+	           int ammoShotsPerTon,
+	           int missilesNumberShot);
+
+	WeaponBase & operator = (const WeaponBase &weapon) = default;
+
+	explicit operator QString () const;
+
+	QString getName() const;
+	void setName(const QString &name);
+
+	BTech::WeaponType getWeaponType() const;
+	void setWeaponType(BTech::WeaponType weaponType);
+
+	int getRangeModifier(int distance) const;
+	int getRangeModifier(BTech::Range range) const;
+	BTech::Range distanceToRange(int distance) const;
+
+	int getMinRange() const;
+	void setMinRange(int minRange);
+
+	int getMaxRange(BTech::Range range) const;
+	void setMaxRange(BTech::Range range, int maxRange);
+
+	int getHeat() const;
+	void setHeat(int heat);
+
+	int getDamage() const;
+	void setDamage(int damage);
+
+	int getTonnage() const;
+	void setTonnage(int tonnage);
+
+	int getCriticalSpaces() const;
+	void setCriticalSpaces(int criticalSpaces);
+
+	int getAmmoPerTon() const;
+	void setAmmoPerTon(int ammoPerTon);
+
+	int getMissilesPerShot() const;
+	void setMissilesPerShot(int missilesPerShot);
+
+	static const int MAX_AMMO_SHOTS_PER_TON = 10000;
+
+	friend QDataStream & operator << (QDataStream &out, const WeaponBase &weapon);
+	friend QDataStream & operator >> (QDataStream &in, WeaponBase &weapon);
+
+	friend QDebug & operator << (QDebug &out, const WeaponBase &weapon);
+
+	UID getUid() const;
+
+private:
+	void load(const QString &name,
+		  BTech::WeaponType weaponType,
+	          int minRange,
+	          int maxShortRange,
+	          int maxMediumRange,
+	          int maxLongRange,
+	          int heat,
+	          int damage,
+	          int tonnage,
+	          int criticalSpaces,
+	          int ammoPerTon,
+	          int missilesPerShot);
+	void load(const WeaponBase &weapon);
+
+	QString name;
+
+	BTech::WeaponType type;
+
+	static const std::array <int, BTech::ranges.size()> rangeModifier;
+	int minRange;
+	QHash <BTech::Range, int> maxRange;
+
+	int heat;
+	int damage;
+	int tonnage;
+	int criticalSpaces;
+	int ammoPerTon;
+	int missilesPerShot;
+
+	UID uid;
+};
+
+namespace BTech {
+
+	//TODO CFiend przydałaby się zmiana nazwy: czego to jest modifier? AttackModifier?
+	enum class Modifier : quint8 {
+		Base,
+		Range,
+		Direction,
+		Terrain,
+		Height,
+		AttackerMovement,
+		TargetMovement
+	};
+
+	extern const QHash <Modifier, QString> modifierStringChange;
+
+	static const std::array <Modifier, 7> modifiers {
+		Modifier::Base,
+		Modifier::Range,
+		Modifier::Direction,
+		Modifier::Terrain,
+		Modifier::Height,
+		Modifier::AttackerMovement,
+		Modifier::TargetMovement
+	};
+
+	enum class ModifierType : quint8 {
+		Attack,
+		ArmorPenetration
+	};
+
+	static const int INF_ATTACK_MODIFIER           = 100;
+	static const int CONTACT_RANGE_ATTACK_MODIFIER = 0;
+	static const int SHORT_RANGE_ATTACK_MODIFIER   = 0;
+	static const int MEDIUM_RANGE_ATTACK_MODIFIER  = 2;
+	static const int LONG_RANGE_ATTACK_MODIFIER    = 4;
+	static const int OUT_OF_RANGE_ATTACK_MODIFIER  = INF_ATTACK_MODIFIER;
+
+	static const int MAXIMAL_MAX_SHORT_RANGE  = 97;
+	static const int MAXIMAL_MAX_MEDIUM_RANGE = MAXIMAL_MAX_SHORT_RANGE + 1;
+	static const int MAXIMAL_MAX_LONG_RANGE   = MAXIMAL_MAX_MEDIUM_RANGE + 1;
+
+	extern const QHash <BTech::Range, int> maximalMaxRange;
+
+	static const int MINIMAL_MAX_SHORT_RANGE  = 1;
+	static const int MINIMAL_MAX_MEDIUM_RANGE = MINIMAL_MAX_SHORT_RANGE + 1;
+	static const int MINIMAL_MAX_LONG_RANGE   = MINIMAL_MAX_MEDIUM_RANGE + 1;
+
+	extern const QHash <BTech::Range, int> minimalMaxRange;
+
+	static const int DEFAULT_AMMO_PER_TON         = 0;
+	static const int DEFAULT_MISSILES_PER_SHOT    = 1;
+
+	static const QHash <QPair <int, BTech::DiceRoll>, int> missileHitTable {
+		{{ 2,  2},  1}, {{ 4,  2},  1}, {{ 5,  2},  1}, {{ 6,  2},  2}, {{10,  2},  3}, {{15,  2},  5}, {{20,  2},  6},
+		{{ 2,  3},  1}, {{ 4,  3},  2}, {{ 5,  3},  2}, {{ 6,  3},  2}, {{10,  3},  3}, {{15,  3},  5}, {{20,  3},  6},
+		{{ 2,  4},  1}, {{ 4,  4},  2}, {{ 5,  4},  2}, {{ 6,  4},  3}, {{10,  4},  4}, {{15,  4},  6}, {{20,  4},  9},
+		{{ 2,  5},  1}, {{ 4,  5},  2}, {{ 5,  5},  3}, {{ 6,  5},  3}, {{10,  5},  6}, {{15,  5},  9}, {{20,  5}, 12},
+		{{ 2,  6},  1}, {{ 4,  6},  2}, {{ 5,  6},  3}, {{ 6,  6},  4}, {{10,  6},  6}, {{15,  6},  9}, {{20,  6}, 12},
+		{{ 2,  7},  1}, {{ 4,  7},  3}, {{ 5,  7},  3}, {{ 6,  7},  4}, {{10,  8},  6}, {{15,  8},  9}, {{20,  7}, 12},
+		{{ 2,  8},  2}, {{ 4,  8},  3}, {{ 5,  8},  3}, {{ 6,  8},  4}, {{10,  8},  6}, {{15,  8},  9}, {{20,  8}, 12},
+		{{ 2,  9},  2}, {{ 4,  9},  3}, {{ 5,  9},  4}, {{ 6,  9},  5}, {{10,  9},  8}, {{15,  9}, 12}, {{20,  9}, 16},
+		{{ 2, 10},  2}, {{ 4, 10},  3}, {{ 5, 10},  4}, {{ 6, 10},  5}, {{10, 10},  8}, {{15, 10}, 12}, {{20, 10}, 16},
+		{{ 2, 11},  2}, {{ 4, 11},  4}, {{ 5, 11},  5}, {{ 6, 11},  6}, {{10, 11}, 10}, {{15, 11}, 15}, {{20, 11}, 20},
+		{{ 2, 12},  2}, {{ 4, 12},  4}, {{ 5, 12},  5}, {{ 6, 12},  6}, {{10, 12}, 10}, {{15, 12}, 15}, {{20, 12}, 20},
+	};
+}
+
+/**
+ * \class WeaponModel
+ * Data model for storing \ref Weapon "Weapons"
+ */
+
+class WeaponModel : public QAbstractTableModel
+{
+Q_OBJECT;
+
+public:
+	int columnCount(const QModelIndex &index = QModelIndex()) const;
+	QVariant data(const QModelIndex &index, int role) const;
+	Qt::ItemFlags flags(const QModelIndex &index) const;
+	bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex());
+	bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
+	int rowCount(const QModelIndex &parent = QModelIndex()) const;
+	bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
+
+	bool isChanged() const;
+	void setChanged(bool changed);
+
+	static WeaponModel & getInstance();
+	static bool loadFromFile(const QString &fileName);
+	static bool saveToFile(const QString &fileName);
+
+	static void addNewWeapon();
+	static bool empty();
+	static const WeaponBase * getRow(int row);
+	static const WeaponBase * getWeapon(UID uid);
+	static const WeaponBase * getWeapon(const QModelIndex &index);
+	static const WeaponBase * getWeapon(const QString &name);
+	static const QList <WeaponBase *> & getWeapons();
+	static bool hasWeapon(const QString &name);
+	static void removeWeapon(UID uid);
+
+	static const int Name                 =  0;
+	static const int Type                 =  1;
+	static const int MinimalRange         =  2;
+	static const int MaximalShortRange    =  3;
+	static const int MaximalMediumRange   =  4;
+	static const int MaximalLongRange     =  5;
+	static const int Heat                 =  6;
+	static const int Damage               =  7;
+	static const int Tonnage              =  8;
+	static const int CriticalSpaces       =  9;
+	static const int AmmoPerTon           = 10;
+	static const int MissilesPerShot      = 11;
+	static const int ColumnCount          = 12;
+
+	friend QDataStream & operator << (QDataStream &out, const WeaponModel &wModel);
+	friend QDataStream & operator >> (QDataStream &in, WeaponModel &wModel);
+	friend bool ::saveToFile<WeaponModel>(WeaponModel &obj, const QString &fileName);
+
+private:
+	explicit WeaponModel(QObject *parent = nullptr);
+	WeaponModel(const WeaponModel &) = delete;
+	WeaponModel(WeaponModel &&) = delete;
+	void operator=(const WeaponModel &) = delete;
+	void operator=(WeaponModel &&) = delete;
+	~WeaponModel();
+
+	void addWeapon(int row, WeaponBase *weapon);
+	void removeWeaponFromRow(int row);
+
+	bool changed;
+	UID nextUid;
+
+	static const UID MinUid = 1;
+	static QList <WeaponBase *> weaponList;
+	static QHash <UID, WeaponBase *> uidToWeapon;
+};
+
+#endif

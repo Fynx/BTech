@@ -1,0 +1,28 @@
+CFiend
+-Skalowanie skrolowanie. Docelowo gra będzie na fullscreenie, ale nie zaboli jak będzie możliwość skrolowania przy
+ wciśniętym prawym klawiszu myszki jak nie ma fullscreena. Wystarczy którakolwiek dobrze działająca wersja bez
+ hacków.
+-ActionWindow - jak na razie to jest pełne smutku i KlikableLabelków.
+-Fajny wysuwany i półprzezroczyty infoBar - jak na razie działa na hacku.
+
+Basic BattleDroids
+-onTheBorder(ech...)
+
+Advanced BattleDroids
+-ECH. TOTAL MechBase Rebuild. Seriously. Engine, tonnage, critical boxes, ammo.
+-resolveAttacks
+-Efekty
+-Zrobić elegancko modyfikator ataku (Range)
+-Owner i mech dla weaponHolder w mechPart. Update: dla advanced chyba nadal weaponHolder = mech.
+
+Bugi
+-Okno dokładnych informacji - dopisywanie trailing whitespaces w htmlu i kolorki (jakieś ciemne są).
+
+Inne
+-Unit testy.
+-Trochę mniej podstawowa grafika - zdobyć jakieś teksturki i najlepiej prymitywna animacja mechów.
+-Full odjazd - zobaczyć OpenGLa.
+-Kolorki w logu - zrobić dokładniej i przerzucić z Map do miejsca, w którym powinny być.
+-Dokumentacja - opisy klas i funkcji.
+-Dokumentacja - ogólny opis programu i poszczególnych jego części.
+-GraphicsMech egzystuje w GraphicsEntity.h. To źle.
