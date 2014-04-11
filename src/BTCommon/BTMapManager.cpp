@@ -52,9 +52,6 @@ void BTMapManager::initCentralWindow()
 	connect(map, &GraphicsMap::hexDisplayChanged, infoBar, &InfoBar::updateHexWindow);
 	connect(map, &GraphicsMap::mechInfoNeeded,    infoBar, &InfoBar::setMech);
 	connect(map, &GraphicsMap::mechInfoNotNeeded, infoBar, &InfoBar::removeMech);
-
-	scrollMapTimer = new QTimer(this);
-	connect(scrollMapTimer, &QTimer::timeout, this, &BTMapManager::scrollMap);
 }
 
 void BTMapManager::initMenu()
@@ -110,7 +107,6 @@ void BTMapManager::startMapManagement()
 	infoBar->show();
 	menuShowInfoBarAction->setEnabled(true);
 	menuShowGridAction->setEnabled(true);
-	scrollMapTimer->start(50);
 }
 
 void BTMapManager::wheelEvent(QWheelEvent *event)
@@ -122,26 +118,6 @@ void BTMapManager::wheelEvent(QWheelEvent *event)
 	else
 		map->decScale(numSteps);
 	event->accept();
-}
-
-void BTMapManager::scrollMap()
-{
-	int x = cursor().pos().x();
-	int y = cursor().pos().y();
-
-	bool inLeftMargin = (x <= SCROLL_MARGIN_SIZE);
-	bool inRightMargin = (x >= width() - SCROLL_MARGIN_SIZE);
-	bool inTopMargin = (y <= SCROLL_MARGIN_SIZE);
-	bool inBottomMargin = (y >= height() - SCROLL_MARGIN_SIZE);
-
-	if (inLeftMargin)
-		map->scrollView(Qt::LeftEdge);
-	if (inRightMargin)
-		map->scrollView(Qt::RightEdge);
-	if (inTopMargin)
-		map->scrollView(Qt::TopEdge);
-	if (inBottomMargin)
-		map->scrollView(Qt::BottomEdge);
 }
 
 void BTMapManager::onLoadMapAction()

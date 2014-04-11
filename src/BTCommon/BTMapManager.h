@@ -25,8 +25,6 @@ protected:
 	GraphicsMap *map;
 	InfoBar *infoBar;
 
-	static const int SCROLL_MARGIN_SIZE = 3;
-
 	void initBaseFunctions();
 	void initWindow();
 	void initInfoBar();
@@ -42,13 +40,8 @@ protected:
 	void wheelEvent(QWheelEvent *event);
 
 protected slots:
-	void scrollMap();
-
 	virtual void onLoadMapAction();
 	virtual void onQuitAction();
-
-private:
-	QTimer *scrollMapTimer;
 
 private slots:
 	void onShowGridAction();

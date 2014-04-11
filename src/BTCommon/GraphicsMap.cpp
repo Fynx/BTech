@@ -239,8 +239,32 @@ void GraphicsMap::changeScale(qreal scale)
 
 void GraphicsMap::mouseMoveEvent(QMouseEvent *event)
 {
-	mousePosition = event->pos();
+	if (event->buttons() & Qt::RightButton) {
+		int newX = horizontalScrollBar()->value() - event->x() + mousePosition.x();
+		horizontalScrollBar()->setValue(newX);
+		int newY = verticalScrollBar()->value() - event->y() + mousePosition.y();
+		verticalScrollBar()->setValue(newY);
+		QCursor::setPos(mapToGlobal(mousePosition));
+	}
+
 	QGraphicsView::mouseMoveEvent(event);
+}
+
+void GraphicsMap::mousePressEvent(QMouseEvent *event)
+{
+	if (event->buttons() & Qt::RightButton) {
+		setCursor(Qt::SizeAllCursor);
+		mousePosition = event->pos();
+	}
+	QGraphicsView::mousePressEvent(event);
+}
+
+void GraphicsMap::mouseReleaseEvent(QMouseEvent *event)
+{
+	if (!(event->buttons() & Qt::RightButton))
+		setCursor(Qt::ArrowCursor);
+
+	QGraphicsView::mouseReleaseEvent(event);
 }
 
 void GraphicsMap::wheelEvent(QWheelEvent *event)

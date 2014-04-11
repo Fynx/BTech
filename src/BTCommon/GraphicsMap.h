@@ -93,6 +93,8 @@ private:
 
 	void changeScale(qreal scale);						/**< Changes finalScale to scale. */
 	void mouseMoveEvent(QMouseEvent *event);
+	void mousePressEvent(QMouseEvent *event);
+	void mouseReleaseEvent(QMouseEvent *event);
 	void wheelEvent(QWheelEvent *event);
 	void resizeEvent(QResizeEvent *event);
 
