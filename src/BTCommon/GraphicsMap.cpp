@@ -85,25 +85,6 @@ QPair <QString, QColor> GraphicsMap::getExtInfo() const
 	return {extensiveInfo, extensiveInfoColor};
 }
 
-void GraphicsMap::scrollView(Qt::Edge direction)
-{
-	int positive;
-	Qt::Orientation orientation;
-	// this should be much shorter, but lo! Here we have a qt feature and we want to find a way round!
-	switch (direction) {
-		case Qt::RightEdge:  positive = -1; orientation = Qt::Horizontal; break;
-		case Qt::LeftEdge:   positive =  1; orientation = Qt::Horizontal; break;
-		case Qt::BottomEdge: positive = -1; orientation = Qt::Vertical; break;
-		case Qt::TopEdge:    positive =  1; orientation = Qt::Vertical; break;
-	}
-	// funny thing
-	QWheelEvent event(QPoint(0, 0), scrollSpeed * positive, Qt::NoButton, Qt::NoModifier, orientation);
-	QGraphicsView::wheelEvent(&event);
-	//qDebug() << QPoint(scrollSpeed * positive * (orientation == Qt::Horizontal), scrollSpeed * positive * (orientation == Qt::Vertical));
-	//translate(scrollSpeed * positive * (orientation == Qt::Horizontal),
-	//	  scrollSpeed * positive * (orientation == Qt::Vertical));
-}
-
 void GraphicsMap::incScale(int times)
 {
 	qreal newScale = finalScale;
@@ -145,7 +126,6 @@ void GraphicsMap::initMap()
 	initGrid();
 	initHexes();
 	initUnits();
-	initScrolling();
 	initScaling();
 	initWindowSettings();
 }
@@ -197,11 +177,6 @@ void GraphicsMap::initUnit(MechEntity *mech)
 	connect(mech, &MechEntity::extensiveInfoSent, this, &GraphicsMap::mechExtensiveInfoReceived);
 
 	emit mechAdded(mech);
-}
-
-void GraphicsMap::initScrolling()
-{
-	scrollSpeed = DEFAULT_SCROLL_SPEED;
 }
 
 void GraphicsMap::initScaling()
@@ -280,7 +255,6 @@ void GraphicsMap::wheelEvent(QWheelEvent *event)
 
 void GraphicsMap::resizeEvent(QResizeEvent *event)
 {
-	initScrolling();
 	initScaling();
 }
 

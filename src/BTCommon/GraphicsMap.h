@@ -30,7 +30,6 @@ public:
 	QPair <QString, QColor> getExtInfo() const;
 
 public slots:
-	void scrollView(Qt::Edge direction);
 	void incScale(int steps = 1);
 	void decScale(int steps = 1);
 
@@ -68,12 +67,10 @@ private:
 	void initHexes();
 	void initUnits();
 	void initUnit(MechEntity *mech);
-	void initScrolling();
 	void initScaling();
 	void initWindowSettings();
 
 	static const int SCENE_BORDER = 200;					/**< Empty space from each side that separates Hexes from the border of the scene. */
-	static const int DEFAULT_SCROLL_SPEED = 20;				/**< Default scroll speed. */
 	static constexpr qreal DEFAULT_SCALE_SPEED = 0.1;			/**< Default zoom speed. */
 	static constexpr qreal MAX_SCALE_MULT = 6;				/**< Max zoom multiplier. */
 	static constexpr qreal MIN_SCALE_MULT = 0.1;				/**< Min zoom multiplier. */
@@ -88,7 +85,6 @@ private:
 	qreal scale;								/**< Current zoom level. */
 	qreal scaleSpeed;							/**< Current speed of zooming. */
 	qreal finalScale;							/**< Destinated zoom level in the animation. */
-	int scrollSpeed;							/**< Current speed of scrolling. */
 	QPoint mousePosition;							/**< Current mouse position in the view. */
 
 	void changeScale(qreal scale);						/**< Changes finalScale to scale. */
