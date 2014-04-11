@@ -222,7 +222,6 @@ void GraphicsMap::initWindowSettings()
 	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	setMouseTracking(true);
 	setEnabled(true);
-	setAlignment(0);
 }
 
 void GraphicsMap::changeScale(qreal scale)

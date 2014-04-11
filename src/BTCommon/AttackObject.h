@@ -28,7 +28,7 @@ public:
 	int getDamage() const;
 	void setDamage(int damage);
 
-	const WeaponHolder *getWeaponHolder() const;
+	const WeaponHolder * getWeaponHolder() const;
 	void setWeaponHolder(const WeaponHolder *weaponHolder);
 	const Weapon * getWeapon() const;
 
