@@ -19,8 +19,6 @@ private:
 	void operator = (const Settings &) = delete;
 
 	static QSettings & getInstance();
-
-	static const QString ApplicationName, OrganizationName;
 };
 
 #endif

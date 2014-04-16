@@ -1,8 +1,5 @@
 #include "BTCommon/Settings.h"
 
-const QString Settings::ApplicationName = "BTech";
-const QString Settings::OrganizationName = "BTech";
-
 bool Settings::contains(const QString &key)
 {
 	return getInstance().contains(key);
@@ -25,7 +22,7 @@ void Settings::sync()
 
 QSettings & Settings::getInstance()
 {
-	static QSettings instance(OrganizationName, ApplicationName);
+	static QSettings instance;
 	return instance;
 }
 
