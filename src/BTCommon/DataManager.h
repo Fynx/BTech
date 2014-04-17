@@ -42,7 +42,7 @@ private:
 
 	friend QDataStream & operator << (QDataStream &out, const DataManager &dataManager);
 	friend QDataStream & operator >> (QDataStream &in, DataManager &dataManager);
-	friend bool ::saveToFile<DataManager>(DataManager &obj, const QString &fileName);
+	friend bool ::saveToFile<DataManager>(const DataManager &obj, const QString &fileName);
 
 	bool changed;
 };

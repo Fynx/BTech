@@ -244,7 +244,7 @@ public:
 
 	friend QDataStream & operator << (QDataStream &out, const WeaponModel &wModel);
 	friend QDataStream & operator >> (QDataStream &in, WeaponModel &wModel);
-	friend bool ::saveToFile<WeaponModel>(WeaponModel &obj, const QString &fileName);
+	friend bool ::saveToFile<WeaponModel>(const WeaponModel &obj, const QString &fileName);
 
 private:
 	explicit WeaponModel(QObject *parent = nullptr);

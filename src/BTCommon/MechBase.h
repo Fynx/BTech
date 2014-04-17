@@ -235,7 +235,7 @@ public:
 
 	friend QDataStream & operator << (QDataStream &out, const MechModel &mModel);
 	friend QDataStream & operator >> (QDataStream &in, MechModel &mModel);
-	friend bool ::saveToFile<MechModel>(MechModel &obj, const QString &fileName);
+	friend bool ::saveToFile<MechModel>(const MechModel &obj, const QString &fileName);
 
 private:
 	explicit MechModel(QObject *parent = nullptr);

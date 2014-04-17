@@ -17,31 +17,16 @@ bool loadFromFile(T &obj, const QString &fileName)
 }
 
 template <typename T>
-bool saveToFile(T &obj, const QString &fileName)
+bool saveToFile(const T &obj, const QString &fileName)
 {
-	QTemporaryFile tmpFile;
+	QSaveFile tmpFile(fileName);
 
-	if (!tmpFile.open())
+	if (!tmpFile.open(QIODevice::WriteOnly))
 		return false;
 
 	QDataStream output(&tmpFile);
 	output << obj;
-
-	if (!tmpFile.flush())
-		return false;
-	tmpFile.close();
-
-	if (QFile::exists(fileName)) {
-		if (QFile::exists(fileName + '~'))
-			QFile::remove(fileName + '~');
-		if (!QFile::copy(fileName, fileName + '~') || !QFile::remove(fileName))
-			return false;
-	}
-
-	if (!tmpFile.copy(fileName))
-		return false;
-
-	return true;
+	return tmpFile.commit();
 }
 
 #endif
