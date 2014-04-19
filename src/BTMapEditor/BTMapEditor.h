@@ -1,5 +1,6 @@
 /*
 Copyright (C) 2014 by Piotr Majcherczyk <fynxor [at] gmail [dot] com>
+Copyright (C) 2014 by Bartosz Szreder <szreder [at] mimuw [dot] edu [dot] pl>
 This file is part of BTech Project.
 
 	BTech Project is free software: you can redistribute it and/or modify
@@ -64,18 +65,17 @@ private:
 
 	void reloadData();
 
-	enum class Chosen {
-		Nothing,
-		Mech,
+	enum class Mode : quint8 {
+		Click,
+		Unit,
 		Terrain
 	};
 
-	Chosen currentlyChosen;
+	Mode currentMode;
 
 	Player *currentPlayer;
 	UID currentMech;
 	BTech::Terrain currentTerrain;
-	bool clickModeActive;
 
 private slots:
 	void onNewMapAction();
@@ -86,10 +86,10 @@ private slots:
 	void onEditMechsAction();
 	void onSaveData();
 
+	void onChooseClickMode();
 	void onChoosePlayer(Player *player);
 	void onChooseUnit(UID unitUid);
 	void onChooseTerrain(BTech::Terrain terrain);
-	void onChooseClickMode(bool is);
 
 	void onHexClicked(Hex *hex);
 

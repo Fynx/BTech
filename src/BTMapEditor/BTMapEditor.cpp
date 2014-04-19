@@ -1,5 +1,6 @@
 /*
 Copyright (C) 2014 by Piotr Majcherczyk <fynxor [at] gmail [dot] com>
+Copyright (C) 2014 by Bartosz Szreder <szreder [at] mimuw [dot] edu [dot] pl>
 This file is part of BTech Project.
 
 	BTech Project is free software: you can redistribute it and/or modify
@@ -52,7 +53,7 @@ void BTMapEditor::initToolBar()
 
 	connect(map, &GraphicsMap::mapHasBeenLoaded, toolBar, &ToolBar::onMapLoaded);
 
-	connect(toolBar, &ToolBar::clickModeActivated, this, &BTMapEditor::onChooseClickMode);
+	connect(toolBar, &ToolBar::clickModeChosen,    this, &BTMapEditor::onChooseClickMode);
 	connect(toolBar, &ToolBar::playerChosen,       this, &BTMapEditor::onChoosePlayer);
 	connect(toolBar, &ToolBar::unitChosen,         this, &BTMapEditor::onChooseUnit);
 	connect(toolBar, &ToolBar::terrainChosen,      this, &BTMapEditor::onChooseTerrain);
@@ -115,10 +116,10 @@ void BTMapEditor::sortMenu()
 
 void BTMapEditor::initSystem()
 {
-	currentlyChosen = Chosen::Nothing;
+	currentMech = EmptyUid;
+	currentMode = Mode::Click;
 	currentPlayer = nullptr;
 	currentTerrain = BTech::Terrain::Clear;
-	clickModeActive = false;
 }
 
 void BTMapEditor::readSettings()
@@ -219,6 +220,11 @@ void BTMapEditor::onSaveData()
 		qDebug() << "Data saved.";
 }
 
+void BTMapEditor::onChooseClickMode()
+{
+	currentMode = Mode::Click;
+}
+
 void BTMapEditor::onChoosePlayer(Player *player)
 {
 	currentPlayer = player;
@@ -226,38 +232,32 @@ void BTMapEditor::onChoosePlayer(Player *player)
 
 void BTMapEditor::onChooseUnit(UID unitUid)
 {
-	currentlyChosen = Chosen::Mech;
+	currentMode = Mode::Unit;
 	currentMech = unitUid;
 }
 
 void BTMapEditor::onChooseTerrain(BTech::Terrain terrain)
 {
-	currentlyChosen = Chosen::Terrain;
+	currentMode = Mode::Terrain;
 	currentTerrain = terrain;
-}
-
-void BTMapEditor::onChooseClickMode(bool is)
-{
-	clickModeActive = is;
-	currentlyChosen = Chosen::Nothing;
-	if (map->isLoaded())
-		map->clearHexes();
 }
 
 void BTMapEditor::onHexClicked(Hex *hex)
 {
 	map->clearHexes();
 	GraphicsFactory::get(hex)->setClicked(true);
-	toolBar->onHexClicked(hex);
-	switch (currentlyChosen) {
-		case Chosen::Mech:
-			map->addMechToHex(new MechEntity(currentMech), hex, currentPlayer);
+	switch (currentMode) {
+		case Mode::Unit:
+			if (currentMech != EmptyUid)
+				map->addMechToHex(new MechEntity(currentMech), hex, currentPlayer);
 			break; // responsibility for the new allocated MechEntity goes to GraphicsMap.
-		case Chosen::Terrain:
+		case Mode::Terrain:
 			hex->setTerrain(currentTerrain);
 			break;
 		default:;
 	}
+
+	toolBar->onHexClicked(hex);
 }
 
 void BTMapEditor::updatePlayers()

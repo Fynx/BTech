@@ -1,5 +1,6 @@
 /*
 Copyright (C) 2014 by Piotr Majcherczyk <fynxor [at] gmail [dot] com>
+Copyright (C) 2014 by Bartosz Szreder <szreder [at] mimuw [dot] edu [dot] pl>
 This file is part of BTech Project.
 
 	BTech Project is free software: you can redistribute it and/or modify
@@ -23,7 +24,7 @@ This file is part of BTech Project.
  */
 
 UnitsManager::UnitsManager(QVector <Player *> &players)
-	: players(players)
+	: players(players), currentUnit_(EmptyUid)
 {
 	initMechList();
 
@@ -48,6 +49,11 @@ Player * UnitsManager::getCurrentPlayer() const
 		if (player->getName() == playersComboBox->currentText())
 			return player;
 	return nullptr;
+}
+
+UID UnitsManager::currentUnit() const
+{
+	return currentUnit_;
 }
 
 void UnitsManager::onMapLoaded()
@@ -91,8 +97,9 @@ void UnitsManager::updatePlayersComboBox()
 void UnitsManager::onUnitChosen(const QString &unitName)
 {
 	if (playersComboBox->isEnabled()) {
+		currentUnit_ = MechModel::getMech(unitName)->getUid();
 		emit playerChosen(getCurrentPlayer());
-		emit unitChosen(MechModel::getMech(unitName)->getUid());
+		emit unitChosen(currentUnit_);
 	}
 }
 

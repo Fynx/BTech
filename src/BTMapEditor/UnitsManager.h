@@ -1,5 +1,6 @@
 /*
 Copyright (C) 2014 by Piotr Majcherczyk <fynxor [at] gmail [dot] com>
+Copyright (C) 2014 by Bartosz Szreder <szreder [at] mimuw [dot] edu [dot] pl>
 This file is part of BTech Project.
 
 	BTech Project is free software: you can redistribute it and/or modify
@@ -35,6 +36,7 @@ public:
 	Player * getCurrentPlayer() const;
 
 public slots:
+	UID currentUnit() const;
 	void onMapLoaded();
 	void refresh();
 
@@ -51,6 +53,8 @@ private:
 	QVBoxLayout *mechListLayout;
 
 	void updatePlayersComboBox();
+
+	UID currentUnit_;
 
 private slots:
 	void onUnitChosen(const QString &unitName);

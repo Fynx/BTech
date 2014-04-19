@@ -1,5 +1,6 @@
 /*
 Copyright (C) 2014 by Piotr Majcherczyk <fynxor [at] gmail [dot] com>
+Copyright (C) 2014 by Bartosz Szreder <szreder [at] mimuw [dot] edu [dot] pl>
 This file is part of BTech Project.
 
 	BTech Project is free software: you can redistribute it and/or modify
@@ -27,27 +28,32 @@ TerrainManager::TerrainManager()
 	initTerrainList();
 }
 
+BTech::Terrain TerrainManager::currentTerrain() const
+{
+	return currentTerrain_;
+}
+
 void TerrainManager::initTerrainList()
 {
-	// TODO // I suppose this should be contained in a file
-
-	QSignalMapper *mapper = new QSignalMapper(this);
+	QButtonGroup *terrainGroup = new QButtonGroup(this);
 	QVBoxLayout *layout = new QVBoxLayout;
 	layout->setAlignment(Qt::AlignTop);
 	for (BTech::Terrain terrain : BTech::terrainTypes) {
 		QString terrainName = BTech::terrainStringChange[terrain];
-		ClickableLabel *label = new ClickableLabel(terrainName);
-		connect(label, &ClickableLabel::clicked, mapper, static_cast<void (QSignalMapper::*)()>(&QSignalMapper::map));
-		mapper->setMapping(label, terrainName);
-		layout->addSpacerItem(new QSpacerItem(BTech::LITTLE_SPACER_SIZE, BTech::SMALL_SPACER_SIZE));
-		layout->addWidget(label);
+		QRadioButton *terrainButton = new QRadioButton(terrainName);
+		terrainGroup->addButton(terrainButton);
+		layout->addWidget(terrainButton);
 	}
 	setLayout(layout);
-	connect(mapper, static_cast<void (QSignalMapper::*)(const QString &)>(&QSignalMapper::mapped), this, &TerrainManager::onTerrainChosen);
+	connect(terrainGroup, static_cast<void (QButtonGroup::*)(QAbstractButton *)>(&QButtonGroup::buttonClicked), this, &TerrainManager::onTerrainChosen);
+
+	QAbstractButton *checkedButton = terrainGroup->buttons()[0];
+	checkedButton->setChecked(true);
+	onTerrainChosen(checkedButton);
 }
 
-void TerrainManager::onTerrainChosen(const QString &terrainName)
+void TerrainManager::onTerrainChosen(QAbstractButton *button)
 {
-	emit terrainChosen(BTech::terrainStringChange[terrainName]);
+	currentTerrain_ = BTech::terrainStringChange[button->text()];
+	emit terrainChosen(currentTerrain_);
 }
-

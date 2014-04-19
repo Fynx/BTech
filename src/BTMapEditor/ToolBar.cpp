@@ -1,5 +1,6 @@
 /*
 Copyright (C) 2014 by Piotr Majcherczyk <fynxor [at] gmail [dot] com>
+Copyright (C) 2014 by Bartosz Szreder <szreder [at] mimuw [dot] edu [dot] pl>
 This file is part of BTech Project.
 
 	BTech Project is free software: you can redistribute it and/or modify
@@ -121,9 +122,14 @@ void ToolBar::initLayout()
 	widget()->setLayout(layout);
 }
 
-void ToolBar::onTabChosen(int number)
+void ToolBar::onTabChosen(int)
 {
-	emit clickModeActivated(number == CLICK_MODE_OVERLAP_INDEX);
+	if (tabs->currentWidget() == unitsManager)
+		emit unitChosen(unitsManager->currentUnit());
+	else if (tabs->currentWidget() == terrainManager)
+		emit terrainChosen(terrainManager->currentTerrain());
+	else
+		emit clickModeChosen();
 }
 
 void ToolBar::removePlayer(Player *player)

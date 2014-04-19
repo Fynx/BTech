@@ -1,5 +1,6 @@
 /*
 Copyright (C) 2014 by Piotr Majcherczyk <fynxor [at] gmail [dot] com>
+Copyright (C) 2014 by Bartosz Szreder <szreder [at] mimuw [dot] edu [dot] pl>
 This file is part of BTech Project.
 
 	BTech Project is free software: you can redistribute it and/or modify
@@ -48,8 +49,7 @@ public slots:
 	void onHexClicked(Hex *hex);
 
 signals:
-	void clickModeActivated(bool is);
-
+	void clickModeChosen();
 	void playerChosen(Player *player);
 	void unitChosen(quint32 unitSerialNumber);
 	void terrainChosen(BTech::Terrain terrain);
@@ -63,11 +63,6 @@ private:
 	UnitsManager *unitsManager;
 	TerrainManager *terrainManager;
 	ClickModeManager *clickModeManager;
-
-	static const int MAP_PROPERTIES_OVERLAP_INDEX = 0;
-	static const int UNITS_OVERLAP_INDEX = 1;
-	static const int TERRAIN_OVERLAP_INDEX = 2;
-	static const int CLICK_MODE_OVERLAP_INDEX = 3;
 
 	static const int DEFAULT_WIDTH = 300;
 	static const int DEFAULT_HEIGHT = 800;
