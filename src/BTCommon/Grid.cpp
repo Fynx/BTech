@@ -118,14 +118,14 @@ Direction Grid::getAttackDirection(Direction unitDirection, Direction attackDire
 
 void Grid::countPoints(int width, int height, int hexS)	/// TODO - we want HEXES, not potatoes
 {
-	int leftBorder = GraphicsHex::getSize();
-	int upperBorder = GraphicsHex::getSize();
+	int leftBorder  = GraphicsHex::getSize();
+	int upperBorder = -GraphicsHex::getSize();
 
 	for (int i = 0; i < height; ++i) {
 		for (int j = 0; j < width; ++j)
-			GraphicsFactory::get(hexes[i * width + j])->setPos(
-				QPoint(leftBorder + j * GraphicsHex::getSize() * 3 / 2,
-				       upperBorder + (i * 2 + (j % 2 == 0)) * GraphicsHex::getSize()));
+			GraphicsFactory::get(hexes[i * width + j])->setPos({
+				qreal(leftBorder + j * GraphicsHex::getSize() * 3 / 2),
+				qreal(upperBorder + (i * 2 + (j % 2 == 0)) * GraphicsHex::getSize())});
 	}
 	for (Hex *hex : hexes)
 		initHex(hex);

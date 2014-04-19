@@ -209,7 +209,14 @@ void GraphicsMap::initScaling()
 
 void GraphicsMap::initWindowSettings()
 {
-	scene()->setSceneRect(-SCENE_BORDER, -SCENE_BORDER, scene()->width() + SCENE_BORDER, scene()->height() + SCENE_BORDER);
+	QPointF firstHex = GraphicsFactory::get(hexes.first())->pos();
+	QPointF lastHex  = GraphicsFactory::get(hexes.last())->pos();
+	scene()->setSceneRect(
+		firstHex.x() - SCENE_BORDER + GraphicsHex::getSize(),
+		firstHex.y() - SCENE_BORDER,
+		lastHex.x() - firstHex.x() + SCENE_BORDER * 2 - GraphicsHex::getSize() * 2,
+		lastHex.y() - firstHex.y() + SCENE_BORDER * 2);
+
 	setContentsMargins(0, 0, 0, 0);
 	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

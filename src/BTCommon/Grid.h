@@ -70,8 +70,8 @@ private:
 	void countPoints(int width, int height, int hexS = GraphicsHex::getSize());
 	void initHex(Hex *hex);
 
-	int width;	/**< Number of Hexes in the row. */
-	int height;	/**< Number of Hexes in the column. */
+	int width;      /**< Number of Hexes in the row. */
+	int height;     /**< Number of Hexes in the column. */
 
 	QVector <Hex *> &hexes;
 
