@@ -16,8 +16,8 @@ This file is part of BTech Project.
 	along with BTech.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SETTINGS_HPP
-#define SETTINGS_HPP
+#ifndef SETTINGS_H
+#define SETTINGS_H
 
 #include <QtCore>
 
