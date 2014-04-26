@@ -1,5 +1,6 @@
 /*
 Copyright (C) 2014 by Piotr Majcherczyk <fynxor [at] gmail [dot] com>
+Copyright (C) 2014 by Bartosz Szreder <szreder [at] mimuw [dot] edu [dot] pl>
 This file is part of BTech Project.
 
 	BTech Project is free software: you can redistribute it and/or modify
@@ -17,6 +18,7 @@ This file is part of BTech Project.
 */
 
 #include "BTMapEditor/dialogs/EditMechPartsWidget.h"
+#include "BTMapEditor/Paths.h"
 
 /**
  * \class EditMechPartsWidget
@@ -57,10 +59,10 @@ void EditMechPartsWidget::initBoxes()
 
 void EditMechPartsWidget::initButtons()
 {
-	addWeaponButton      = new QPushButton(QIcon(BTech::Paths::ICON_LIST_ADD), QString());
-	removeWeaponButton   = new QPushButton(QIcon(BTech::Paths::ICON_LIST_REMOVE), QString());
-	moveWeaponUpButton   = new QPushButton(QIcon(BTech::Paths::ICON_ARROW_UP), QString());
-	moveWeaponDownButton = new QPushButton(QIcon(BTech::Paths::ICON_ARROW_DOWN), QString());
+	addWeaponButton      = new QPushButton(QIcon(BTech::resolvePath(BTech::Paths::ICON_LIST_ADD)), QString());
+	removeWeaponButton   = new QPushButton(QIcon(BTech::resolvePath(BTech::Paths::ICON_LIST_REMOVE)), QString());
+	moveWeaponUpButton   = new QPushButton(QIcon(BTech::resolvePath(BTech::Paths::ICON_ARROW_UP)), QString());
+	moveWeaponDownButton = new QPushButton(QIcon(BTech::resolvePath(BTech::Paths::ICON_ARROW_DOWN)), QString());
 
 	connect(addWeaponButton,      &QPushButton::pressed, this, &EditMechPartsWidget::addWeapons);
 	connect(removeWeaponButton,   &QPushButton::pressed, this, &EditMechPartsWidget::removeWeapons);

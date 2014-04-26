@@ -1,5 +1,6 @@
 /*
 Copyright (C) 2014 by Piotr Majcherczyk <fynxor [at] gmail [dot] com>
+Copyright (C) 2014 by Bartosz Szreder <szreder [at] mimuw [dot] edu [dot] pl>
 This file is part of BTech Project.
 
 	BTech Project is free software: you can redistribute it and/or modify
@@ -19,7 +20,6 @@ This file is part of BTech Project.
 #include "BTCommon/EnumHashFunctions.h"
 
 #include "BTCommon/MechBase.h"
-#include "BTCommon/Paths.h"
 #include "BTCommon/Utils.h"
 
 MechBase::MechBase()
@@ -607,14 +607,14 @@ MechModel & MechModel::getInstance()
 	return *model;
 }
 
-bool MechModel::loadFromFile(const QString &fileName = BTech::Paths::MECHS_PATH)
+bool MechModel::loadFromFile(const QString &fileName)
 {
-	return ::loadFromFile(getInstance(), fileName);
+	return ::loadFromFile(getInstance(), BTech::resolvePath(fileName));
 }
 
-bool MechModel::saveToFile(const QString &fileName = BTech::Paths::MECHS_PATH)
+bool MechModel::saveToFile(const QString &fileName)
 {
-	return ::saveToFile(getInstance(), fileName);
+	return ::saveToFile(getInstance(), BTech::resolvePath(fileName));
 }
 
 void MechModel::addNewMech()

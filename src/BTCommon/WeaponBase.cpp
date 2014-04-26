@@ -1,5 +1,6 @@
 /*
 Copyright (C) 2014 by Piotr Majcherczyk <fynxor [at] gmail [dot] com>
+Copyright (C) 2014 by Bartosz Szreder <szreder [at] mimuw [dot] edu [dot] pl>
 This file is part of BTech Project.
 
 	BTech Project is free software: you can redistribute it and/or modify
@@ -18,7 +19,6 @@ This file is part of BTech Project.
 
 #include "BTCommon/EnumHashFunctions.h"
 #include "BTCommon/WeaponBase.h"
-#include "BTCommon/Paths.h"
 
 /**
  * \class WeaponBase
@@ -439,14 +439,14 @@ WeaponModel & WeaponModel::getInstance()
 	return *instance;
 }
 
-bool WeaponModel::loadFromFile(const QString &fileName = BTech::Paths::WEAPONS_PATH)
+bool WeaponModel::loadFromFile(const QString &fileName)
 {
-	return ::loadFromFile(getInstance(), fileName);
+	return ::loadFromFile(getInstance(), BTech::resolvePath(fileName));
 }
 
-bool WeaponModel::saveToFile(const QString &fileName = BTech::Paths::WEAPONS_PATH)
+bool WeaponModel::saveToFile(const QString &fileName)
 {
-	return ::saveToFile(getInstance(), fileName);
+	return ::saveToFile(getInstance(), BTech::resolvePath(fileName));
 }
 
 void WeaponModel::addNewWeapon()

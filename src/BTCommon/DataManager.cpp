@@ -1,5 +1,6 @@
 /*
 Copyright (C) 2014 by Piotr Majcherczyk <fynxor [at] gmail [dot] com>
+Copyright (C) 2014 by Bartosz Szreder <szreder [at] mimuw [dot] edu [dot] pl>
 This file is part of BTech Project.
 
 	BTech Project is free software: you can redistribute it and/or modify
@@ -18,7 +19,6 @@ This file is part of BTech Project.
 
 #include "BTCommon/DataManager.h"
 #include "BTCommon/FileIO.h"
-#include "BTCommon/Paths.h"
 
 DataManager & DataManager::getInstance()
 {
@@ -26,16 +26,16 @@ DataManager & DataManager::getInstance()
 	return *dataManager;
 }
 
-bool DataManager::loadFromFile(const QString &fileName = BTech::Paths::DATA_PATH)
+bool DataManager::loadFromFile(const QString &fileName)
 {
-	return ::loadFromFile(getInstance(), fileName);
+	return ::loadFromFile(getInstance(), BTech::resolvePath(fileName));
 }
 
-bool DataManager::saveToFile(const QString &fileName = BTech::Paths::DATA_PATH)
+bool DataManager::saveToFile(const QString &fileName)
 {
 	WeaponModel::getInstance().setChanged(false);
 	MechModel::getInstance().setChanged(false);
-	return ::saveToFile(getInstance(), fileName);
+	return ::saveToFile(getInstance(), BTech::resolvePath(fileName));
 }
 
 DataManager::DataManager()

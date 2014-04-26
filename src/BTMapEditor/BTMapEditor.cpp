@@ -171,7 +171,7 @@ void BTMapEditor::onSaveMapAction()
 
 void BTMapEditor::onSaveAsMapAction()
 {
-	QString path = QFileDialog::getSaveFileName(this, BTech::Strings::DialogSaveMap, BTech::Paths::MAPS_PATH, BTech::Strings::DialogBTechMapFiles);
+	QString path = QFileDialog::getSaveFileName(this, BTech::Strings::DialogSaveMap, BTech::resolvePath(BTech::Paths::MAPS_PATH), BTech::Strings::DialogBTechMapFiles);
 	if (saveMap(path))
 		map->setMapFileName(path);
 }
@@ -214,7 +214,7 @@ void BTMapEditor::onEditMechsAction()
 
 void BTMapEditor::onSaveData()
 {
-	if (!DataManager::saveToFile(BTech::Paths::DATA_PATH))
+	if (!DataManager::saveToFile())
 		qWarning() << "Save data failed!";
 	else
 		qDebug() << "Data saved.";

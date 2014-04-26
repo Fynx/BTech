@@ -1,5 +1,6 @@
 /*
 Copyright (C) 2014 by Piotr Majcherczyk <fynxor [at] gmail [dot] com>
+Copyright (C) 2014 by Bartosz Szreder <szreder [at] mimuw [dot] edu [dot] pl>
 This file is part of BTech Project.
 
 	BTech Project is free software: you can redistribute it and/or modify
@@ -36,7 +37,7 @@ BTMapManager::~BTMapManager()
 
 void BTMapManager::initBaseFunctions()
 {
-	if (!DataManager::loadFromFile(BTech::Paths::DATA_PATH))
+	if (!DataManager::loadFromFile(BTech::resolvePath(BTech::Paths::DATA_PATH)))
 		qWarning() << "Load data failed!";
 	else
 		qDebug() << "Data loaded.";
@@ -142,7 +143,7 @@ void BTMapManager::onLoadMapAction()
 {
 	if (!map->loadMap(QFileDialog::getOpenFileName(this,
 	                                               BTech::Strings::DialogOpenFile,
-	                                               BTech::Paths::MAPS_PATH,
+	                                               BTech::resolvePath(BTech::Paths::MAPS_PATH),
 	                                               BTech::Strings::DialogBTechMapFiles)))
 		return;
 	startMapManagement();

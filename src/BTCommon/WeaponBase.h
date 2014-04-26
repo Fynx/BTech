@@ -23,6 +23,7 @@ This file is part of BTech Project.
 #include "BTCommon/CommonStrings.h"
 #include "BTCommon/EnumSerialization.h"
 #include "BTCommon/FileIO.h"
+#include "BTCommon/Paths.h"
 #include "BTCommon/Uid.h"
 #include "BTCommon/Utils.h"
 
@@ -215,8 +216,8 @@ public:
 	void setChanged(bool changed);
 
 	static WeaponModel & getInstance();
-	static bool loadFromFile(const QString &fileName);
-	static bool saveToFile(const QString &fileName);
+	static bool loadFromFile(const QString &fileName = BTech::Paths::WEAPONS_PATH);
+	static bool saveToFile(const QString &fileName = BTech::Paths::WEAPONS_PATH);
 
 	static void addNewWeapon();
 	static bool empty();

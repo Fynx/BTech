@@ -1,5 +1,6 @@
 /*
 Copyright (C) 2014 by Piotr Majcherczyk <fynxor [at] gmail [dot] com>
+Copyright (C) 2014 by Bartosz Szreder <szreder [at] mimuw [dot] edu [dot] pl>
 This file is part of BTech Project.
 
 	BTech Project is free software: you can redistribute it and/or modify
@@ -20,10 +21,17 @@ This file is part of BTech Project.
 
 namespace BTech {
 	namespace Paths {
-		const QString BASE_DIR_PATH = "../";
-		const QString WEAPONS_PATH  = BASE_DIR_PATH + "data/weapons/weapons.bin";
-		const QString MECHS_PATH    = BASE_DIR_PATH + "data/mechs/mechs.bin";
-		const QString MAPS_PATH     = BASE_DIR_PATH + "data/maps";
-		const QString DATA_PATH     = BASE_DIR_PATH + "data/data.bin";
+		const QString WEAPONS_PATH  = "data/weapons/weapons.bin";
+		const QString MECHS_PATH    = "data/mechs/mechs.bin";
+		const QString MAPS_PATH     = "data/maps";
+		const QString DATA_PATH     = "data/data.bin";
+	}
+
+	QString resolvePath(const QString &path)
+	{
+		static const QString BASE_PATH = "../";
+		if (QDir::isAbsolutePath(path))
+			return path;
+		return QCoreApplication::applicationDirPath() + '/' + BASE_PATH + path;
 	}
 }

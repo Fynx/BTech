@@ -113,13 +113,6 @@ namespace BTech {
 
 		const QString QuitWithoutSavingWarning = QObject::tr("Data has been changed. Do you want to save it?");
 	}
-
-	namespace Paths {
-		const QString ICON_LIST_ADD    = "data/icons/list-add.png";
-		const QString ICON_LIST_REMOVE = "data/icons/list-remove.png";
-		const QString ICON_ARROW_UP    = "data/icons/arrow-up";
-		const QString ICON_ARROW_DOWN  = "data/icons/arrow-down.png";
-	}
 }
 
 #endif // BTMEDITOR_STRINGS_H

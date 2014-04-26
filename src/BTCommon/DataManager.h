@@ -28,8 +28,8 @@ class DataManager
 public:
 	static DataManager & getInstance();
 
-	static bool loadFromFile(const QString &fileName);
-	static bool saveToFile(const QString &fileName);
+	static bool loadFromFile(const QString &fileName = BTech::Paths::DATA_PATH);
+	static bool saveToFile(const QString &fileName = BTech::Paths::DATA_PATH);
 
 private:
 	explicit DataManager();

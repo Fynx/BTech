@@ -183,8 +183,8 @@ public:
 	void setChanged(bool changed);
 
 	static MechModel & getInstance();
-	static bool loadFromFile(const QString &fileName);
-	static bool saveToFile(const QString &fileName);
+	static bool loadFromFile(const QString &fileName = BTech::Paths::MECHS_PATH);
+	static bool saveToFile(const QString &fileName = BTech::Paths::MECHS_PATH);
 
 	static void addNewMech();
 	static bool empty();
