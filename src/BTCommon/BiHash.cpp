@@ -20,7 +20,6 @@ This file is part of BTech Project.
 
 #include "BTCommon/BiHash.h"
 #include "BTCommon/Position.h"
-#include "BTCommon/Utils.h"
 
 template <typename T, typename U>
 BiHash <T, U>::BiHash(std::initializer_list <std::pair <T, U> > initList)
@@ -30,27 +29,27 @@ BiHash <T, U>::BiHash(std::initializer_list <std::pair <T, U> > initList)
 }
 
 template <typename T, typename U>
-U & BiHash <T, U>::operator [] (const T &arg)
-{
-	return left[arg];
-}
-
-template <typename T, typename U>
 U BiHash <T, U>::operator [] (const T &arg) const
 {
 	return left[arg];
 }
 
 template <typename T, typename U>
-T & BiHash <T, U>::operator [] (const U &arg)
+T BiHash <T, U>::operator [] (const U &arg) const
 {
 	return right[arg];
 }
 
 template <typename T, typename U>
-T BiHash <T, U>::operator [] (const U &arg) const
+bool BiHash <T, U>::contains(const T &arg) const
 {
-	return right[arg];
+	return left.contains(arg);
+}
+
+template <typename T, typename U>
+bool BiHash <T, U>::contains(const U &arg) const
+{
+	return right.contains(arg);
 }
 
 template <typename T, typename U>

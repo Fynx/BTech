@@ -35,11 +35,11 @@ public:
 	BiHash & operator = (const BiHash &biHash) = default;
 	BiHash & operator = (BiHash &&biHash) = default;
 
-	// non-const operators should not be used - not until they work properly
-	U & operator [] (const T &arg);
 	U operator [] (const T &arg) const;
-	T & operator [] (const U &arg);
 	T operator [] (const U &arg) const;
+
+	bool contains(const T &arg) const;
+	bool contains(const U &arg) const;
 
 	void insert(const T &lhs, const U &rhs);
 	void insert(const U &lhs, const T &rhs);
