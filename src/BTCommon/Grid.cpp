@@ -25,7 +25,7 @@ Grid::Grid(QVector <Hex *> &vector, int width, int height)
 	walkRangeVisible = false;
 	shootRangeVisible = false;
 
-	countPoints(width, height, GraphicsHex::getSize());
+	countPoints(width, height);
 	GraphicsEntity::setPathFinder(this);
 }
 
@@ -116,7 +116,7 @@ Direction Grid::getAttackDirection(Direction unitDirection, Direction attackDire
 	return result;
 }
 
-void Grid::countPoints(int width, int height, int hexS)	/// TODO - we want HEXES, not potatoes
+void Grid::countPoints(int width, int height)
 {
 	int leftBorder  = GraphicsHex::getSize();
 	int upperBorder = -GraphicsHex::getSize();

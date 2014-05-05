@@ -67,7 +67,7 @@ public:
 
 private:
 	void initTemp();
-	void countPoints(int width, int height, int hexS = GraphicsHex::getSize());
+	void countPoints(int width, int height);
 	void initHex(Hex *hex);
 
 	int width;      /**< Number of Hexes in the row. */
