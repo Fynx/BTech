@@ -66,8 +66,7 @@ public:
 	Direction getAttackDirection(Direction unitDirection, Direction attackDirection) const;
 
 private:
-	void initTemp();
-	void countPoints(int width, int height);
+	void initGrid(int width, int height);
 	void initHex(Hex *hex);
 
 	int width;      /**< Number of Hexes in the row. */
