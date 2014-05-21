@@ -20,7 +20,7 @@ This file is part of BTech Project.
 #define BTMEDITOR_UTILS_H
 
 #include <QtWidgets>
-#include "BTMapEditor/Strings.h"
+#include "BTMapEditor/MapEditorStrings.h"
 
 namespace BTech {
 

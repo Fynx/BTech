@@ -28,7 +28,6 @@ This file is part of BTech Project.
 #include "BTCommon/InfoBar.h"
 #include "BTCommon/Settings.h"
 #include "BTGame/LogWindow.h"
-#include "BTGame/Strings.h"
 #include "BTGame/SideBar.h"
 
 /**

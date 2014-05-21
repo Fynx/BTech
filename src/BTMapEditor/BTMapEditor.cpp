@@ -17,6 +17,7 @@ This file is part of BTech Project.
 	along with BTech.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "BTCommon/CommonSettings.h"
 #include "BTCommon/DataManager.h"
 #include "BTCommon/Paths.h"
 #include "BTCommon/Settings.h"
@@ -124,18 +125,18 @@ void BTMapEditor::initSystem()
 
 void BTMapEditor::readSettings()
 {
-	restoreGeometry(Settings::value("editor/geometry").toByteArray());
+	restoreGeometry(Settings::value(BTech::Settings::Window::Geometry).toByteArray());
 }
 
 void BTMapEditor::writeSettings()
 {
-	Settings::setValue("editor/geometry", saveGeometry());
+	Settings::setValue(BTech::Settings::Window::Geometry, saveGeometry());
 	Settings::sync();
 }
 
 bool BTMapEditor::saveMap(const QString &path)
 {
-	if (path.size() == 0)
+	if (path.isEmpty())
 		return false;
 	QFile file(path);
 	if (!file.open(QIODevice::WriteOnly))

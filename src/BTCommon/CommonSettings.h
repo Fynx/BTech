@@ -1,5 +1,4 @@
 /*
-Copyright (C) 2014 by Piotr Majcherczyk <fynxor [at] gmail [dot] com>
 Copyright (C) 2014 by Bartosz Szreder <szreder [at] mimuw [dot] edu [dot] pl>
 This file is part of BTech Project.
 
@@ -17,21 +16,19 @@ This file is part of BTech Project.
 	along with BTech.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "BTCommon/Paths.h"
+#ifndef BTCOMMON_SETTINGS_H
+#define BTCOMMON_SETTINGS_H
+
+#include <QtCore>
 
 namespace BTech {
-	namespace Paths {
-		const QString WEAPONS_PATH  = "data/weapons/weapons.bin";
-		const QString MECHS_PATH    = "data/mechs/mechs.bin";
-		const QString MAPS_PATH     = "data/maps";
-		const QString DATA_PATH     = "data/data.bin";
-	}
+	namespace Settings {
+		namespace Window {
+			const QString BASE_SETTING_PATH = "window/";
 
-	QString resolvePath(const QString &path)
-	{
-		static const QString BASE_PATH = "../";
-		if (QDir::isAbsolutePath(path))
-			return path;
-		return QCoreApplication::applicationDirPath() + '/' + BASE_PATH + path;
+			const QString Geometry = BASE_SETTING_PATH + "geometry";
+		};
 	}
 }
+
+#endif

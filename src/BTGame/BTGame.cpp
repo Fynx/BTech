@@ -16,7 +16,9 @@ This file is part of BTech Project.
 	along with BTech.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "BTCommon/CommonSettings.h"
 #include "BTGame/BTGame.h"
+#include "BTGame/GameStrings.h"
 
 /* constructor */
 BTGame::BTGame()
@@ -97,12 +99,12 @@ void BTGame::initMenu()
 
 void BTGame::readSettings()
 {
-	restoreGeometry(Settings::value("game/geometry").toByteArray());
+	restoreGeometry(Settings::value(BTech::Settings::Window::Geometry).toByteArray());
 }
 
 void BTGame::writeSettings()
 {
-	Settings::setValue("game/geometry", saveGeometry());
+	Settings::setValue(BTech::Settings::Window::Geometry, saveGeometry());
 	Settings::sync();
 }
 

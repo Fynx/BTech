@@ -17,6 +17,7 @@ This file is part of BTech Project.
 */
 
 #include "BTCommon/EnumHashFunctions.h"
+#include "BTGame/GameStrings.h"
 #include "BTGame/SideBar.h"
 
 /**

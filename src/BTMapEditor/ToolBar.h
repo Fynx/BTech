@@ -21,12 +21,17 @@ This file is part of BTech Project.
 #define TOOLBAR_H
 
 #include <QtWidgets>
-#include "BTCommon/Map.h"
-#include "BTMapEditor/Strings.h"
-#include "BTMapEditor/ClickModeManager.h"
-#include "BTMapEditor/MapPropertiesManager.h"
-#include "BTMapEditor/TerrainManager.h"
-#include "BTMapEditor/UnitsManager.h"
+#include "BTCommon/Position.h"
+#include "BTCommon/Utils.h"
+
+class ClickModeManager;
+class Hex;
+class Map;
+class MapPropertiesManager;
+class MechEntity;
+class Player;
+class TerrainManager;
+class UnitsManager;
 
 /**
  * \class ToolBar

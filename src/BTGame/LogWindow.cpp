@@ -17,8 +17,8 @@ This file is part of BTech Project.
 */
 
 #include "BTCommon/Colors.h"
+#include "BTGame/GameStrings.h"
 #include "BTGame/LogWindow.h"
-#include "BTGame/Strings.h"
 
 const QColor LogWindow::DefaultLogColor = Qt::white;
 

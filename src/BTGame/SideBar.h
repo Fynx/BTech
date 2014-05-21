@@ -21,7 +21,6 @@ This file is part of BTech Project.
 
 #include <QtWidgets>
 #include "BTCommon/MechEntity.h"
-#include "BTGame/Strings.h"
 
 /**
  * \class ActionLabel

@@ -17,7 +17,13 @@ This file is part of BTech Project.
 	along with BTech.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "BTCommon/Map.h"
+#include "BTMapEditor/ClickModeManager.h"
+#include "BTMapEditor/MapEditorStrings.h"
+#include "BTMapEditor/MapPropertiesManager.h"
+#include "BTMapEditor/TerrainManager.h"
 #include "BTMapEditor/ToolBar.h"
+#include "BTMapEditor/UnitsManager.h"
 
 /**
  * \class ToolBar

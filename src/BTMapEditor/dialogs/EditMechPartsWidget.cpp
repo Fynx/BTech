@@ -18,7 +18,7 @@ This file is part of BTech Project.
 */
 
 #include "BTMapEditor/dialogs/EditMechPartsWidget.h"
-#include "BTMapEditor/Paths.h"
+#include "BTMapEditor/MapEditorPaths.h"
 
 /**
  * \class EditMechPartsWidget
