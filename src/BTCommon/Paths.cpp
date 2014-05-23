@@ -21,10 +21,30 @@ This file is part of BTech Project.
 
 namespace BTech {
 	namespace Paths {
-		const QString WEAPONS_PATH  = "data/weapons/weapons.bin";
-		const QString MECHS_PATH    = "data/mechs/mechs.bin";
-		const QString MAPS_PATH     = "data/maps";
-		const QString DATA_PATH     = "data/data.bin";
+		const QString DATA_DIR_PATH = "data/";
+
+		const QString DATA_PATH     = DATA_DIR_PATH + "data.bin";
+		const QString MAPS_PATH     = DATA_DIR_PATH + "maps";
+		const QString MECHS_PATH    = DATA_DIR_PATH + "mechs/mechs.bin";
+		const QString WEAPONS_PATH  = DATA_DIR_PATH + "weapons/weapons.bin";
+
+		namespace Tiles {
+			const QString TILES_PATH                = DATA_DIR_PATH + "tiles/";
+
+			const QString CLEAR_TERRAIN_PATH        = TILES_PATH + "clear/";
+			const QString LIGHT_WOODS_TERRAIN_PATH  = TILES_PATH + "light_woods/";
+			const QString HEAVY_WOODS_TERRAIN_PATH  = TILES_PATH + "heavy_woods/";
+			const QString ROUGH_TERRAIN_PATH        = TILES_PATH + "rough/";
+			const QString WATER_TERRAIN_PATH        = TILES_PATH + "water/";
+
+			const BiHash <Terrain, QString> terrainTilePathMap {
+				{Terrain::Clear,      CLEAR_TERRAIN_PATH},
+				{Terrain::LightWoods, LIGHT_WOODS_TERRAIN_PATH},
+				{Terrain::HeavyWoods, HEAVY_WOODS_TERRAIN_PATH},
+				{Terrain::Rough,      ROUGH_TERRAIN_PATH},
+				{Terrain::Water,      WATER_TERRAIN_PATH}
+			};
+		}
 	}
 
 	QString resolvePath(const QString &path)

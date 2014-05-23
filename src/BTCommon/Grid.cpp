@@ -1,5 +1,6 @@
 /*
 Copyright (C) 2014 by Piotr Majcherczyk <fynxor [at] gmail [dot] com>
+Copyright (C) 2014 by Bartosz Szreder <szreder [at] mimuw [dot] edu [dot] pl>
 This file is part of BTech Project.
 
 	BTech Project is free software: you can redistribute it and/or modify
@@ -17,6 +18,7 @@ This file is part of BTech Project.
 */
 
 #include "BTCommon/Grid.h"
+#include "BTCommon/TileManager.h"
 #include <limits>
 
 Grid::Grid(QVector <Hex *> &vector, int width, int height)
@@ -122,10 +124,13 @@ void Grid::initGrid(int width, int height)
 	int upperBorder = -GraphicsHex::getSize();
 
 	for (int i = 0; i < height; ++i) {
-		for (int j = 0; j < width; ++j)
-			GraphicsFactory::get(hexes[i * width + j])->setPos({
-				qreal(leftBorder + j * GraphicsHex::getSize() * 3 / 2),
-				qreal(upperBorder + (i * 2 + (j % 2 == 0)) * GraphicsHex::getSize())});
+		for (int j = 0; j < width; ++j) {
+			GraphicsHex *gHex = GraphicsFactory::get(hexes[i * width + j]);
+			qreal x = leftBorder + j * GraphicsHex::getSize() * 3 / 2;
+			qreal y = upperBorder + (i * 2 + (j % 2 == 0)) * GraphicsHex::getSize();
+			gHex->setPos(x, y);
+			gHex->setTile(TileManager::tile(qMakePair(i, j)));
+		}
 	}
 	for (Hex *hex : hexes)
 		initHex(hex);

@@ -18,6 +18,8 @@ This file is part of BTech Project.
 */
 
 #include "BTMapEditor/TerrainManager.h"
+#include "BTCommon/Paths.h"
+#include "BTCommon/TerrainTileModel.h"
 
 /**
  * \class TerrainManager
@@ -35,25 +37,20 @@ BTech::Terrain TerrainManager::currentTerrain() const
 
 void TerrainManager::initTerrainList()
 {
-	QButtonGroup *terrainGroup = new QButtonGroup(this);
-	QVBoxLayout *layout = new QVBoxLayout;
-	layout->setAlignment(Qt::AlignTop);
 	for (BTech::Terrain terrain : BTech::terrainTypes) {
 		QString terrainName = BTech::terrainStringChange[terrain];
-		QRadioButton *terrainButton = new QRadioButton(terrainName);
-		terrainGroup->addButton(terrainButton);
-		layout->addWidget(terrainButton);
+		QListView *terrainListView = new QListView;
+		terrainListView->setModel(new TerrainTileModel(BTech::resolvePath(BTech::Paths::Tiles::terrainTilePathMap[terrain]), this));
+		addTab(terrainListView, terrainName);
+		widgetTerrainMap[terrainListView] = terrain;
 	}
-	setLayout(layout);
-	connect(terrainGroup, static_cast<void (QButtonGroup::*)(QAbstractButton *)>(&QButtonGroup::buttonClicked), this, &TerrainManager::onTerrainChosen);
 
-	QAbstractButton *checkedButton = terrainGroup->buttons()[0];
-	checkedButton->setChecked(true);
-	onTerrainChosen(checkedButton);
+	connect(this, &QTabWidget::currentChanged, this, &TerrainManager::onTerrainChosen);
+	onTerrainChosen();
 }
 
-void TerrainManager::onTerrainChosen(QAbstractButton *button)
+void TerrainManager::onTerrainChosen()
 {
-	currentTerrain_ = BTech::terrainStringChange[button->text()];
+	currentTerrain_ = widgetTerrainMap[currentWidget()];
 	emit terrainChosen(currentTerrain_);
 }

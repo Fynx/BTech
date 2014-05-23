@@ -1,5 +1,4 @@
 /*
-Copyright (C) 2014 by Piotr Majcherczyk <fynxor [at] gmail [dot] com>
 Copyright (C) 2014 by Bartosz Szreder <szreder [at] mimuw [dot] edu [dot] pl>
 This file is part of BTech Project.
 
@@ -17,35 +16,30 @@ This file is part of BTech Project.
 	along with BTech.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef TERRAIN_MANAGER_H
-#define TERRAIN_MANAGER_H
+#ifndef TILE_H
+#define TILE_H
 
-#include <QtWidgets>
-#include "BTMapEditor/ManagersUtils.h"
+#include <QtGui>
 
-/**
- * \class TerrainManager
- */
-class TerrainManager : public QTabWidget
-{
-Q_OBJECT;
+#include "BTCommon/Uid.h"
+
+class Tile {
 
 public:
-	TerrainManager();
+	static const int TileSize = 64;
 
-	BTech::Terrain currentTerrain() const;
+	Tile() = default;
+	Tile(QImage image, UID uid);
 
-signals:
-	void terrainChosen(BTech::Terrain terrain);
+	QImage currentFrame() const;
+	QString fileName() const;
+	QImage frame(unsigned int frame) const;
+	int frames() const;
+	UID uid() const;
 
 private:
-	void initTerrainList();
-
-	BTech::Terrain currentTerrain_;
-	QHash <QWidget *, BTech::Terrain> widgetTerrainMap;
-
-private slots:
-	void onTerrainChosen();
+	QVector <QImage> frames_;
+	const UID uid_;
 };
 
-#endif // TERRAIN_MANAGER_H
+#endif

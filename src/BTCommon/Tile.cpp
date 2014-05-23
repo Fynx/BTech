@@ -1,5 +1,4 @@
 /*
-Copyright (C) 2014 by Piotr Majcherczyk <fynxor [at] gmail [dot] com>
 Copyright (C) 2014 by Bartosz Szreder <szreder [at] mimuw [dot] edu [dot] pl>
 This file is part of BTech Project.
 
@@ -17,35 +16,40 @@ This file is part of BTech Project.
 	along with BTech.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef TERRAIN_MANAGER_H
-#define TERRAIN_MANAGER_H
+#include "BTCommon/Tile.h"
+#include "BTCommon/TileManager.h"
 
-#include <QtWidgets>
-#include "BTMapEditor/ManagersUtils.h"
-
-/**
- * \class TerrainManager
- */
-class TerrainManager : public QTabWidget
+Tile::Tile(QImage image, UID uid)
+	: uid_(uid)
 {
-Q_OBJECT;
+	Q_ASSERT(image.height() == TileSize && image.width() % TileSize == 0);
 
-public:
-	TerrainManager();
+	int frames = image.width() / TileSize;
+	for (int i = 0; i < frames; ++i)
+		frames_.push_back(image.copy(i * TileSize, 0, TileSize, TileSize));
+}
 
-	BTech::Terrain currentTerrain() const;
+QImage Tile::currentFrame() const
+{
+	return frames_[TileManager::currentFrame() % frames()];
+}
 
-signals:
-	void terrainChosen(BTech::Terrain terrain);
+QString Tile::fileName() const
+{
+	return TileManager::fileName(uid_);
+}
 
-private:
-	void initTerrainList();
+QImage Tile::frame(unsigned int frame) const
+{
+	return frames_[frame % frames()];
+}
 
-	BTech::Terrain currentTerrain_;
-	QHash <QWidget *, BTech::Terrain> widgetTerrainMap;
+int Tile::frames() const
+{
+	return frames_.count();
+}
 
-private slots:
-	void onTerrainChosen();
-};
-
-#endif // TERRAIN_MANAGER_H
+UID Tile::uid() const
+{
+	return uid_;
+}

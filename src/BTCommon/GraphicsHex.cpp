@@ -20,6 +20,7 @@ This file is part of BTech Project.
 #include "BTCommon/GraphicsFactory.h"
 
 #include "BTCommon/GraphicsHex.h"
+#include "BTCommon/Tile.h"
 
 bool GraphicsHex::gridVisible = false;
 bool GraphicsHex::coordinatesVisible = false;
@@ -85,7 +86,7 @@ int GraphicsHex::getSize()
 }
 
 GraphicsHex::GraphicsHex(Hex *hex)
-	: hex(hex)
+	: hex(hex), tile(nullptr)
 {
 	setParent(hex);
 	init();
@@ -196,12 +197,24 @@ QPainterPath GraphicsHex::shape() const
 	return path;
 }
 
+const Tile * GraphicsHex::getTile() const
+{
+	return this->tile;
+}
+
+void GraphicsHex::setTile(const Tile *tile)
+{
+	this->tile = tile;
+}
+
 void GraphicsHex::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
-	// TODO replace with an image
 	painter->setBrush(BTech::terrainColorMap[hex->getTerrain()]);
 	painter->setPen(Qt::NoPen);
 	painter->drawPath(shape());
+
+	if (tile != nullptr)
+		painter->drawImage(QRect(-DEFAULT_HEX_SIZE, -DEFAULT_HEX_SIZE, 2 * DEFAULT_HEX_SIZE, 2 * DEFAULT_HEX_SIZE), tile->currentFrame());
 
 	if (areCoordinatesVisible()) {
 		painter->setBrush(Color::CoordinatesBackground);

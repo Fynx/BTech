@@ -28,6 +28,9 @@ set (BTCommon_SRCS
 	Position.cpp
 	Rules.cpp
 	Settings.cpp
+	TerrainTileModel.cpp
+	Tile.cpp
+	TileManager.cpp
 	Utils.cpp
 	Weapon.cpp
 	WeaponBase.cpp

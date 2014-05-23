@@ -24,6 +24,7 @@ This file is part of BTech Project.
 #include "BTCommon/Utils.h"
 
 class GridGraphicsObject;
+class Tile;
 
 class GraphicsHex : public QGraphicsObject
 {
@@ -56,6 +57,8 @@ public:
 
 	QRectF boundingRect() const;
 	QPainterPath shape() const;
+	const Tile * getTile() const;
+	void setTile(const Tile *tile);
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option = nullptr, QWidget *widget = nullptr);
 	void paintBaseGrid(QPainter *painter);
 	void paintPropertyGrid(QPainter *painter);
@@ -100,6 +103,7 @@ private:
 	};
 
 	Hex *hex;
+	const Tile *tile;
 
 	static const QPoint nodes[BTech::NODES_NUMBER];
 

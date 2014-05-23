@@ -1,5 +1,6 @@
 /*
 Copyright (C) 2014 by Piotr Majcherczyk <fynxor [at] gmail [dot] com>
+Copyright (C) 2014 by Bartosz Szreder <szreder [at] mimuw [dot] edu [dot] pl>
 This file is part of BTech Project.
 
 	BTech Project is free software: you can redistribute it and/or modify
@@ -18,6 +19,7 @@ This file is part of BTech Project.
 
 #include "BTCommon/EnumHashFunctions.h"
 #include "BTCommon/Map.h"
+#include "BTCommon/TileManager.h"
 
 const QColor Map::DefaultMessageColor = Qt::white;
 
@@ -69,7 +71,7 @@ void Map::createNewMap(int width, int height)
 	setCurrentSubPhase(GameSubPhase::None);
 }
 
-bool Map::loadMap(const QString& mapFileName)
+bool Map::loadMap(const QString &mapFileName)
 {
 	QFile file(mapFileName);
 	if (!file.open(QIODevice::ReadOnly))
@@ -196,7 +198,7 @@ BTech::GamePhase Map::getCurrentPhase() const
 QDataStream & operator << (QDataStream &out, const Map &map)
 {
 	out << map.mapFileName << map.description << map.allowedVersions;
-	qDebug() << "Saving map" << map.mapFileName;
+	qDebug() << "Saving map" << map.mapFileName << "...";
 
 	out << Rules::getVersion();
 
@@ -207,6 +209,8 @@ QDataStream & operator << (QDataStream &out, const Map &map)
 	out << map.players.size();
 	for (Player *player : map.players)
 		out << *player;
+
+	TileManager::saveTileDictionary(out, map.hexes);
 
 	qDebug() << "Done";
 
@@ -240,6 +244,10 @@ QDataStream & operator >> (QDataStream &in, Map &map)
 	}
 
 	qDebug() << "Players loaded.";
+
+	TileManager::loadTileDictionary(in, map.hexes);
+	qDebug() << "Tiles loaded.";
+
 	qDebug() << "Done.\n";
 
 	return in;

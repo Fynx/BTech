@@ -22,12 +22,28 @@ This file is part of BTech Project.
 
 #include <QtCore>
 
+#include "BTCommon/Position.h"
+
 namespace BTech {
 	namespace Paths {
-		extern const QString WEAPONS_PATH;
-		extern const QString MECHS_PATH;
-		extern const QString MAPS_PATH;
+		extern const QString DATA_DIR_PATH;
+
 		extern const QString DATA_PATH;
+		extern const QString MAPS_PATH;
+		extern const QString MECHS_PATH;
+		extern const QString WEAPONS_PATH;
+
+		namespace Tiles {
+			extern const QString TILES_PATH;
+
+			extern const QString CLEAR_TERRAIN_PATH;
+			extern const QString LIGHT_WOODS_TERRAIN_PATH;
+			extern const QString HEAVY_WOODS_TERRAIN_PATH;
+			extern const QString ROUGH_TERRAIN_PATH;
+			extern const QString WATER_TERRAIN_PATH;
+
+			extern const BiHash <Terrain, QString> terrainTilePathMap;
+		}
 	}
 
 	QString resolvePath(const QString &path);
