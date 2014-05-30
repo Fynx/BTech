@@ -29,7 +29,7 @@ public:
 	static const int TileSize = 64;
 
 	Tile() = default;
-	Tile(QImage image, UID uid);
+	Tile(QImage image);
 
 	QImage currentFrame() const;
 	QString fileName() const;
@@ -39,7 +39,6 @@ public:
 
 private:
 	QVector <QImage> frames_;
-	const UID uid_;
 };
 
 #endif

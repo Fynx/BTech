@@ -27,78 +27,81 @@ unsigned int TileManager::currentFrame()
 	return 0;
 }
 
-QString TileManager::fileName(UID uid)
+QString TileManager::fileName(const Tile *tile)
 {
-	return instance().uidToFileInfo.value(uid, QFileInfo()).fileName();
+	return instance().tileToFileInfo.value(tile, QFileInfo()).fileName();
 }
 
 void TileManager::loadTileDictionary(QDataStream &in, const QVector <Hex *> &hexes)
 {
 	TileManager &manager = instance();
 
-	manager.coordToTile.clear();
-
 	QHash <UID, QString> tileDict;
-	QHash <UID, UID> uidRemap;
-	in >> tileDict >> manager.coordToTile;
-	for (QHash <UID, QString>::const_iterator i = tileDict.constBegin(); i != tileDict.constEnd(); ++i)
-		uidRemap[i.key()] = registerTile(i.value());
+	QHash <UID, const Tile *> idToTile;
+	QHash <QPair <int, int>, UID> coordToTileUid;
+	in >> tileDict >> coordToTileUid;
 
-	for (UID &uid : manager.coordToTile)
-		uid = uidRemap.value(uid, EmptyUid);
+	for (QHash <UID, QString>::const_iterator i = tileDict.constBegin(); i != tileDict.constEnd(); ++i) {
+		const Tile *tile = registerTile(i.value());
+		if (tile != nullptr)
+			idToTile[i.key()] = tile;
+	}
+
+	manager.coordToTile.clear();
+	for (QHash <QPair <int, int>, UID>::const_iterator i = coordToTileUid.constBegin(); i != coordToTileUid.constEnd(); ++i)
+		manager.coordToTile[i.key()] = idToTile[i.value()];
 }
 
-UID TileManager::registerTile(const QFileInfo &tileFile)
+const Tile * TileManager::registerTile(const QFileInfo &tileFile)
 {
 	TileManager &manager = instance();
 
 	const QString filePath = tileFile.filePath();
-	if (manager.pathToUid.contains(filePath))
-		return manager.pathToUid[filePath];
+	if (manager.pathToTile.contains(filePath))
+		return manager.pathToTile[filePath];
 
-	UID newTileUid = manager.nextUid_++;
-	while (manager.tileMap.contains(newTileUid))
-		newTileUid = manager.nextUid_++;
-
-	if (manager.loadTileImage(filePath, newTileUid))
-		return newTileUid;
-	else
-		return EmptyUid;
+	return manager.loadTileImage(filePath);
 }
 
 void TileManager::saveTileDictionary(QDataStream &out, const QVector <Hex *> &hexes)
 {
 	TileManager &manager = instance();
 
+	UID tileCnt = EmptyUid;
+	QHash <const Tile *, UID> tileToId;
 	QHash <UID, QString> tileDict;
+
 	manager.coordToTile.clear();
 	for (const Hex *hex : hexes) {
 		const GraphicsHex *graphicsHex = GraphicsFactory::get(hex);
 		const Tile *tile = graphicsHex->getTile();
 		if (tile != nullptr) {
-			const UID tileUid = tile->uid();
 			QPoint hexCoord = hex->getPoint();
+			UID tileUid;
+			if (tileToId.contains(tile)) {
+				tileUid = tileToId[tile];
+			} else {
+				tileUid = ++tileCnt;
+				tileToId[tile] = tileUid;
+			}
 
-			manager.coordToTile[qMakePair(hexCoord.x(), hexCoord.y())] = tileUid;
-			tileDict[tileUid] = manager.uidToFileInfo[tileUid].filePath();
+			manager.coordToTile[qMakePair(hexCoord.x(), hexCoord.y())] = tile;
+			tileDict[tileUid] = manager.tileToFileInfo[tile].filePath();
 		}
 	}
 
-	out << tileDict << manager.coordToTile << manager.nextUid_;
-}
-
-const Tile * TileManager::tile(UID uid)
-{
-	return instance().tileMap.value(uid, nullptr);
+	QHash <QPair <int, int>, UID> coordToTileUid;
+	for (QHash <QPair <int, int>, const Tile *>::const_iterator i = manager.coordToTile.constBegin(); i != manager.coordToTile.constEnd(); ++i)
+		coordToTileUid[i.key()] = tileToId[i.value()];
+	out << tileDict << coordToTileUid;
 }
 
 const Tile * TileManager::tile(QPair <int, int> hexCoord)
 {
-	return tile(instance().coordToTile.value(hexCoord, EmptyUid));
+	return instance().coordToTile.value(hexCoord, nullptr);
 }
 
 TileManager::TileManager()
-	: nextUid_(MinUid)
 {
 }
 
@@ -108,15 +111,16 @@ TileManager & TileManager::instance()
 	return instance_;
 }
 
-bool TileManager::loadTileImage(const QString &filePath, UID tileUid)
+const Tile * TileManager::loadTileImage(const QString &filePath)
 {
 	QImage image(filePath);
 	if (!image.isNull() && image.height() == Tile::TileSize && image.width() % Tile::TileSize == 0) {
-		pathToUid[filePath] = tileUid;
-		tileMap.insert(tileUid, new Tile(image, tileUid));
-		uidToFileInfo[tileUid] = filePath;
-		return true;
+		Tile *result = new Tile(image);
+		tiles.append(result);
+		pathToTile[filePath] = result;
+		tileToFileInfo[result] = filePath;
+		return result;
 	}
 
-	return false;
+	return nullptr;
 }

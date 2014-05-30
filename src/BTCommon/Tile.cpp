@@ -19,8 +19,7 @@ This file is part of BTech Project.
 #include "BTCommon/Tile.h"
 #include "BTCommon/TileManager.h"
 
-Tile::Tile(QImage image, UID uid)
-	: uid_(uid)
+Tile::Tile(QImage image)
 {
 	Q_ASSERT(image.height() == TileSize && image.width() % TileSize == 0);
 
@@ -36,7 +35,7 @@ QImage Tile::currentFrame() const
 
 QString Tile::fileName() const
 {
-	return TileManager::fileName(uid_);
+	return TileManager::fileName(this);
 }
 
 QImage Tile::frame(unsigned int frame) const
@@ -47,9 +46,4 @@ QImage Tile::frame(unsigned int frame) const
 int Tile::frames() const
 {
 	return frames_.count();
-}
-
-UID Tile::uid() const
-{
-	return uid_;
 }

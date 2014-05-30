@@ -19,7 +19,7 @@ This file is part of BTech Project.
 #ifndef TILE_MANAGER_H
 #define TILE_MANAGER_H
 
-#include "BTCommon/Uid.h"
+#include <QtCore>
 
 class Hex;
 class Tile;
@@ -30,11 +30,10 @@ public:
 	static const unsigned int FRAME_CHANGE_MSEC = 100;
 
 	static unsigned int currentFrame();
-	static QString fileName(UID uid);
+	static QString fileName(const Tile *tile);
 	static void loadTileDictionary(QDataStream &in, const QVector <Hex *> &hexes);
-	static UID registerTile(const QFileInfo &tileFile);
+	static const Tile * registerTile(const QFileInfo &tileFile);
 	static void saveTileDictionary(QDataStream &out, const QVector <Hex *> &hexes);
-	static const Tile * tile(UID uid);
 	static const Tile * tile(QPair <int, int> hexCoord);
 
 private:
@@ -43,13 +42,12 @@ private:
 	void operator = (const TileManager &) = delete;
 
 	static TileManager & instance();
-	bool loadTileImage(const QString &filePath, UID tileUid);
+	const Tile * loadTileImage(const QString &filePath);
 
-	UID nextUid_; //TODO use class Serial instead
-	QHash <QString, UID> pathToUid;
-	QHash <UID, QFileInfo> uidToFileInfo;
-	QHash <UID, Tile *> tileMap;
-	QHash <QPair <int, int>, UID> coordToTile;
+	QHash <QString, const Tile *> pathToTile;
+	QHash <const Tile *, QFileInfo> tileToFileInfo;
+	QVector <Tile *> tiles;
+	QHash <QPair <int, int>, const Tile *> coordToTile;
 };
 
 #endif

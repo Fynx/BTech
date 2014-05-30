@@ -53,8 +53,8 @@ void TerrainTileModel::loadTiles()
 	QDir tileDir(BTech::resolvePath(tileDir_));
 	QFileInfoList imgFileList = tileDir.entryInfoList({"*.png"}, QDir::Files | QDir::Readable);
 	for (QFileInfo imgFile : imgFileList) {
-		UID tileUid = TileManager::registerTile(imgFile);
-		if (tileUid != EmptyUid)
-			tiles_.append(TileManager::tile(tileUid));
+		const Tile *tile = TileManager::registerTile(imgFile);
+		if (tile != nullptr)
+			tiles_.append(tile);
 	}
 }
