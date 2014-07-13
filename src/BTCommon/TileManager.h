@@ -24,6 +24,11 @@ This file is part of BTech Project.
 class Hex;
 class Tile;
 
+inline uint qHash(const QPoint &p, uint seed = 0)
+{
+	return qHash(QPair <int, int>(p.x(), p.y()), seed);
+}
+
 class TileManager {
 
 public:
@@ -34,7 +39,8 @@ public:
 	static void loadTileDictionary(QDataStream &in, const QVector <Hex *> &hexes);
 	static const Tile * registerTile(const QFileInfo &tileFile);
 	static void saveTileDictionary(QDataStream &out, const QVector <Hex *> &hexes);
-	static const Tile * tile(QPair <int, int> hexCoord);
+	static const Tile * tile(const Hex *hex);
+	static const Tile * tile(QPoint hexCoord);
 
 private:
 	TileManager();
@@ -47,7 +53,7 @@ private:
 	QHash <QString, const Tile *> pathToTile;
 	QHash <const Tile *, QFileInfo> tileToFileInfo;
 	QVector <Tile *> tiles;
-	QHash <QPair <int, int>, const Tile *> coordToTile;
+	QHash <QPoint, const Tile *> coordToTile;
 };
 
 #endif

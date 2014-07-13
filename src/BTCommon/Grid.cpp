@@ -125,11 +125,12 @@ void Grid::initGrid(int width, int height)
 
 	for (int i = 0; i < height; ++i) {
 		for (int j = 0; j < width; ++j) {
-			GraphicsHex *gHex = GraphicsFactory::get(hexes[i * width + j]);
+			Hex *hex = hexes[i * width + j];
+			GraphicsHex *gHex = GraphicsFactory::get(hex);
 			qreal x = leftBorder + j * GraphicsHex::getSize() * 3 / 2;
 			qreal y = upperBorder + (i * 2 + (j % 2 == 0)) * GraphicsHex::getSize();
 			gHex->setPos(x, y);
-			gHex->setTile(TileManager::tile(qMakePair(i, j)));
+			gHex->setTile(TileManager::tile(hex));
 		}
 	}
 	for (Hex *hex : hexes)

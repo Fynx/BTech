@@ -38,7 +38,7 @@ void TileManager::loadTileDictionary(QDataStream &in, const QVector <Hex *> &hex
 
 	QHash <UID, QString> tileDict;
 	QHash <UID, const Tile *> idToTile;
-	QHash <QPair <int, int>, UID> coordToTileUid;
+	QHash <QPoint, UID> coordToTileUid;
 	in >> tileDict >> coordToTileUid;
 
 	for (QHash <UID, QString>::const_iterator i = tileDict.constBegin(); i != tileDict.constEnd(); ++i) {
@@ -48,7 +48,7 @@ void TileManager::loadTileDictionary(QDataStream &in, const QVector <Hex *> &hex
 	}
 
 	manager.coordToTile.clear();
-	for (QHash <QPair <int, int>, UID>::const_iterator i = coordToTileUid.constBegin(); i != coordToTileUid.constEnd(); ++i)
+	for (QHash <QPoint, UID>::const_iterator i = coordToTileUid.constBegin(); i != coordToTileUid.constEnd(); ++i)
 		manager.coordToTile[i.key()] = idToTile[i.value()];
 }
 
@@ -85,18 +85,23 @@ void TileManager::saveTileDictionary(QDataStream &out, const QVector <Hex *> &he
 				tileToId[tile] = tileUid;
 			}
 
-			manager.coordToTile[qMakePair(hexCoord.x(), hexCoord.y())] = tile;
+			manager.coordToTile[hexCoord] = tile;
 			tileDict[tileUid] = manager.tileToFileInfo[tile].filePath();
 		}
 	}
 
-	QHash <QPair <int, int>, UID> coordToTileUid;
-	for (QHash <QPair <int, int>, const Tile *>::const_iterator i = manager.coordToTile.constBegin(); i != manager.coordToTile.constEnd(); ++i)
+	QHash <QPoint, UID> coordToTileUid;
+	for (QHash <QPoint, const Tile *>::const_iterator i = manager.coordToTile.constBegin(); i != manager.coordToTile.constEnd(); ++i)
 		coordToTileUid[i.key()] = tileToId[i.value()];
 	out << tileDict << coordToTileUid;
 }
 
-const Tile * TileManager::tile(QPair <int, int> hexCoord)
+const Tile * TileManager::tile(const Hex *hex)
+{
+	return instance().tile(hex->getPoint());
+}
+
+const Tile * TileManager::tile(QPoint hexCoord)
 {
 	return instance().coordToTile.value(hexCoord, nullptr);
 }
