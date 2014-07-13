@@ -217,9 +217,12 @@ void BTMapEditor::onHexClicked(Hex *hex)
 			if (toolBar->currentUnit() != EmptyUid)
 				map->addMechToHex(new MechEntity(toolBar->currentUnit()), hex, toolBar->currentPlayer());
 			break; // responsibility for the new allocated MechEntity goes to GraphicsMap.
-		case ToolBar::Mode::Terrain:
+		case ToolBar::Mode::Terrain: {
 			hex->setTerrain(toolBar->currentTerrain());
+			GraphicsHex *gHex = GraphicsFactory::get(hex);
+			gHex->setTile(toolBar->currentTile());
 			break;
+		}
 		default:;
 	}
 

@@ -39,6 +39,11 @@ QVariant TerrainTileModel::data(const QModelIndex &index, int role) const
 	return QVariant();
 }
 
+const Tile * TerrainTileModel::getTile(int idx) const
+{
+	return tiles_[idx];
+}
+
 int TerrainTileModel::rowCount(const QModelIndex &parent) const
 {
 	if (parent.isValid())

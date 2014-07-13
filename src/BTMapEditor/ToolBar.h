@@ -32,6 +32,7 @@ class MapPropertiesManager;
 class MechEntity;
 class Player;
 class TerrainManager;
+class Tile;
 class UnitsManager;
 
 /**
@@ -53,6 +54,7 @@ public:
 	Mode currentMode() const;
 	Player * currentPlayer() const;
 	BTech::Terrain currentTerrain() const;
+	const Tile * currentTile() const;
 	UID currentUnit() const;
 
 	void setPlayers(QVector <Player *> &players);

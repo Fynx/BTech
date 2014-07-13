@@ -22,6 +22,23 @@ This file is part of BTech Project.
 #include "BTCommon/TerrainTileModel.h"
 
 /**
+ * \class TerrainTileView
+ */
+
+TerrainTileView::TerrainTileView(TerrainTileModel *model, QWidget *parent)
+	: QListView(parent), model_(model)
+{
+	setModel(model_);
+}
+
+const Tile * TerrainTileView::currentTile() const
+{
+	if (currentIndex() == QModelIndex())
+		return nullptr;
+	return model_->getTile(currentIndex().row());
+}
+
+/**
  * \class TerrainManager
  */
 
@@ -35,14 +52,21 @@ BTech::Terrain TerrainManager::currentTerrain() const
 	return currentTerrain_;
 }
 
+const Tile * TerrainManager::currentTile() const
+{
+	TerrainTileView *tileView = qobject_cast<TerrainTileView *>(currentWidget());
+	Q_ASSERT(tileView != nullptr);
+	return tileView->currentTile();
+}
+
 void TerrainManager::initTerrainList()
 {
 	for (BTech::Terrain terrain : BTech::terrainTypes) {
 		QString terrainName = BTech::terrainStringChange[terrain];
-		QListView *terrainListView = new QListView;
-		terrainListView->setModel(new TerrainTileModel(BTech::resolvePath(BTech::Paths::Tiles::terrainTilePathMap[terrain]), this));
-		addTab(terrainListView, terrainName);
-		widgetTerrainMap[terrainListView] = terrain;
+		TerrainTileModel *tileModel = new TerrainTileModel(BTech::resolvePath(BTech::Paths::Tiles::terrainTilePathMap[terrain]));
+		TerrainTileView *tileView = new TerrainTileView(tileModel);
+		addTab(tileView, terrainName);
+		widgetTerrainMap[tileView] = terrain;
 	}
 
 	connect(this, &QTabWidget::currentChanged, this, &TerrainManager::onTerrainChosen);
@@ -52,5 +76,4 @@ void TerrainManager::initTerrainList()
 void TerrainManager::onTerrainChosen()
 {
 	currentTerrain_ = widgetTerrainMap[currentWidget()];
-	emit terrainChosen(currentTerrain_);
 }

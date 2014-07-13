@@ -27,6 +27,7 @@ public:
 	TerrainTileModel(const QString &tileDir, QObject *parent = nullptr);
 
 	QVariant data(const QModelIndex &index, int role) const;
+	const Tile * getTile(int idx) const;
 	int rowCount(const QModelIndex &parent = QModelIndex()) const;
 
 private:

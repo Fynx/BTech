@@ -23,6 +23,24 @@ This file is part of BTech Project.
 #include <QtWidgets>
 #include "BTMapEditor/ManagersUtils.h"
 
+class Tile;
+class TerrainTileModel;
+
+/**
+ * \class TerrainTileView
+ */
+class TerrainTileView : public QListView {
+Q_OBJECT;
+
+public:
+	TerrainTileView(TerrainTileModel *model, QWidget *parent = nullptr);
+
+	const Tile * currentTile() const;
+
+private:
+	TerrainTileModel *model_;
+};
+
 /**
  * \class TerrainManager
  */
@@ -34,9 +52,7 @@ public:
 	TerrainManager();
 
 	BTech::Terrain currentTerrain() const;
-
-signals:
-	void terrainChosen(BTech::Terrain terrain);
+	const Tile * currentTile() const;
 
 private:
 	void initTerrainList();

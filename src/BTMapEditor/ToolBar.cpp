@@ -56,6 +56,11 @@ BTech::Terrain ToolBar::currentTerrain() const
 	return terrainManager->currentTerrain();
 }
 
+const Tile * ToolBar::currentTile() const
+{
+	return terrainManager->currentTile();
+}
+
 UID ToolBar::currentUnit() const
 {
 	return unitsManager->currentUnit();
