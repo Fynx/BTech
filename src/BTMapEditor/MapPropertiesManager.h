@@ -33,15 +33,17 @@ Q_OBJECT;
 public:
 	MapPropertiesManager(QVector <Player *> &players, QString &mapDescription, QList <BTech::GameVersion> &allowedVersions);
 
+	Player * getCurrentPlayer() const;
 	void setPlayers(QVector <Player *> &players);
 	void refresh();
 
 public slots:
 	void onMapLoaded();
+	void setCurrentPlayer(Player *player);
 
 signals:
-	void playerChosen(Player *player);
 	void playerAdded();
+	void playerChosen(Player *player);
 	void playerInfoChanged();
 	void playerNeedsRemoving(Player *player);
 	void playerRemoved();
@@ -70,7 +72,6 @@ private:
 	void initVersionsButton();
 
 	Player * getPlayer(const QString &name) const;
-	Player * getCurrentPlayer() const;
 
 private slots:
 	void onPlayerChosen();

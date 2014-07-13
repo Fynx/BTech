@@ -29,7 +29,6 @@ BTMapEditor::BTMapEditor()
 	initMap();
 	initToolBar();
 	initMenu();
-	initSystem();
 	readSettings();
 }
 
@@ -54,10 +53,6 @@ void BTMapEditor::initToolBar()
 
 	connect(map, &GraphicsMap::mapHasBeenLoaded, toolBar, &ToolBar::onMapLoaded);
 
-	connect(toolBar, &ToolBar::clickModeChosen,    this, &BTMapEditor::onChooseClickMode);
-	connect(toolBar, &ToolBar::playerChosen,       this, &BTMapEditor::onChoosePlayer);
-	connect(toolBar, &ToolBar::unitChosen,         this, &BTMapEditor::onChooseUnit);
-	connect(toolBar, &ToolBar::terrainChosen,      this, &BTMapEditor::onChooseTerrain);
 	connect(toolBar, &ToolBar::playersInfoChanged, this, &BTMapEditor::updatePlayers);
 	connect(toolBar, &ToolBar::hexesInfoChanged,   this, &BTMapEditor::updateHexes);
 
@@ -113,14 +108,6 @@ void BTMapEditor::sortMenu()
 	fileMenu->addAction(menuSaveAsMapAction);
 	fileMenu->addSeparator();
 	fileMenu->addAction(menuQuitAction);
-}
-
-void BTMapEditor::initSystem()
-{
-	currentMech = EmptyUid;
-	currentMode = Mode::Click;
-	currentPlayer = nullptr;
-	currentTerrain = BTech::Terrain::Clear;
 }
 
 void BTMapEditor::readSettings()
@@ -221,39 +208,17 @@ void BTMapEditor::onSaveData()
 		qDebug() << "Data saved.";
 }
 
-void BTMapEditor::onChooseClickMode()
-{
-	currentMode = Mode::Click;
-}
-
-void BTMapEditor::onChoosePlayer(Player *player)
-{
-	currentPlayer = player;
-}
-
-void BTMapEditor::onChooseUnit(UID unitUid)
-{
-	currentMode = Mode::Unit;
-	currentMech = unitUid;
-}
-
-void BTMapEditor::onChooseTerrain(BTech::Terrain terrain)
-{
-	currentMode = Mode::Terrain;
-	currentTerrain = terrain;
-}
-
 void BTMapEditor::onHexClicked(Hex *hex)
 {
 	map->clearHexes();
 	GraphicsFactory::get(hex)->setClicked(true);
-	switch (currentMode) {
-		case Mode::Unit:
-			if (currentMech != EmptyUid)
-				map->addMechToHex(new MechEntity(currentMech), hex, currentPlayer);
+	switch (toolBar->currentMode()) {
+		case ToolBar::Mode::Unit:
+			if (toolBar->currentUnit() != EmptyUid)
+				map->addMechToHex(new MechEntity(toolBar->currentUnit()), hex, toolBar->currentPlayer());
 			break; // responsibility for the new allocated MechEntity goes to GraphicsMap.
-		case Mode::Terrain:
-			hex->setTerrain(currentTerrain);
+		case ToolBar::Mode::Terrain:
+			hex->setTerrain(toolBar->currentTerrain());
 			break;
 		default:;
 	}

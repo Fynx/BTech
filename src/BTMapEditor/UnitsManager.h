@@ -36,6 +36,7 @@ public:
 	Player * getCurrentPlayer() const;
 
 public slots:
+	void setCurrentPlayer(Player *player);
 	UID currentUnit() const;
 	void onMapLoaded();
 	void refresh();
@@ -45,7 +46,7 @@ signals:
 	void playerChosen(Player *player);
 
 private:
-	QVector <Player *> &players;
+	const QVector <Player *> &players;
 
 	void initMechList();
 

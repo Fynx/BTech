@@ -56,7 +56,6 @@ private:
 	void initToolBar();
 	void initMenu();
 	void sortMenu();
-	void initSystem();
 
 	void readSettings();
 	void writeSettings();
@@ -64,18 +63,6 @@ private:
 	bool saveMap(const QString &path);
 
 	void reloadData();
-
-	enum class Mode : quint8 {
-		Click,
-		Unit,
-		Terrain
-	};
-
-	Mode currentMode;
-
-	Player *currentPlayer;
-	UID currentMech;
-	BTech::Terrain currentTerrain;
 
 private slots:
 	void onNewMapAction();
@@ -85,11 +72,6 @@ private slots:
 	void onEditWeaponsAction();
 	void onEditMechsAction();
 	void onSaveData();
-
-	void onChooseClickMode();
-	void onChoosePlayer(Player *player);
-	void onChooseUnit(UID unitUid);
-	void onChooseTerrain(BTech::Terrain terrain);
 
 	void onHexClicked(Hex *hex);
 

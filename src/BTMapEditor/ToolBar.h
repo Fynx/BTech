@@ -22,6 +22,7 @@ This file is part of BTech Project.
 
 #include <QtWidgets>
 #include "BTCommon/Position.h"
+#include "BTCommon/Uid.h"
 #include "BTCommon/Utils.h"
 
 class ClickModeManager;
@@ -41,7 +42,18 @@ class ToolBar : public QDockWidget
 Q_OBJECT;
 
 public:
+	enum class Mode : quint8 {
+		Click,
+		Unit,
+		Terrain
+	};
+
 	ToolBar(Map *map);
+
+	Mode currentMode() const;
+	Player * currentPlayer() const;
+	BTech::Terrain currentTerrain() const;
+	UID currentUnit() const;
 
 	void setPlayers(QVector <Player *> &players);
 	void setHexes(QVector <Hex *> &hexes);
@@ -54,11 +66,6 @@ public slots:
 	void onHexClicked(Hex *hex);
 
 signals:
-	void clickModeChosen();
-	void playerChosen(Player *player);
-	void unitChosen(quint32 unitSerialNumber);
-	void terrainChosen(BTech::Terrain terrain);
-
 	void playersInfoChanged();
 	void hexesInfoChanged();
 
@@ -79,10 +86,9 @@ private:
 	void initLayout();
 
 	Map *map;
+	QHash <QWidget *, Mode> tabMode;
 
 private slots:
-	void onTabChosen(int number);
-
 	void removePlayer(Player *player);
 	void removeMech(MechEntity *mech);
 };

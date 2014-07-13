@@ -108,6 +108,11 @@ MapPropertiesManager::MapPropertiesManager(QVector <Player *> &players, QString 
 	refresh();
 }
 
+Player * MapPropertiesManager::getCurrentPlayer() const
+{
+	return getPlayer(playersComboBox->currentText());
+}
+
 void MapPropertiesManager::setPlayers(QVector <Player *> &players)
 {
 	this->players = players;
@@ -148,6 +153,16 @@ void MapPropertiesManager::onMapLoaded()
 	refresh();
 }
 
+void MapPropertiesManager::setCurrentPlayer(Player *player)
+{
+	int playerIdx = playersComboBox->findText(player->getName());
+	Q_ASSERT(playerIdx != -1);
+	if (playersComboBox->currentIndex() != playerIdx) {
+		playersComboBox->setCurrentIndex(playerIdx);
+		emit playerChosen(player);
+	}
+}
+
 void MapPropertiesManager::initVersionsButton()
 {
 	versionsButton = new QPushButton(BTech::Strings::ButtonVersions);
@@ -162,11 +177,6 @@ Player * MapPropertiesManager::getPlayer(const QString &name) const
 		if (player->getName() == name)
 			return player;
 	return nullptr;
-}
-
-Player * MapPropertiesManager::getCurrentPlayer() const
-{
-	return getPlayer(playersComboBox->currentText());
 }
 
 void MapPropertiesManager::onPlayerChosen()

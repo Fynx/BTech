@@ -39,6 +39,28 @@ ToolBar::ToolBar(Map *map)
 	initLayout();
 }
 
+ToolBar::Mode ToolBar::currentMode() const
+{
+	if (tabMode.contains(tabs->currentWidget()))
+		return tabMode.value(tabs->currentWidget());
+	return Mode::Click;
+}
+
+Player * ToolBar::currentPlayer() const
+{
+	return mapPropertiesManager->getCurrentPlayer();
+}
+
+BTech::Terrain ToolBar::currentTerrain() const
+{
+	return terrainManager->currentTerrain();
+}
+
+UID ToolBar::currentUnit() const
+{
+	return unitsManager->currentUnit();
+}
+
 void ToolBar::setPlayers(QVector <Player *> &players)
 {
 	mapPropertiesManager->setPlayers(players);
@@ -76,14 +98,11 @@ void ToolBar::initTabs()
 	tabs->addTab(unitsManager,         BTech::Strings::LabelUnits);
 	tabs->addTab(terrainManager,       BTech::Strings::LabelTerrain);
 	tabs->addTab(clickModeManager,     BTech::Strings::LabelClickMode);
-
-	connect(tabs, &QTabWidget::currentChanged, this, &ToolBar::onTabChosen);
 }
 
 void ToolBar::initManagers(QVector <Player *> &players, QVector <Hex *> &hexes, QString &mapDescriptionRef, QList <BTech::GameVersion> &allowedVersions)
 {
 	mapPropertiesManager = new MapPropertiesManager(players, mapDescriptionRef, allowedVersions);
-	connect(mapPropertiesManager, &MapPropertiesManager::playerChosen,        this, &ToolBar::playerChosen);
 	connect(mapPropertiesManager, &MapPropertiesManager::playerNeedsRemoving, this, &ToolBar::removePlayer);
 	connect(mapPropertiesManager, &MapPropertiesManager::playerAdded,         this, &ToolBar::refresh);
 	connect(mapPropertiesManager, &MapPropertiesManager::playerRemoved,       this, &ToolBar::refresh);
@@ -92,16 +111,18 @@ void ToolBar::initManagers(QVector <Player *> &players, QVector <Hex *> &hexes, 
 	connect(mapPropertiesManager, &MapPropertiesManager::playerInfoChanged,   this, &ToolBar::playersInfoChanged);
 
 	unitsManager = new UnitsManager(players);
-	connect(unitsManager,         &UnitsManager::playerChosen,              this,         &ToolBar::playerChosen);
-	connect(unitsManager,         &UnitsManager::unitChosen,                this,         &ToolBar::unitChosen);
 	connect(mapPropertiesManager, &MapPropertiesManager::playerInfoChanged, unitsManager, &UnitsManager::refresh);
+	tabMode.insert(mapPropertiesManager, Mode::Unit);
 
 	terrainManager = new TerrainManager;
-	connect(terrainManager, &TerrainManager::terrainChosen, this, &ToolBar::terrainChosen);
+	tabMode.insert(terrainManager, Mode::Terrain);
 
 	clickModeManager = new ClickModeManager;
 	connect(clickModeManager, &ClickModeManager::hexInfoChanged,    this, &ToolBar::hexesInfoChanged);
 	connect(clickModeManager, &ClickModeManager::mechNeedsRemoving, this, &ToolBar::removeMech);
+
+	connect(mapPropertiesManager, &MapPropertiesManager::playerChosen, unitsManager, &UnitsManager::setCurrentPlayer);
+	connect(unitsManager, &UnitsManager::playerChosen, mapPropertiesManager, &MapPropertiesManager::setCurrentPlayer);
 }
 
 void ToolBar::initWindow()
@@ -126,16 +147,6 @@ void ToolBar::initLayout()
 
 	widget()->setContentsMargins(0, 0, 0, 0);
 	widget()->setLayout(layout);
-}
-
-void ToolBar::onTabChosen(int)
-{
-	if (tabs->currentWidget() == unitsManager)
-		emit unitChosen(unitsManager->currentUnit());
-	else if (tabs->currentWidget() == terrainManager)
-		emit terrainChosen(terrainManager->currentTerrain());
-	else
-		emit clickModeChosen();
 }
 
 void ToolBar::removePlayer(Player *player)

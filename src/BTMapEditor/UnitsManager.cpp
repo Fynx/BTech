@@ -51,6 +51,16 @@ Player * UnitsManager::getCurrentPlayer() const
 	return nullptr;
 }
 
+void UnitsManager::setCurrentPlayer(Player *player)
+{
+	int playerIdx = playersComboBox->findText(player->getName());
+	Q_ASSERT(playerIdx != -1);
+	if (playersComboBox->currentIndex() != playerIdx) {
+		playersComboBox->setCurrentIndex(playerIdx);
+		emit playerChosen(player);
+	}
+}
+
 UID UnitsManager::currentUnit() const
 {
 	return currentUnit_;
