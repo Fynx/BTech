@@ -291,6 +291,8 @@ namespace BTech {
 	*/
 	namespace General {
 		QString indexString(const QString &string, const QList <QString> &existing);
+		
+		QString bashColorString(const QString &string, const QColor &color);
 
 		// world timer
 		void startTime();

@@ -151,7 +151,7 @@ int MechEntity::getDistanceCrossed() const
 
 void MechEntity::attack(MechEntity *enemy)
 {
-	qDebug() << QString(*this) << ": attack" << QString(*enemy);
+	sendExtensiveInfo(BTech::ExtInfo::AttackedObject.arg(QString(*enemy)));
 
 	AttackObject attackObject = enemy->getAttackObject();
 

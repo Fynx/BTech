@@ -23,6 +23,6 @@ This file is part of BTech Project.
 
 typedef quint32 UID;
 static const UID EmptyUid = 0;
-static const UID MinUid = 1;
+static const UID MinUid   = EmptyUid + 1;
 
 #endif

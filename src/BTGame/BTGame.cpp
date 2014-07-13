@@ -161,6 +161,10 @@ void BTGame::messageFromMapToSideBar()
 
 void BTGame::onExtensiveInfo()
 {
+	QColor color    = map->getExtInfo().second;
+	QString message = map->getExtInfo().first;
+	qDebug() << BTech::General::bashColorString(message, color).toStdString().c_str();
+	
 	logWindow->print(map->getExtInfo());
 }
 

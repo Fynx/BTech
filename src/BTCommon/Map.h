@@ -161,7 +161,8 @@ private:
 	QString description;
 	QList <BTech::GameVersion> allowedVersions;
 
-	void initPlayers();
+	virtual void initPlayers();
+	virtual void initUnits();
 
 	void resetCurrentValues();
 

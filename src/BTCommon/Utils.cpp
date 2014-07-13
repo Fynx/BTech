@@ -308,6 +308,29 @@ QString BTech::General::indexString(const QString &string, const QList <QString>
 	return unnamed + static_cast<char>(c);
 }
 
+static bool operator < (const QColor &lhs, const QColor &rhs)
+{
+	return lhs.name() < rhs.name();
+}
+
+QString BTech::General::bashColorString(const QString &string, const QColor& color)
+{
+	static const QMap <QColor, QString> colorBashValue {
+		{Qt::white,  "0m"},
+		{Qt::red,    "31m"},
+		{Qt::green,  "32m"},
+		{Qt::yellow, "33m"},
+		{Qt::blue,   "34m"},
+	};
+	
+	static const QString pref = QString("\e[");
+	
+	if (colorBashValue.contains(color))
+		return pref + colorBashValue[color] + string + pref + colorBashValue[Qt::white];
+	else
+		return string;
+}
+
 static QElapsedTimer worldTimer;
 
 void BTech::General::startTime()

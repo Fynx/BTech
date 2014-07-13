@@ -210,8 +210,10 @@ void BTMapEditor::onSaveData()
 
 void BTMapEditor::onHexClicked(Hex *hex)
 {
+	qDebug() << __func__ << hex->getNumber();
 	map->clearHexes();
 	GraphicsFactory::get(hex)->setClicked(true);
+
 	switch (toolBar->getCurrentMode()) {
 		case ToolBar::Mode::Unit:
 			if (toolBar->getCurrentUnit() != EmptyUid)

@@ -166,6 +166,7 @@ namespace BTech {
 		const QString ArmorPenetrated         = QObject::tr("armor penetrated!\n");
 		const QString ArmorPenetrationCheck   = QObject::tr("Armor penetration check\n");
 		const QString AttackDeflected         = QObject::tr("attack deflected.\n");
+		const QString AttackedObject          = QObject::tr("attacked %1.\n");
 		const QString AttackMissed            = QObject::tr("missed.\n");
 		const QString AttackModifierCheck     = QObject::tr("Attack modifier check\n");
 		const QString AttackedBy              = QObject::tr("attacked by %1 (%2)\n");

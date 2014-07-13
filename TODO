@@ -1,9 +1,10 @@
 CFiend
--Skalowanie skrolowanie. Docelowo gra będzie na fullscreenie, ale nie zaboli jak będzie możliwość skrolowania przy
- wciśniętym prawym klawiszu myszki jak nie ma fullscreena. Wystarczy którakolwiek dobrze działająca wersja bez
- hacków.
 -ActionWindow - jak na razie to jest pełne smutku i KlikableLabelków.
 -Fajny wysuwany i półprzezroczyty infoBar - jak na razie działa na hacku.
+
+Soszu
+-zooming
+-kolorki player
 
 Basic BattleDroids
 -onTheBorder(ech...)

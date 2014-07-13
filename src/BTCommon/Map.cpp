@@ -658,6 +658,9 @@ void Map::initPlayers()
 	qDebug() << "Completed.";
 }
 
+void Map::initUnits()
+{}
+
 void Map::resetCurrentValues()
 {
 	setCurrentSubPhase(GameSubPhase::None);

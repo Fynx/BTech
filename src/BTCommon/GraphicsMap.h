@@ -88,24 +88,24 @@ private:
 	void initScaling();
 	void initWindowSettings();
 
-	static const int SCENE_BORDER = 200;					/**< Empty space from each side that separates Hexes from the border of the scene. */
-	static constexpr qreal DEFAULT_SCALE_SPEED = 0.1;			/**< Default zoom speed. */
-	static constexpr qreal MAX_SCALE_MULT = 6;				/**< Max zoom multiplier. */
-	static constexpr qreal MIN_SCALE_MULT = 0.1;				/**< Min zoom multiplier. */
-	static constexpr qreal SCALE_ANIM_SPEED = 0.02;				/**< Speed of zooming animation. */
-	static const int SCALE_ANIM_TIME = 600;					/**< Time of single zoom animation. */
-	static const int SCALE_ANIM_INTERVAL = 20;				/**< TIme between zoom animation steps. */
+	static const int SCENE_BORDER = 200;
+	static constexpr qreal DEFAULT_SCALE_SPEED = 0.1;
+	static constexpr qreal MAX_SCALE_MULT = 6;
+	static constexpr qreal MIN_SCALE_MULT = 0.1;
+	static constexpr qreal SCALE_ANIM_SPEED = 0.02;
+	static const int SCALE_ANIM_TIME = 600;
+	static const int SCALE_ANIM_INTERVAL = 20;
 
 	Grid *grid;
 
-	qreal maxScale;								/**< Max zoom level. */
-	qreal minScale;								/**< Min zoom level. */
-	qreal scale;								/**< Current zoom level. */
-	qreal scaleSpeed;							/**< Current speed of zooming. */
-	qreal finalScale;							/**< Destinated zoom level in the animation. */
-	QPoint mousePosition;							/**< Current mouse position in the view. */
+	qreal maxScale;
+	qreal minScale;
+	qreal scale;
+	qreal scaleSpeed;
+	qreal finalScale;
+	QPoint mousePosition;
 
-	void changeScale(qreal scale);						/**< Changes finalScale to scale. */
+	void changeScale(qreal scale);
 	void mouseMoveEvent(QMouseEvent *event);
 	void mousePressEvent(QMouseEvent *event);
 	void mouseReleaseEvent(QMouseEvent *event);
