@@ -129,7 +129,7 @@ namespace BTech {
 		const QString LabelRunPoints  = QObject::tr("Run Points");
 		const QString LabelNone       = QObject::tr("None");
 		const QString LabelTerrain    = QObject::tr("Terrain");
-		const QString LabelType       = QObject::tr("Type");
+		const QString LabelName       = QObject::tr("Name");
 		const QString LabelUnits      = QObject::tr("Units");
 
 		const QString None      = QObject::tr("None");

@@ -403,7 +403,7 @@ void GraphicsMap::hexNewAreaTracked(int hexNumber)
 void GraphicsMap::mechInfoReceived()
 {
 	MechEntity *mech = static_cast<MechEntity *>(sender());
-	emitMessageSent(mech->getType() + ": " + mech->getInfo(),
+	emitMessageSent(mech->getName() + ": " + mech->getInfo(),
 	                playerNameToColor[mech->getOwnerName()]);
 }
 
@@ -411,7 +411,7 @@ void GraphicsMap::mechExtensiveInfoReceived()
 {
 	MechEntity *mech = static_cast<MechEntity *>(sender());
 	if (mech->getInfo().isEmpty())
-		emitExtensiveInfoSent(mech->getType() + " (" + mech->getOwnerName() + ")",
+		emitExtensiveInfoSent(mech->getName() + " (" + mech->getOwnerName() + ")",
 		                      playerNameToColor[mech->getOwnerName()]); /** signature */
 	else
 		emitExtensiveInfoSent(mech->getInfo());
@@ -419,7 +419,7 @@ void GraphicsMap::mechExtensiveInfoReceived()
 
 void GraphicsMap::mechStateInfoReceived(const QString &message)
 {
-	emitMessageSent(getCurrentMech()->getOwnerName() + ": " + getCurrentMech()->getType() + ": " + message,
+	emitMessageSent(getCurrentMech()->getOwnerName() + ": " + getCurrentMech()->getName() + ": " + message,
 	                playerNameToColor[getCurrentMech()->getOwnerName()]);
 }
 

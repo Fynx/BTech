@@ -100,7 +100,7 @@ void InfoBar::updateStatWindow()
 {
 	statWindow->setText(QString());
 	if (curMech != nullptr) {
-		statWindow->append(BTech::Strings::LabelType + tr(": %1").arg(curMech->getType()));
+		statWindow->append(BTech::Strings::LabelName + tr(": %1").arg(curMech->getName()));
 		statWindow->append(BTech::Strings::LabelArmor + tr(": %1").arg(curMech->getArmorValue()));
 		statWindow->append(BTech::Strings::LabelMovePoints + tr(": %1/%2").arg(curMech->getMovePoints()).arg(curMech->getMaxMovePoints()));
 		statWindow->append(BTech::Strings::LabelRunPoints + tr(": %1/%2").arg(curMech->getRunPoints()).arg(curMech->getMaxRunPoints()));
@@ -127,7 +127,7 @@ void InfoBar::updateHexWindow()
 		if (curHex->getMech() == nullptr)
 			hexWindow->append(tr("\t") + BTech::Strings::LabelNone);
 		else
-			hexWindow->append("\t" + curHex->getMech()->getType() + "\t" + curHex->getMech()->getOwnerName());
+			hexWindow->append("\t" + curHex->getMech()->getName() + "\t" + curHex->getMech()->getOwnerName());
 		if (curHex->hasMoveObject())
 			; //TODO
 		else if (curHex->hasAttackObject())

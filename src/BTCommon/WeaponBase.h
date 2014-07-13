@@ -261,7 +261,6 @@ private:
 	bool changed;
 	UID nextUid;
 
-	static const UID MinUid = 1;
 	static QList <WeaponBase *> weaponList;
 	static QHash <UID, WeaponBase *> uidToWeapon;
 };

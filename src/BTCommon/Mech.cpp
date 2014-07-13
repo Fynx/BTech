@@ -45,7 +45,7 @@ Mech::~Mech()
 
 Mech::operator QString() const
 {
-	return getType();
+	return getName();
 }
 
 void Mech::setBase(const MechBase *base)
@@ -64,9 +64,9 @@ void Mech::setBase(const MechBase *base)
 	this->heatSinksNumber = base->getHeatSinksNumber();
 }
 
-QString Mech::getType() const
+QString Mech::getName() const
 {
-	return base->getType();
+	return base->getName();
 }
 
 int Mech::getTonnage() const

@@ -103,7 +103,7 @@ void EditMechStatsWidget::initLayout()
 
 void EditMechStatsWidget::initWidgetMapping()
 {
-	mapper->addMapping(type, MechModel::Mech::Type);
+	mapper->addMapping(type, MechModel::Mech::Name);
 
 	mapper->addMapping(tonnage,         MechModel::Mech::Tonnage);
 	mapper->addMapping(armorValue,      MechModel::Mech::ArmorValue);

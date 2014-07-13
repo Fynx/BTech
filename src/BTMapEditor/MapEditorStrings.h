@@ -58,7 +58,6 @@ namespace BTech {
 		const QString LabelMaxArmorValue       = QObject::tr("Armor value");
 		const QString LabelArmorValues         = QObject::tr("Structure");
 		const QString LabelMaxInternalValue    = QObject::tr("Internal value");
-		const QString LabelName                = QObject::tr("Name");
 		const QString LabelMechParts           = QObject::tr("Parts");
 		const QString LabelMechStats           = QObject::tr("Stats");
 		const QString LabelMapProperties       = QObject::tr("Map properties");

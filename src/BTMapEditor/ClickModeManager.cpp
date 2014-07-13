@@ -198,7 +198,7 @@ void ClickModeManager::refresh()
 	removeUnitButton->setEnabled(hasMech);
 	if (hasMech) {
 		for (int i = 0; i < unitTypeComboBox->count(); ++i)
-			if (unitTypeComboBox->itemText(i) == currentHex->getMech()->getType())
+			if (unitTypeComboBox->itemText(i) == currentHex->getMech()->getName())
 				unitTypeComboBox->setCurrentIndex(i);
 		directionStar->setDirection(currentHex->getMech()->getCurrentDirection());
 	}

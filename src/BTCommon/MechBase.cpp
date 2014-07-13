@@ -51,13 +51,13 @@ MechBase::MechBase(UID uid)
 	this->uid = uid;
 }
 
-MechBase::MechBase(const QString &type, UID uid)
+MechBase::MechBase(const QString &name, UID uid)
 	: MechBase(uid)
 {
-	this->type = type;
+	this->name = name;
 }
 
-MechBase::MechBase(const QString &type,
+MechBase::MechBase(const QString &name,
                    int tonnage,
                    int armorValue,
                    int maxMPS,
@@ -70,7 +70,7 @@ MechBase::MechBase(const QString &type,
                    int mediumRangeDamage,
                    int longRangeDamage)
 {
-	load(type,
+	load(name,
 	     tonnage,
 	     armorValue,
 	     maxMPS,
@@ -86,7 +86,7 @@ MechBase::MechBase(const QString &type,
 
 MechBase::MechBase(const MechBase &mech)
 {
-	load(mech.type,
+	load(mech.name,
 	     mech.tonnage,
 	     mech.armorValue,
 	     mech.maxMovePoints,
@@ -107,7 +107,7 @@ MechBase::~MechBase()
 
 void MechBase::load(const MechBase &mech)
 {
-	load(mech.type,
+	load(mech.name,
 	     mech.tonnage,
 	     mech.armorValue,
 	     mech.maxMovePoints,
@@ -121,7 +121,7 @@ void MechBase::load(const MechBase &mech)
 	     mech.rangeDamage[BTech::Range::Long]);
 }
 
-void MechBase::load(const QString &type,
+void MechBase::load(const QString &name,
                     int tonnage,
                     int armorValue,
                     int maxMPS,
@@ -134,7 +134,7 @@ void MechBase::load(const QString &type,
                     int mediumRangeDamage,
                     int longRangeDamage)
 {
-	this->type = type;
+	this->name = name;
 
 	this->tonnage         = tonnage;
 	this->armorValue      = armorValue;
@@ -157,7 +157,7 @@ void MechBase::load(const QString &type,
 
 MechBase::operator QString() const
 {
-	return getType();
+	return getName();
 }
 
 bool MechBase::operator == (const MechBase &mech) const
@@ -165,14 +165,14 @@ bool MechBase::operator == (const MechBase &mech) const
 	return getUid() == mech.getUid();
 }
 
-void MechBase::setType(const QString &type)
+void MechBase::setName(const QString &name)
 {
-	this->type = type;
+	this->name = name;
 }
 
-QString MechBase::getType() const
+QString MechBase::getName() const
 {
-	return type;
+	return name;
 }
 
 void MechBase::setTonnage(int tonnage)
@@ -279,7 +279,7 @@ const QList <MechPartBase *> & MechBase::getMechParts() const
 
 QDataStream & operator << (QDataStream &out, const MechBase &mech)
 {
-	out << mech.type << mech.uid
+	out << mech.name << mech.uid
 	    << mech.tonnage << mech.armorValue << mech.maxMovePoints << mech.maxJumpPoints << mech.baseFireRange << mech.heatSinksNumber;
 
 	for (BTech::Range range : BTech::attackRanges)
@@ -294,7 +294,7 @@ QDataStream & operator << (QDataStream &out, const MechBase &mech)
 
 QDataStream & operator >> (QDataStream &in, MechBase &mech)
 {
-	in >> mech.type >> mech.uid
+	in >> mech.name >> mech.uid
 	   >> mech.tonnage >> mech.armorValue >> mech.maxMovePoints >> mech.maxJumpPoints >> mech.baseFireRange >> mech.heatSinksNumber;
 
 	for (BTech::Range range : BTech::attackRanges)
@@ -419,7 +419,7 @@ QVariant MechModel::data(const QModelIndex &index, int role) const
 		case Level::Mech: {
 			const MechBase *mech = modelNode->getMechBase();
 			switch (index.column()) {
-				case Mech::Type:               return mech->getType();
+				case Mech::Name:               return mech->getName();
 				case Mech::Tonnage:            return mech->getTonnage();
 				case Mech::ArmorValue:         return mech->getArmorValue();
 				case Mech::MaxMovePoints:      return mech->getMaxMovePoints();
@@ -557,7 +557,7 @@ bool MechModel::setData(const QModelIndex &index, const QVariant &value, int rol
 		case Level::Mech: {
 			MechBase *mech = node->getMechBase();
 			switch (index.column()) {
-				case Mech::Type:               mech->setType(value.toString()); break;
+				case Mech::Name:               mech->setName(value.toString()); break;
 				case Mech::Tonnage:            mech->setTonnage(value.toInt()); break;
 				case Mech::ArmorValue:         mech->setArmorValue(value.toInt()); break;
 				case Mech::MaxMovePoints:      mech->setMaxMovePoints(value.toInt()); break;
@@ -637,14 +637,14 @@ const MechBase * MechModel::getMech(UID uid)
 	return uidToMech.value(uid, nullptr);
 }
 
-const MechBase * MechModel::getMech(const QString &type)
+const MechBase * MechModel::getMech(const QString &name)
 {
 	const MechBase *result = nullptr;
 	for (MechBase *cand : mechList)
-		if (cand->getType() == type)
+		if (cand->getName() == name)
 			result = cand;
 	if (result == nullptr)
-		qWarning() << "Warning: MechBase" << type << "not found.";
+		qWarning() << "Warning: MechBase" << name << "not found.";
 	return result;
 }
 
@@ -656,7 +656,7 @@ const QList <MechBase *> & MechModel::getMechs()
 bool MechModel::hasMech(const QString &name)
 {
 	for (MechBase *mech : mechList)
-		if (mech->getType() == name)
+		if (mech->getName() == name)
 			return true;
 	return false;
 }

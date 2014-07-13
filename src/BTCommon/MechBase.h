@@ -33,8 +33,8 @@ class MechBase
 public:
 	MechBase();
 	MechBase(UID uid);
-	MechBase(const QString &type, UID uid);
-	MechBase(const QString &type,
+	MechBase(const QString &name, UID uid);
+	MechBase(const QString &name,
 	         int tonnage,
 	         int armorValue,
 	         int maxMPS,
@@ -50,7 +50,7 @@ public:
 	~MechBase();
 
 	void load(const MechBase &mech);
-	void load(const QString &type,
+	void load(const QString &name,
 	          int tonnage,
 	          int armorValue,
 	          int maxMPS,
@@ -67,8 +67,8 @@ public:
 
 	bool operator == (const MechBase &mech) const;
 
-	void setType(const QString &type);
-	QString getType() const;
+	void setName(const QString &name);
+	QString getName() const;
 
 	void setTonnage(int tonnage);
 	int getTonnage() const;
@@ -102,7 +102,7 @@ private:
 	void clearData();
 
 	UID uid;
-	QString type;
+	QString name;
 	int tonnage;
 	int armorValue;
 	int maxMovePoints;
@@ -190,7 +190,7 @@ public:
 	static bool empty();
 	static const MechBase * getRow(int row);
 	static const MechBase * getMech(UID uid);
-	static const MechBase * getMech(const QString &type);
+	static const MechBase * getMech(const QString &name);
 	static const QList <MechBase *> & getMechs();
 	static bool hasMech(const QString &name);
 	static void removeMech(UID uid);
@@ -203,7 +203,7 @@ public:
 	static Level getIndexType(const QModelIndex &index);
 
 	struct Mech {
-		static const int Type               = 0;
+		static const int Name               = 0;
 		static const int Tonnage            = 1;
 		static const int ArmorValue         = 2;
 		static const int MaxMovePoints      = 3;
@@ -257,7 +257,6 @@ private:
 	bool changed;
 	UID nextUid;
 
-	static const UID MinUid = 1;
 	static QList <MechBase *> mechList;
 	static QHash <UID, MechBase *> uidToMech;
 };

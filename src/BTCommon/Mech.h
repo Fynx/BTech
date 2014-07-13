@@ -42,7 +42,7 @@ public:
 
 	void setBase(const MechBase *base);
 
-	QString getType() const;
+	QString getName() const;
 
 	int getTonnage() const;
 
