@@ -212,15 +212,15 @@ void BTMapEditor::onHexClicked(Hex *hex)
 {
 	map->clearHexes();
 	GraphicsFactory::get(hex)->setClicked(true);
-	switch (toolBar->currentMode()) {
+	switch (toolBar->getCurrentMode()) {
 		case ToolBar::Mode::Unit:
-			if (toolBar->currentUnit() != EmptyUid)
-				map->addMechToHex(new MechEntity(toolBar->currentUnit()), hex, toolBar->currentPlayer());
+			if (toolBar->getCurrentUnit() != EmptyUid)
+				map->addMechToHex(new MechEntity(toolBar->getCurrentUnit()), hex, toolBar->getCurrentPlayer());
 			break; // responsibility for the new allocated MechEntity goes to GraphicsMap.
 		case ToolBar::Mode::Terrain: {
-			hex->setTerrain(toolBar->currentTerrain());
+			hex->setTerrain(toolBar->getCurrentTerrain());
 			GraphicsHex *gHex = GraphicsFactory::get(hex);
-			gHex->setTile(toolBar->currentTile());
+			gHex->setTile(toolBar->getCurrentTile());
 			break;
 		}
 		default:;

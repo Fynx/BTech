@@ -23,27 +23,27 @@ Tile::Tile(QImage image)
 {
 	Q_ASSERT(image.height() == TileSize && image.width() % TileSize == 0);
 
-	int frames = image.width() / TileSize;
-	for (int i = 0; i < frames; ++i)
-		frames_.push_back(image.copy(i * TileSize, 0, TileSize, TileSize));
+	int frameCount = image.width() / TileSize;
+	for (int i = 0; i < frameCount; ++i)
+		frames.append(image.copy(i * TileSize, 0, TileSize, TileSize));
 }
 
-QImage Tile::currentFrame() const
+QImage Tile::getCurrentFrame() const
 {
-	return frames_[TileManager::currentFrame() % frames()];
+	return frames[TileManager::currentFrame() % getFrameCount()];
 }
 
-QString Tile::fileName() const
+QString Tile::getFileName() const
 {
 	return TileManager::fileName(this);
 }
 
-QImage Tile::frame(unsigned int frame) const
+QImage Tile::getFrame(unsigned int frame) const
 {
-	return frames_[frame % frames()];
+	return frames[frame % getFrameCount()];
 }
 
-int Tile::frames() const
+int Tile::getFrameCount() const
 {
-	return frames_.count();
+	return frames.count();
 }

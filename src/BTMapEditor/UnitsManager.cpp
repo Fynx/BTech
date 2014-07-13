@@ -24,7 +24,7 @@ This file is part of BTech Project.
  */
 
 UnitsManager::UnitsManager(QVector <Player *> &players)
-	: players(players), currentUnit_(EmptyUid)
+	: players(players), currentUnit(EmptyUid)
 {
 	initMechList();
 
@@ -51,6 +51,11 @@ Player * UnitsManager::getCurrentPlayer() const
 	return nullptr;
 }
 
+UID UnitsManager::getCurrentUnit() const
+{
+	return currentUnit;
+}
+
 void UnitsManager::setCurrentPlayer(Player *player)
 {
 	int playerIdx = playersComboBox->findText(player->getName());
@@ -59,11 +64,6 @@ void UnitsManager::setCurrentPlayer(Player *player)
 		playersComboBox->setCurrentIndex(playerIdx);
 		emit playerChosen(player);
 	}
-}
-
-UID UnitsManager::currentUnit() const
-{
-	return currentUnit_;
 }
 
 void UnitsManager::onMapLoaded()
@@ -107,9 +107,9 @@ void UnitsManager::updatePlayersComboBox()
 void UnitsManager::onUnitChosen(const QString &unitName)
 {
 	if (playersComboBox->isEnabled()) {
-		currentUnit_ = MechModel::getMech(unitName)->getUid();
+		currentUnit = MechModel::getMech(unitName)->getUid();
 		emit playerChosen(getCurrentPlayer());
-		emit unitChosen(currentUnit_);
+		emit unitChosen(currentUnit);
 	}
 }
 

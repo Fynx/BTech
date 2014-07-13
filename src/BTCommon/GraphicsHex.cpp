@@ -214,7 +214,7 @@ void GraphicsHex::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWi
 	painter->drawPath(shape());
 
 	if (tile != nullptr)
-		painter->drawImage(QRect(-DEFAULT_HEX_SIZE, -DEFAULT_HEX_SIZE, 2 * DEFAULT_HEX_SIZE, 2 * DEFAULT_HEX_SIZE), tile->currentFrame());
+		painter->drawImage(QRect(-DEFAULT_HEX_SIZE, -DEFAULT_HEX_SIZE, 2 * DEFAULT_HEX_SIZE, 2 * DEFAULT_HEX_SIZE), tile->getCurrentFrame());
 
 	if (areCoordinatesVisible()) {
 		painter->setBrush(Color::CoordinatesBackground);

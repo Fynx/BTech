@@ -39,31 +39,31 @@ ToolBar::ToolBar(Map *map)
 	initLayout();
 }
 
-ToolBar::Mode ToolBar::currentMode() const
+ToolBar::Mode ToolBar::getCurrentMode() const
 {
 	if (tabMode.contains(tabs->currentWidget()))
 		return tabMode.value(tabs->currentWidget());
 	return Mode::Click;
 }
 
-Player * ToolBar::currentPlayer() const
+Player * ToolBar::getCurrentPlayer() const
 {
 	return mapPropertiesManager->getCurrentPlayer();
 }
 
-BTech::Terrain ToolBar::currentTerrain() const
+BTech::Terrain ToolBar::getCurrentTerrain() const
 {
-	return terrainManager->currentTerrain();
+	return terrainManager->getCurrentTerrain();
 }
 
-const Tile * ToolBar::currentTile() const
+const Tile * ToolBar::getCurrentTile() const
 {
-	return terrainManager->currentTile();
+	return terrainManager->getCurrentTile();
 }
 
-UID ToolBar::currentUnit() const
+UID ToolBar::getCurrentUnit() const
 {
-	return unitsManager->currentUnit();
+	return unitsManager->getCurrentUnit();
 }
 
 void ToolBar::setPlayers(QVector <Player *> &players)

@@ -35,10 +35,10 @@ Q_OBJECT;
 public:
 	TerrainTileView(TerrainTileModel *model, QWidget *parent = nullptr);
 
-	const Tile * currentTile() const;
+	const Tile * getCurrentTile() const;
 
 private:
-	TerrainTileModel *model_;
+	TerrainTileModel *model;
 };
 
 /**
@@ -51,13 +51,13 @@ Q_OBJECT;
 public:
 	TerrainManager();
 
-	BTech::Terrain currentTerrain() const;
-	const Tile * currentTile() const;
+	BTech::Terrain getCurrentTerrain() const;
+	const Tile * getCurrentTile() const;
 
 private:
 	void initTerrainList();
 
-	BTech::Terrain currentTerrain_;
+	BTech::Terrain currentTerrain;
 	QHash <QWidget *, BTech::Terrain> widgetTerrainMap;
 
 private slots:

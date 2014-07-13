@@ -47,7 +47,7 @@ private:
 	TileManager(const TileManager &) = delete;
 	void operator = (const TileManager &) = delete;
 
-	static TileManager & instance();
+	static TileManager & getInstance();
 	const Tile * loadTileImage(const QString &filePath);
 
 	QHash <QString, const Tile *> pathToTile;

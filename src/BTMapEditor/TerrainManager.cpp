@@ -26,16 +26,16 @@ This file is part of BTech Project.
  */
 
 TerrainTileView::TerrainTileView(TerrainTileModel *model, QWidget *parent)
-	: QListView(parent), model_(model)
+	: QListView(parent), model(model)
 {
-	setModel(model_);
+	setModel(model);
 }
 
-const Tile * TerrainTileView::currentTile() const
+const Tile * TerrainTileView::getCurrentTile() const
 {
 	if (currentIndex() == QModelIndex())
 		return nullptr;
-	return model_->getTile(currentIndex().row());
+	return model->getTile(currentIndex().row());
 }
 
 /**
@@ -47,16 +47,16 @@ TerrainManager::TerrainManager()
 	initTerrainList();
 }
 
-BTech::Terrain TerrainManager::currentTerrain() const
+BTech::Terrain TerrainManager::getCurrentTerrain() const
 {
-	return currentTerrain_;
+	return currentTerrain;
 }
 
-const Tile * TerrainManager::currentTile() const
+const Tile * TerrainManager::getCurrentTile() const
 {
 	TerrainTileView *tileView = qobject_cast<TerrainTileView *>(currentWidget());
 	Q_ASSERT(tileView != nullptr);
-	return tileView->currentTile();
+	return tileView->getCurrentTile();
 }
 
 void TerrainManager::initTerrainList()
@@ -75,5 +75,5 @@ void TerrainManager::initTerrainList()
 
 void TerrainManager::onTerrainChosen()
 {
-	currentTerrain_ = widgetTerrainMap[currentWidget()];
+	currentTerrain = widgetTerrainMap[currentWidget()];
 }

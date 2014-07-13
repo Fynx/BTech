@@ -29,32 +29,32 @@ unsigned int TileManager::currentFrame()
 
 QString TileManager::fileName(const Tile *tile)
 {
-	return instance().tileToFileInfo.value(tile, QFileInfo()).fileName();
+	return getInstance().tileToFileInfo.value(tile, QFileInfo()).fileName();
 }
 
 void TileManager::loadTileDictionary(QDataStream &in, const QVector <Hex *> &hexes)
 {
-	TileManager &manager = instance();
+	TileManager &manager = getInstance();
 
 	QHash <UID, QString> tileDict;
 	QHash <UID, const Tile *> idToTile;
 	QHash <QPoint, UID> coordToTileUid;
 	in >> tileDict >> coordToTileUid;
 
-	for (QHash <UID, QString>::const_iterator i = tileDict.constBegin(); i != tileDict.constEnd(); ++i) {
+	for (QHash <UID, QString>::ConstIterator i = tileDict.constBegin(); i != tileDict.constEnd(); ++i) {
 		const Tile *tile = registerTile(i.value());
 		if (tile != nullptr)
 			idToTile[i.key()] = tile;
 	}
 
 	manager.coordToTile.clear();
-	for (QHash <QPoint, UID>::const_iterator i = coordToTileUid.constBegin(); i != coordToTileUid.constEnd(); ++i)
+	for (QHash <QPoint, UID>::ConstIterator i = coordToTileUid.constBegin(); i != coordToTileUid.constEnd(); ++i)
 		manager.coordToTile[i.key()] = idToTile[i.value()];
 }
 
 const Tile * TileManager::registerTile(const QFileInfo &tileFile)
 {
-	TileManager &manager = instance();
+	TileManager &manager = getInstance();
 
 	const QString filePath = tileFile.filePath();
 	if (manager.pathToTile.contains(filePath))
@@ -65,7 +65,7 @@ const Tile * TileManager::registerTile(const QFileInfo &tileFile)
 
 void TileManager::saveTileDictionary(QDataStream &out, const QVector <Hex *> &hexes)
 {
-	TileManager &manager = instance();
+	TileManager &manager = getInstance();
 
 	UID tileCnt = EmptyUid;
 	QHash <const Tile *, UID> tileToId;
@@ -91,26 +91,26 @@ void TileManager::saveTileDictionary(QDataStream &out, const QVector <Hex *> &he
 	}
 
 	QHash <QPoint, UID> coordToTileUid;
-	for (QHash <QPoint, const Tile *>::const_iterator i = manager.coordToTile.constBegin(); i != manager.coordToTile.constEnd(); ++i)
+	for (QHash <QPoint, const Tile *>::ConstIterator i = manager.coordToTile.constBegin(); i != manager.coordToTile.constEnd(); ++i)
 		coordToTileUid[i.key()] = tileToId[i.value()];
 	out << tileDict << coordToTileUid;
 }
 
 const Tile * TileManager::tile(const Hex *hex)
 {
-	return instance().tile(hex->getPoint());
+	return getInstance().tile(hex->getPoint());
 }
 
 const Tile * TileManager::tile(QPoint hexCoord)
 {
-	return instance().coordToTile.value(hexCoord, nullptr);
+	return getInstance().coordToTile.value(hexCoord, nullptr);
 }
 
 TileManager::TileManager()
 {
 }
 
-TileManager & TileManager::instance()
+TileManager & TileManager::getInstance()
 {
 	static TileManager instance_;
 	return instance_;

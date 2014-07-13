@@ -33,8 +33,8 @@ public:
 private:
 	void loadTiles();
 
-	const QString tileDir_;
-	QVector <const Tile *> tiles_;
+	const QString tileDirPath;
+	QVector <const Tile *> tiles;
 };
 
 #endif

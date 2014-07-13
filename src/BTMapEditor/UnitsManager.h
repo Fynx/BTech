@@ -36,8 +36,8 @@ public:
 	Player * getCurrentPlayer() const;
 
 public slots:
+	UID getCurrentUnit() const;
 	void setCurrentPlayer(Player *player);
-	UID currentUnit() const;
 	void onMapLoaded();
 	void refresh();
 
@@ -55,7 +55,7 @@ private:
 
 	void updatePlayersComboBox();
 
-	UID currentUnit_;
+	UID currentUnit;
 
 private slots:
 	void onUnitChosen(const QString &unitName);

@@ -31,14 +31,14 @@ public:
 	Tile() = default;
 	Tile(QImage image);
 
-	QImage currentFrame() const;
-	QString fileName() const;
-	QImage frame(unsigned int frame) const;
-	int frames() const;
-	UID uid() const;
+	QImage getCurrentFrame() const;
+	QString getFileName() const;
+	QImage getFrame(unsigned int frame) const;
+	int getFrameCount() const;
+	UID getUid() const;
 
 private:
-	QVector <QImage> frames_;
+	QVector <QImage> frames;
 };
 
 #endif

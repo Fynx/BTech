@@ -51,11 +51,11 @@ public:
 
 	ToolBar(Map *map);
 
-	Mode currentMode() const;
-	Player * currentPlayer() const;
-	BTech::Terrain currentTerrain() const;
-	const Tile * currentTile() const;
-	UID currentUnit() const;
+	Mode getCurrentMode() const;
+	Player * getCurrentPlayer() const;
+	BTech::Terrain getCurrentTerrain() const;
+	const Tile * getCurrentTile() const;
+	UID getCurrentUnit() const;
 
 	void setPlayers(QVector <Player *> &players);
 	void setHexes(QVector <Hex *> &hexes);

@@ -21,7 +21,7 @@ This file is part of BTech Project.
 #include "BTCommon/TerrainTileModel.h"
 
 TerrainTileModel::TerrainTileModel(const QString &tileDir, QObject *parent)
-	: QAbstractListModel(parent), tileDir_(tileDir)
+	: QAbstractListModel(parent), tileDirPath(tileDir)
 {
 	loadTiles();
 }
@@ -32,8 +32,8 @@ QVariant TerrainTileModel::data(const QModelIndex &index, int role) const
 		return QVariant();
 
 	switch (role) {
-		case Qt::DisplayRole:    return tiles_.at(index.row())->fileName();
-		case Qt::DecorationRole: return tiles_.at(index.row())->frame(0);
+		case Qt::DisplayRole:    return tiles.at(index.row())->getFileName();
+		case Qt::DecorationRole: return tiles.at(index.row())->getFrame(0);
 	}
 
 	return QVariant();
@@ -41,25 +41,25 @@ QVariant TerrainTileModel::data(const QModelIndex &index, int role) const
 
 const Tile * TerrainTileModel::getTile(int idx) const
 {
-	return tiles_[idx];
+	return tiles[idx];
 }
 
 int TerrainTileModel::rowCount(const QModelIndex &parent) const
 {
 	if (parent.isValid())
 		return 0;
-	return tiles_.count();
+	return tiles.count();
 }
 
 void TerrainTileModel::loadTiles()
 {
-	tiles_.clear();
+	tiles.clear();
 
-	QDir tileDir(BTech::resolvePath(tileDir_));
+	QDir tileDir(BTech::resolvePath(tileDirPath));
 	QFileInfoList imgFileList = tileDir.entryInfoList({"*.png"}, QDir::Files | QDir::Readable);
 	for (QFileInfo imgFile : imgFileList) {
 		const Tile *tile = TileManager::registerTile(imgFile);
 		if (tile != nullptr)
-			tiles_.append(tile);
+			tiles.append(tile);
 	}
 }
