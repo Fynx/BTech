@@ -79,18 +79,13 @@ int GraphicsEntity::getRotationSpeed() const
 	return rotationSpeed;
 }
 
-void GraphicsEntity::init()
+void GraphicsEntity::init(QPoint position)
 {
-	if (entity->isRotable()) {
-		Rotable *rotableEntity = static_cast<Rotable *>(entity);
-		setRotation(rotableEntity->getDestinationDirection().getAngle());
-		destRotation = rotation();
-	}
-	if (entity->isMovable()) {
-		Movable *movableEntity = static_cast<Movable *>(entity);
-		setPos(pathFinder->getPosition(movableEntity->getDestinationPositionNumber()));
-		destPoint = pos().toPoint();
-	}
+	destPoint = position;
+	setPos(destPoint);
+	destRotation = entity->getCurrentDirection().getAngle();
+	setRotation(destRotation);
+
 	update();
 }
 

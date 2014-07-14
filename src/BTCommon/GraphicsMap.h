@@ -88,13 +88,12 @@ private:
 	void initScaling();
 	void initWindowSettings();
 
-	static const int SCENE_BORDER = 200;
+	static const int SCENE_BORDER              = 200;
 	static constexpr qreal DEFAULT_SCALE_SPEED = 0.1;
-	static constexpr qreal MAX_SCALE_MULT = 6;
-	static constexpr qreal MIN_SCALE_MULT = 0.1;
-	static constexpr qreal SCALE_ANIM_SPEED = 0.02;
-	static const int SCALE_ANIM_TIME = 600;
-	static const int SCALE_ANIM_INTERVAL = 20;
+	static constexpr qreal MAX_SCALE_MULT      = 6;
+	static constexpr qreal MIN_SCALE_MULT      = 0.1;
+	static const int SCALE_ANIM_TIME           = 200;
+	static const int SCALE_ANIM_INTERVAL       = 20;
 
 	Grid *grid;
 

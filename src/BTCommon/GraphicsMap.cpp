@@ -187,7 +187,7 @@ void GraphicsMap::initUnits()
 void GraphicsMap::initUnit(MechEntity *mech)
 {
 	GraphicsEntity *gEnt = GraphicsFactory::get(mech);
-	gEnt->init();
+	gEnt->init(GraphicsFactory::get(hexes[mech->getCurrentPositionNumber()])->pos().toPoint());
 	scene()->addItem(gEnt);
 
 	connect(mech, &MechEntity::stateInfoSent, this, &GraphicsMap::mechStateInfoReceived);
@@ -199,6 +199,8 @@ void GraphicsMap::initUnit(MechEntity *mech)
 
 void GraphicsMap::initScaling()
 {
+	setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+
 	scale = 1;
 	scaleSpeed = DEFAULT_SCALE_SPEED;
 
@@ -228,8 +230,6 @@ void GraphicsMap::changeScale(qreal scale)
 {
 	finalScale = scale;
 
-	//TODO CFiend wymienić na to? http://qt-project.org/doc/qt-5.1/qtcore/qpropertyanimation.html
-	//TODO Fynx: Dunno. In your hands.
 	QTimeLine *scaleAnim = new QTimeLine(SCALE_ANIM_TIME, this);
 	scaleAnim->setUpdateInterval(SCALE_ANIM_INTERVAL);
 	connect(scaleAnim, &QTimeLine::valueChanged, this, &GraphicsMap::scaleView);
@@ -427,9 +427,9 @@ void GraphicsMap::scaleView()
 {
 	qreal initScale = scale;
 	if (scale > finalScale)
-		scale = qMax(finalScale, scale - SCALE_ANIM_SPEED);
+		scale = qMax(finalScale, scale - scaleSpeed * SCALE_ANIM_INTERVAL / SCALE_ANIM_TIME);
 	else if (scale < finalScale)
-		scale = qMin(finalScale, scale + SCALE_ANIM_SPEED);
+		scale = qMin(finalScale, scale + scaleSpeed * SCALE_ANIM_INTERVAL / SCALE_ANIM_TIME);
 	else
 		return;
 

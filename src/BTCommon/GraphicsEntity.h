@@ -46,7 +46,7 @@ public:
 	int getRotationSpeed() const;
 
 public slots:
-	void init();
+	void init(QPoint position);
 
 signals:
 	void movementStarted();
