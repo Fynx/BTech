@@ -19,6 +19,10 @@ This file is part of BTech Project.
 
 #include "BTCommon/BTMapManager.h"
 #include "BTCommon/DataManager.h"
+#include "BTCommon/GraphicsMap.h"
+#include "BTCommon/Hex.h"
+#include "BTCommon/InfoBar.h"
+#include "BTCommon/MechEntity.h"
 #include "BTCommon/Paths.h"
 
 BTMapManager::BTMapManager()

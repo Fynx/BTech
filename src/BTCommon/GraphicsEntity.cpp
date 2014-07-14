@@ -1,5 +1,6 @@
 /*
 Copyright (C) 2014 by Piotr Majcherczyk <fynxor [at] gmail [dot] com>
+Copyright (C) 2014 by Bartosz Szreder <szreder [at] mimuw [dot] edu [dot] pl>
 This file is part of BTech Project.
 
 	BTech Project is free software: you can redistribute it and/or modify
@@ -17,39 +18,22 @@ This file is part of BTech Project.
 */
 
 #include "BTCommon/GraphicsEntity.h"
+#include "BTCommon/MechEntity.h"
+#include "BTCommon/Objects.h"
 
 /**
  * \class GraphicsEntity
  */
 
-const PathFinder * GraphicsEntity::pathFinder = nullptr;
-
-/* static member */
-void GraphicsEntity::setPathFinder(PathFinder *pathFinder)
-{
-	GraphicsEntity::pathFinder = pathFinder;
-}
-
 /* constructor */
 GraphicsEntity::GraphicsEntity(Entity *entity)
-{
-	setEntity(entity);
-	timer = new QTimer(this);
-	connect(timer, &QTimer::timeout, this, &GraphicsEntity::advance);
-	setRotationSpeed(DEFAULT_ROTATION_SPEED);
-	setStraightSpeed(DEFAULT_STRAIGHT_SPEED);
-}
-
-void GraphicsEntity::setEntity(Entity *entity)
+	: entity(entity)
 {
 	setParent(entity);
 	this->entity = entity;
 
-	connect(entity, &Entity::positionNumberSet, this, &GraphicsEntity::adjustCoordinates);
-	connect(entity, &Entity::directionSet,      this, &GraphicsEntity::adjustRotation);
-
-	if (entity->isRotable())
-		connect(static_cast<Rotable *>(entity), &Rotable::directionChanged, this, &GraphicsEntity::startMovement);
+	connect(entity, &Entity::coordinateSet, this, &GraphicsEntity::adjustCoordinates);
+	connect(entity, &Entity::directionSet,  this, &GraphicsEntity::adjustRotation);
 
 	/**
 	 * The funny thing is that even if the entity is Movable, only the signal directionChanged will start the
@@ -57,6 +41,25 @@ void GraphicsEntity::setEntity(Entity *entity)
 	 * positionNumber, rotation.
 	 * So, the signal positionChanged is ignored.
 	 */
+
+	if (entity->isRotable())
+		connect(static_cast<Rotable *>(entity), &Rotable::directionChanged, this, &GraphicsEntity::startMovement);
+
+	timer = new QTimer(this);
+	connect(timer, &QTimer::timeout, this, &GraphicsEntity::advance);
+	setRotationSpeed(DEFAULT_ROTATION_SPEED);
+	setStraightSpeed(DEFAULT_STRAIGHT_SPEED);
+}
+
+void GraphicsEntity::init(const CoordinateMapper *coordinateMapper)
+{
+	this->coordinateMapper = coordinateMapper;
+	destPosition = coordinateMapper->mapCoordinateToScene(entity->getCurrentCoordinate());
+	setPos(destPosition);
+	destRotation = entity->getCurrentDirection().toAngle();
+	setRotation(destRotation);
+
+	update();
 }
 
 void GraphicsEntity::setStraightSpeed(int speed)
@@ -79,16 +82,6 @@ int GraphicsEntity::getRotationSpeed() const
 	return rotationSpeed;
 }
 
-void GraphicsEntity::init(QPoint position)
-{
-	destPoint = position;
-	setPos(destPoint);
-	destRotation = entity->getCurrentDirection().getAngle();
-	setRotation(destRotation);
-
-	update();
-}
-
 void GraphicsEntity::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
 	if (!isInMove())
@@ -96,7 +89,7 @@ void GraphicsEntity::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
 	paintEntity(painter);
 }
 
-QPoint GraphicsEntity::nextPoint(const QPoint &src, const QPoint &dest) const
+QPointF GraphicsEntity::nextPoint(const QPointF &src, const QPointF &dest) const
 {
 	qreal x = dest.x() - src.x();
 	qreal y = dest.y() - src.y();
@@ -106,7 +99,7 @@ QPoint GraphicsEntity::nextPoint(const QPoint &src, const QPoint &dest) const
 
 	qreal arctan = qAtan2(x, y);
 
-	return QPoint(qSin(arctan) * straightSpeed, qCos(arctan) * straightSpeed) + src;
+	return QPointF(qSin(arctan) * straightSpeed, qCos(arctan) * straightSpeed) + src;
 }
 
 int GraphicsEntity::nextRotation(int src, int dest) const
@@ -132,12 +125,12 @@ bool GraphicsEntity::isInMove() const
 	if (!entity->isRotable())
 		return false;
 	else
-		return ((const Rotable *)entity)->isInMove();
+		return (static_cast<const Rotable *>(entity))->isInMove();
 }
 
 void GraphicsEntity::countMidPoints()
 {
-	MoveObject moveObject = ((Rotable *)entity)->getMoveObject();
+	MoveObject moveObject = (static_cast<Rotable *>(entity))->getMoveObject();
 	path = moveObject.getPath();
 }
 
@@ -164,16 +157,16 @@ void GraphicsEntity::advance()
 	if (rotation() != destRotation)
 		setRotation(nextRotation(rotation(), destRotation));
 
-	if (pos() != destPoint) {
-		QPoint curPoint = pos().toPoint();
-		curPoint = nextPoint(curPoint, destPoint);
+	if (pos() != destPosition) {
+		QPointF curPoint = pos();
+		curPoint = nextPoint(curPoint, destPosition);
 		setPos(curPoint);
 	}
 
-	if (rotation() == destRotation && pos() == destPoint) {
+	if (rotation() == destRotation && pos() == destPosition) {
 		if (!path.empty()) {
-			destPoint = pathFinder->getPosition(path.first().getNumber());
-			destRotation = path.first().getDirection().getAngle();
+			destPosition = coordinateMapper->mapCoordinateToScene(path.first().getCoordinate());
+			destRotation = path.first().getDirection().toAngle();
 			path.removeFirst();
 		} else {
 			rotableEntity->reachDestination();
@@ -185,7 +178,7 @@ void GraphicsEntity::advance()
 
 void GraphicsEntity::adjustCoordinates()
 {
-	setPos(pathFinder->getPosition(entity->getCurrentPositionNumber()));
+	setPos(coordinateMapper->mapCoordinateToScene(entity->getCurrentCoordinate()));
 	update();
 }
 
@@ -212,7 +205,6 @@ GraphicsMech::GraphicsMech(MechEntity *entity)
 
 QRectF GraphicsMech::boundingRect() const
 {
-	//TODO CFiend Dlaczego ten bounding box taki dziwny: -20, ale +40?
 	return QRectF(-20, -20, 40, 40);
 }
 

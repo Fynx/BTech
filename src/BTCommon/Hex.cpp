@@ -1,5 +1,6 @@
 /*
 Copyright (C) 2014 by Piotr Majcherczyk <fynxor [at] gmail [dot] com>
+Copyright (C) 2014 by Bartosz Szreder <szreder [at] mimuw [dot] edu [dot] pl>
 This file is part of BTech Project.
 
 	BTech Project is free software: you can redistribute it and/or modify
@@ -18,8 +19,7 @@ This file is part of BTech Project.
 
 #include "BTCommon/EnumHashFunctions.h"
 #include "BTCommon/Hex.h"
-
-const VisibilityManager *Hex::visibilityManager = nullptr;
+#include "BTCommon/MechEntity.h"
 
 /* constructor */
 Hex::Hex()
@@ -33,13 +33,17 @@ Hex::Hex()
 Hex::~Hex()
 {}
 
-/* static member */
-void Hex::setVisibilityManager(const VisibilityManager *manager)
+void Hex::setCoordinate(const Coordinate &coordinate)
 {
-	visibilityManager = manager;
+	this->coordinate = coordinate;
 }
 
-void Hex::setNeighbour(Direction direction, Hex * hex)
+Coordinate Hex::getCoordinate() const
+{
+	return coordinate;
+}
+
+void Hex::setNeighbour(Direction direction, Hex *hex)
 {
 	neighbour[direction] = hex;
 }
@@ -53,26 +57,6 @@ void Hex::initNeighbours()
 {
 	for (int i = 0; i < Direction::NUMBER; ++i)
 		neighbour[i] = nullptr;
-}
-
-void Hex::setNumber(int number)
-{
-	this->number = number;
-}
-
-int Hex::getNumber() const
-{
-	return number;
-}
-
-void Hex::setPoint(const QPoint &point)
-{
-	this->point = point;
-}
-
-QPoint Hex::getPoint() const
-{
-	return point;
 }
 
 void Hex::setHeight(int height)
@@ -199,8 +183,7 @@ void Hex::clear()
 
 QDataStream & operator << (QDataStream &out, const Hex &hex)
 {
-	out << hex.number
-	    << hex.point
+	out << hex.coordinate
 	    << hex.height
 	    << hex.terrain;
 	return out;
@@ -208,8 +191,7 @@ QDataStream & operator << (QDataStream &out, const Hex &hex)
 
 QDataStream & operator >> (QDataStream &in, Hex &hex)
 {
-	in >> hex.number
-	   >> hex.point
+	in >> hex.coordinate
 	   >> hex.height
 	   >> hex.terrain;
 	return in;

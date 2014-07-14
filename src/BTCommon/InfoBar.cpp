@@ -16,7 +16,9 @@ This file is part of BTech Project.
 	along with BTech.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "BTCommon/Hex.h"
 #include "BTCommon/InfoBar.h"
+#include "BTCommon/MechEntity.h"
 
 /* constructor */
 InfoBar::InfoBar()
@@ -120,7 +122,7 @@ void InfoBar::updateHexWindow()
 {
 	hexWindow->setText(QString());
 	if (curHex != nullptr) {
-		hexWindow->append(BTech::Strings::LabelHex + tr(" [%1, %2]").arg(curHex->getPoint().x()).arg(curHex->getPoint().y()));
+		hexWindow->append(BTech::Strings::LabelHex + tr(" [%1, %2]").arg(curHex->getCoordinate().y()).arg(curHex->getCoordinate().x()));
 		hexWindow->append(BTech::Strings::LabelTerrain + tr(": %1").arg(BTech::terrainStringChange[curHex->getTerrain()]));
 		hexWindow->append(BTech::Strings::LabelHeight + tr(": %1").arg(curHex->getHeight()));
 		hexWindow->append(BTech::Strings::LabelUnits + ":");

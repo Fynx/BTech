@@ -1,5 +1,6 @@
 /*
 Copyright (C) 2014 by Piotr Majcherczyk <fynxor [at] gmail [dot] com>
+Copyright (C) 2014 by Bartosz Szreder <szreder [at] mimuw [dot] edu [dot] pl>
 This file is part of BTech Project.
 
 	BTech Project is free software: you can redistribute it and/or modify
@@ -32,6 +33,17 @@ bool Entity::isMovable() const
 	return false;
 }
 
+void Entity::setCurrentCoordinate(Coordinate coordinate)
+{
+	currentPosition.setCoordinate(coordinate);
+	emit coordinateSet();
+}
+
+Coordinate Entity::getCurrentCoordinate() const
+{
+	return currentPosition.getCoordinate();
+}
+
 void Entity::setCurrentDirection(Direction direction)
 {
 	currentPosition.setDirection(direction);
@@ -43,26 +55,16 @@ Direction Entity::getCurrentDirection() const
 	return currentPosition.getDirection();
 }
 
-void Entity::setCurrentPositionNumber(int position)
+void Entity::setCurrentPosition(Coordinate coordinate, Direction direction)
 {
-	currentPosition.setNumber(position);
-	emit positionNumberSet();
-}
-
-int Entity::getCurrentPositionNumber() const
-{
-	return currentPosition.getNumber();
+	setCurrentCoordinate(coordinate);
+	setCurrentDirection(direction);
 }
 
 void Entity::setCurrentPosition(const Position &position)
 {
-	currentPosition = position;
-}
-
-void Entity::setCurrentPosition(int position, Direction direction)
-{
-	setCurrentPositionNumber(position);
-	setCurrentDirection(direction);
+	setCurrentCoordinate(position.getCoordinate());
+	setCurrentDirection(position.getDirection());
 }
 
 Position Entity::getCurrentPosition() const
@@ -72,22 +74,21 @@ Position Entity::getCurrentPosition() const
 
 QDataStream & operator << (QDataStream &out, const Entity &entity)
 {
-	out << entity.currentPosition << *(const EffectProne *)(&entity);
+	out << entity.currentPosition;
+	operator << (out, static_cast<const EffectProne &>(entity));
 	return out;
 }
 
 QDataStream & operator >> (QDataStream &in, Entity &entity)
 {
-	in >> entity.currentPosition >> *(EffectProne *)(&entity);
+	in >> entity.currentPosition;
+	operator >> (in, reinterpret_cast<EffectProne &>(entity));
 	return in;
 }
 
 /**
  * \class Rotable
  */
-
-Rotable::Rotable()
-{}
 
 bool Rotable::isRotable() const
 {
@@ -147,56 +148,53 @@ QDataStream & operator >> (QDataStream &in, Rotable &rotable)
  * \class Movable
  */
 
-Movable::Movable()
-{}
-
 bool Movable::isMovable() const
 {
 	return true;
 }
 
-void Movable::setPositionNumber(int position)
+void Movable::setCoordinate(Coordinate coordinate)
 {
-	setCurrentPositionNumber(position);
-	destinationPositionNumber = position;
+	setCurrentCoordinate(coordinate);
+	destinationCoordinate = coordinate;
+}
+
+void Movable::setDestinationCoordinate(Coordinate coordinate)
+{
+	destinationCoordinate = coordinate;
+	emit coordinateChanged();
+}
+
+void Movable::setPosition(Coordinate coordinate, Direction direction)
+{
+	setPosition(Position(coordinate, direction));
 }
 
 void Movable::setPosition(const Position &position)
 {
-	setPositionNumber(position.getNumber());
+	setCoordinate(position.getCoordinate());
 	setDirection(position.getDirection());
 }
 
-void Movable::setPosition(int positionNumber, Direction direction)
+Coordinate Movable::getDestinationCoordinate() const
 {
-	setPosition(Position(positionNumber, direction));
-}
-
-void Movable::setDestinationPositionNumber(int position)
-{
-	destinationPositionNumber = position;
-	emit positionChanged();
-}
-
-int Movable::getDestinationPositionNumber() const
-{
-	return destinationPositionNumber;
+	return destinationCoordinate;
 }
 
 void Movable::setDestinationPosition(const Position &position)
 {
-	setDestinationPosition(position.getNumber(), position.getDirection());
+	setDestinationPosition(position.getCoordinate(), position.getDirection());
 }
 
-void Movable::setDestinationPosition(int position, Direction direction)
+void Movable::setDestinationPosition(Coordinate coordinate, Direction direction)
 {
-	setDestinationPositionNumber(position);
+	setDestinationCoordinate(coordinate);
 	setDestinationDirection(direction);
 }
 
 Position Movable::getDestinationPosition() const
 {
-	return Position(getDestinationPositionNumber(), getDestinationDirection());
+	return Position(getDestinationCoordinate(), getDestinationDirection());
 }
 
 void Movable::reachDestination()
@@ -206,17 +204,17 @@ void Movable::reachDestination()
 
 bool Movable::isInMove() const
 {
-	return getCurrentPositionNumber() != getDestinationPositionNumber() || Rotable::isInMove();
+	return getCurrentPosition().getCoordinate() != getDestinationCoordinate() || Rotable::isInMove();
 }
 
 QDataStream & operator << (QDataStream &out, const Movable &movable)
 {
-	out << static_cast<const Rotable &>(movable) << movable.destinationPositionNumber;
+	out << static_cast<const Rotable &>(movable) << movable.destinationCoordinate;
 	return out;
 }
 
 QDataStream & operator >> (QDataStream &in, Movable &movable)
 {
-	in >> static_cast<Rotable &>(movable) >> movable.destinationPositionNumber;
+	in >> static_cast<Rotable &>(movable) >> movable.destinationCoordinate;
 	return in;
 }

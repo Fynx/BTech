@@ -1,5 +1,6 @@
 /*
 Copyright (C) 2014 by Piotr Majcherczyk <fynxor [at] gmail [dot] com>
+Copyright (C) 2014 by Bartosz Szreder <szreder [at] mimuw [dot] edu [dot] pl>
 This file is part of BTech Project.
 
 	BTech Project is free software: you can redistribute it and/or modify
@@ -17,7 +18,14 @@ This file is part of BTech Project.
 */
 
 #include "BTCommon/EnumHashFunctions.h"
+#include "BTCommon/GraphicsEntity.h"
+#include "BTCommon/GraphicsFactory.h"
+#include "BTCommon/GraphicsHex.h"
 #include "BTCommon/GraphicsMap.h"
+#include "BTCommon/Grid.h"
+#include "BTCommon/MechEntity.h"
+#include "BTCommon/Player.h"
+#include "BTCommon/TileManager.h"
 
 const QHash <BTech::GamePhase, void (GraphicsMap::*)()> GraphicsMap::phaseToFunction {
 	{BTech::GamePhase::None,           &GraphicsMap::noPhase},
@@ -30,9 +38,6 @@ const QHash <BTech::GamePhase, void (GraphicsMap::*)()> GraphicsMap::phaseToFunc
 	{BTech::GamePhase::Heat,           &GraphicsMap::heatPhase},
 	{BTech::GamePhase::End,            &GraphicsMap::endPhase},
 };
-
-GraphicsMap::GraphicsMap()
-{}
 
 void GraphicsMap::createNewMap(int width, int height)
 {
@@ -56,26 +61,37 @@ bool GraphicsMap::loadMap(const QString &mapFileName)
 	return true;
 }
 
+void GraphicsMap::clearHexes()
+{
+	for (Hex *hex : hexes)
+		GraphicsFactory::get(hex)->setClicked(false);
+}
+
 void GraphicsMap::toggleGrid()
 {
-	grid->toggleGrid();
+	GraphicsHex::setGridVisible(!isGridVisible());
 	scene()->update();
 }
 
 bool GraphicsMap::isGridVisible() const
 {
-	return grid->isGridVisible();
+	return GraphicsHex::isGridVisible();
 }
 
 void GraphicsMap::toggleCoordinates()
 {
-	grid->toggleCoordinates();
+	GraphicsHex::setCoordinatesVisible(!areCoordinatesVisible() && isGridVisible());
 	scene()->update();
 }
 
 bool GraphicsMap::areCoordinatesVisible() const
 {
-	return grid->areCoordinatesVisible();
+	return GraphicsHex::areCoordinatesVisible();
+}
+
+QPointF GraphicsMap::mapCoordinateToScene(const Coordinate &c) const
+{
+	return coordinateToScenePos[c];
 }
 
 void GraphicsMap::addMechToHex(MechEntity *mech, Hex *hex, Player *player)
@@ -84,7 +100,7 @@ void GraphicsMap::addMechToHex(MechEntity *mech, Hex *hex, Player *player)
 		delete mech;
 		return;
 	}
-	mech->setPosition({hex->getNumber(), BTech::DirectionN});
+	mech->setPosition({hex->getCoordinate(), BTech::DirectionN});
 
 	player->addMech(mech);
 	hex->setMech(mech);
@@ -123,8 +139,8 @@ void GraphicsMap::decScale(int times)
 
 void GraphicsMap::onChooseAction(const Action *action)
 {
-	grid->hideWalkRange();
-	grid->hideShootRange();
+	hideShootRange();
+	hideWalkRange();
 	chooseAction(action);
 }
 
@@ -133,15 +149,12 @@ void GraphicsMap::onEndMove()
 	endMove();
 }
 
-void GraphicsMap::clearHexes()
-{
-	grid->clearHexes();
-}
-
 void GraphicsMap::initMap()
 {
+	walkRangeVisible = false;
+	shootRangeVisible = false;
+
 	initScene();
-	initGrid();
 	initHexes();
 	initUnits();
 	initScaling();
@@ -155,25 +168,30 @@ void GraphicsMap::initScene()
 	setScene(scene);
 }
 
-void GraphicsMap::initGrid()
-{
-	grid = new Grid(hexes, hexWidth, hexHeight);
-}
-
 void GraphicsMap::initHexes()
 {
+	const int leftBorder  = GraphicsHex::getSize();
+	const int upperBorder = -GraphicsHex::getSize();
+
+	coordinateToScenePos.clear();
 	for (Hex *hex : hexes) {
 		GraphicsHex *graphicsHex = GraphicsFactory::get(hex);
+		const qreal x = leftBorder + hex->getCoordinate().x() * GraphicsHex::getSize() * 3 / 2;
+		const qreal y = upperBorder + (hex->getCoordinate().y() * 2 + (hex->getCoordinate().x() % 2 == 0)) * GraphicsHex::getSize();
+		graphicsHex->setPos(x, y);
+		graphicsHex->setTile(TileManager::tile(hex));
+
+		coordinateToScenePos.insert(hex->getCoordinate(), graphicsHex->pos());
 		scene()->addItem(graphicsHex);
 		for (GridGraphicsObject *object : graphicsHex->getGridGraphicsObjects()) {
 			scene()->addItem(object);
 			object->setPos(graphicsHex->pos());
 		}
 
-		connect(graphicsHex, &GraphicsHex::activated,      this, static_cast<void (GraphicsMap::*)(int)>(&GraphicsMap::hexClicked));
-		connect(graphicsHex, &GraphicsHex::mouseEntered,   this, &GraphicsMap::hexTracked);
-		connect(graphicsHex, &GraphicsHex::mouseLeft,      this, &GraphicsMap::hexAbandoned);
-		connect(graphicsHex, &GraphicsHex::newAreaTracked, this, &GraphicsMap::hexNewAreaTracked);
+		connect(graphicsHex, &GraphicsHex::activated,      this, &GraphicsMap::onHexClicked);
+		connect(graphicsHex, &GraphicsHex::mouseEntered,   this, &GraphicsMap::onHexTracked);
+		connect(graphicsHex, &GraphicsHex::mouseLeft,      this, &GraphicsMap::onHexAbandoned);
+		connect(graphicsHex, &GraphicsHex::newAreaTracked, this, &GraphicsMap::onHexNewAreaTracked);
 	}
 }
 
@@ -187,7 +205,7 @@ void GraphicsMap::initUnits()
 void GraphicsMap::initUnit(MechEntity *mech)
 {
 	GraphicsEntity *gEnt = GraphicsFactory::get(mech);
-	gEnt->init(GraphicsFactory::get(hexes[mech->getCurrentPositionNumber()])->pos().toPoint());
+	gEnt->init(this);
 	scene()->addItem(gEnt);
 
 	connect(mech, &MechEntity::stateInfoSent, this, &GraphicsMap::mechStateInfoReceived);
@@ -204,7 +222,7 @@ void GraphicsMap::initScaling()
 	scale = 1;
 	scaleSpeed = DEFAULT_SCALE_SPEED;
 
-	qreal mDim = (qreal)(qMax(hexWidth, hexHeight));
+	qreal mDim = (qreal)(qMax(getMapWidth(), getMapHeight()));
 	minScale = MIN_SCALE_MULT / mDim;
 	maxScale = 3;
 }
@@ -283,10 +301,71 @@ void GraphicsMap::resizeEvent(QResizeEvent *event)
 	initScaling();
 }
 
+void GraphicsMap::drawFriendlyMechs(const Player *player)
+{
+	for (MechEntity *mech : player->getMechs())
+		mech->setFriendly(true);
+}
+
+void GraphicsMap::drawShootRange(const MechEntity *mech)
+{
+	Hex *mechHex = getGrid()->getHexByCoordinate(mech->getCurrentCoordinate());
+	QList <Hex *> vArc = getGrid()->getShootRange(mechHex, mech->getTorsoDirection() + mech->getCurrentDirection());
+	for (Hex *dest : vArc)
+		dest->setAttackObject(getGrid()->getAttackObject(mech, dest->getMech()));
+}
+
+void GraphicsMap::drawWalkRange(const MovementObject &movement)
+{
+	QList <MoveObject> wRange = getGrid()->getWalkRange(movement);
+	for (MoveObject &object : wRange)
+		getGrid()->getHexByCoordinate(object.getDest().getCoordinate())->setMoveObject(object);
+}
+
+void GraphicsMap::hideAll()
+{
+	hideWalkRange();
+	hideShootRange();
+	for (Hex *hex : hexes)
+		hex->clear();
+}
+
+void GraphicsMap::hideShootRange()
+{
+	shootRangeVisible = false;
+	for (Hex *hex : hexes)
+		hex->removeAttackObject();
+}
+
+void GraphicsMap::hideWalkRange()
+{
+	if (!walkRangeVisible)
+		return;
+	walkRangeVisible = false;
+	for (Hex *hex : hexes)
+		hex->removeMoveObject();
+}
+
+void GraphicsMap::showShootRange(const MechEntity *mech)
+{
+	if (mech == nullptr)
+		return;
+
+	drawShootRange(mech);
+	shootRangeVisible = true;
+}
+
+void GraphicsMap::showWalkRange(const MovementObject &movement)
+{
+	hideWalkRange();
+	drawWalkRange(movement);
+	walkRangeVisible = true;
+}
+
 void GraphicsMap::noPhase()
 {
-	grid->hideWalkRange();
-	grid->hideShootRange();
+	hideShootRange();
+	hideWalkRange();
 }
 
 void GraphicsMap::emitGameStarted()
@@ -321,32 +400,32 @@ void GraphicsMap::emitMechActionsNotNeeded()
 
 void GraphicsMap::emitMechWalkRangeNeeded(const MovementObject &movement)
 {
-	grid->showWalkRange(movement);
+	showWalkRange(movement);
 	scene()->update();
 }
 
 void GraphicsMap::emitMechShootRangeNeeded(const MechEntity *mech)
 {
-	grid->showShootRange(mech);
+	showShootRange(mech);
 	scene()->update();
 }
 
 void GraphicsMap::emitMechRangesNotNeeded()
 {
-	grid->hideWalkRange();
-	grid->hideShootRange();
+	hideWalkRange();
+	hideShootRange();
 	scene()->update();
 }
 
 void GraphicsMap::emitPlayerTurn(const Player *player)
 {
-	grid->drawFriendlyMechs(player);
+	drawFriendlyMechs(player);
 	emit playerTurn(player);
 }
 
 void GraphicsMap::emitHexesNeedClearing()
 {
-	grid->hideAll();
+	hideAll();
 	scene()->update();
 }
 
@@ -372,30 +451,29 @@ void GraphicsMap::emitExtensiveInfoSent(const QString &info, const QColor &color
 void GraphicsMap::clearMap()
 {
 	Map::clearMap();
-	delete grid;
 	mapLoaded = false;
 	GraphicsFactory::clear();
 	emit mapCleared();
 }
 
-void GraphicsMap::hexClicked(int hexNumber)
+void GraphicsMap::onHexClicked(Hex *hex)
 {
-	emit hexClicked(hexes[hexNumber]);
-	setCurrentHex(hexes[hexNumber]);
+	emit hexClicked(hex);
+	setCurrentHex(hex);
 	(this->*GraphicsMap::phaseToFunction[getCurrentPhase()])();
 }
 
-void GraphicsMap::hexTracked(int hexNumber)
+void GraphicsMap::onHexTracked(Hex *hex)
 {
-	emit hexDisplayStarted(hexes[hexNumber]);
+	emit hexDisplayStarted(hex);
 }
 
-void GraphicsMap::hexAbandoned(int hexNumber)
+void GraphicsMap::onHexAbandoned()
 {
 	emit hexDisplayQuit();
 }
 
-void GraphicsMap::hexNewAreaTracked(int hexNumber)
+void GraphicsMap::onHexNewAreaTracked()
 {
 	emit hexDisplayChanged();
 }

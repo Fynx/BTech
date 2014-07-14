@@ -20,16 +20,14 @@ This file is part of BTech Project.
 #define GRAPHICS_FACTORY_H
 
 #include <QtWidgets>
-#include "BTCommon/CommonStrings.h"
-#include "BTCommon/GraphicsEntity.h"
-#include "BTCommon/GraphicsHex.h"
-#include "BTCommon/MechEntity.h"
+
+class Entity;
+class GraphicsEntity;
+class GraphicsHex;
+class Hex;
 
 /**
  * \class GraphicsFactory
- * This class provides static method get(QString) which returns new GraphicsEntity.
- * An object of this class cannot be created, because it does not provide any object-dependent functionalities.
- * Also, function init() must be called when the program starts, so functions behave properly.
  */
 class GraphicsFactory
 {

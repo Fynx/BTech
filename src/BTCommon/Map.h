@@ -1,5 +1,6 @@
 /*
 Copyright (C) 2014 by Piotr Majcherczyk <fynxor [at] gmail [dot] com>
+Copyright (C) 2014 by Bartosz Szreder <szreder [at] mimuw [dot] edu [dot] pl>
 This file is part of BTech Project.
 
 	BTech Project is free software: you can redistribute it and/or modify
@@ -20,14 +21,14 @@ This file is part of BTech Project.
 #define MAP_H
 
 #include <QtWidgets>
-#include "BTCommon/CommonStrings.h"
-#include "BTCommon/Grid.h"
-#include "BTCommon/Hex.h"
-#include "BTCommon/InfoBar.h"
-#include "BTCommon/MechEntity.h"
-#include "BTCommon/Player.h"
-#include "BTCommon/Rules.h"
 #include "BTCommon/Utils.h"
+
+class Action;
+class Grid;
+class Hex;
+class MechEntity;
+class MovementObject;
+class Player;
 
 /**
  * \class Map
@@ -40,6 +41,9 @@ class Map
 
 public:
 	Map();
+
+	qint16 getMapWidth() const;
+	qint16 getMapHeight() const;
 
 	void setDescription(const QString &description);
 	QString getDescription() const;
@@ -76,12 +80,9 @@ protected:
 	bool mapLoaded;
 	QString mapFileName;
 	QVector <Hex *> hexes;
-
-	qint16 hexWidth;
-	qint16 hexHeight;
+	const Grid * getGrid() const;
 
 	QVector <Player *> players;
-	void countInitiative();
 	void setMechsMoved(bool moved);
 	void clearMechs();
 	void cleanMechs();
@@ -163,8 +164,12 @@ private:
 
 	virtual void initPlayers();
 	virtual void initUnits();
+	void initGrid();
 
 	void resetCurrentValues();
+
+	qint16 mapWidth, mapHeight;
+	Grid *grid;
 
 	static const qint16 DEFAULT_HEX_WIDTH = 40;
 	static const qint16 DEFAULT_HEX_HEIGHT = 40;

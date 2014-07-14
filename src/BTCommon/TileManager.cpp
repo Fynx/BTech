@@ -19,6 +19,8 @@ This file is part of BTech Project.
 #include <QtGui>
 
 #include "BTCommon/GraphicsFactory.h"
+#include "BTCommon/GraphicsHex.h"
+#include "BTCommon/Hex.h"
 #include "BTCommon/Tile.h"
 #include "BTCommon/TileManager.h"
 
@@ -38,7 +40,7 @@ void TileManager::loadTileDictionary(QDataStream &in, const QVector <Hex *> &hex
 
 	QHash <UID, QString> tileDict;
 	QHash <UID, const Tile *> idToTile;
-	QHash <QPoint, UID> coordToTileUid;
+	QHash <Coordinate, UID> coordToTileUid;
 	in >> tileDict >> coordToTileUid;
 
 	for (QHash <UID, QString>::ConstIterator i = tileDict.constBegin(); i != tileDict.constEnd(); ++i) {
@@ -48,7 +50,7 @@ void TileManager::loadTileDictionary(QDataStream &in, const QVector <Hex *> &hex
 	}
 
 	manager.coordToTile.clear();
-	for (QHash <QPoint, UID>::ConstIterator i = coordToTileUid.constBegin(); i != coordToTileUid.constEnd(); ++i)
+	for (QHash <Coordinate, UID>::ConstIterator i = coordToTileUid.constBegin(); i != coordToTileUid.constEnd(); ++i)
 		manager.coordToTile[i.key()] = idToTile[i.value()];
 }
 
@@ -76,7 +78,7 @@ void TileManager::saveTileDictionary(QDataStream &out, const QVector <Hex *> &he
 		const GraphicsHex *graphicsHex = GraphicsFactory::get(hex);
 		const Tile *tile = graphicsHex->getTile();
 		if (tile != nullptr) {
-			QPoint hexCoord = hex->getPoint();
+			Coordinate hexCoord = hex->getCoordinate();
 			UID tileUid;
 			if (tileToId.contains(tile)) {
 				tileUid = tileToId[tile];
@@ -90,18 +92,18 @@ void TileManager::saveTileDictionary(QDataStream &out, const QVector <Hex *> &he
 		}
 	}
 
-	QHash <QPoint, UID> coordToTileUid;
-	for (QHash <QPoint, const Tile *>::ConstIterator i = manager.coordToTile.constBegin(); i != manager.coordToTile.constEnd(); ++i)
+	QHash <Coordinate, UID> coordToTileUid;
+	for (QHash <Coordinate, const Tile *>::ConstIterator i = manager.coordToTile.constBegin(); i != manager.coordToTile.constEnd(); ++i)
 		coordToTileUid[i.key()] = tileToId[i.value()];
 	out << tileDict << coordToTileUid;
 }
 
 const Tile * TileManager::tile(const Hex *hex)
 {
-	return getInstance().tile(hex->getPoint());
+	return getInstance().tile(hex->getCoordinate());
 }
 
-const Tile * TileManager::tile(QPoint hexCoord)
+const Tile * TileManager::tile(Coordinate hexCoord)
 {
 	return getInstance().coordToTile.value(hexCoord, nullptr);
 }

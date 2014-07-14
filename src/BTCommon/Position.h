@@ -1,5 +1,6 @@
 /*
 Copyright (C) 2014 by Piotr Majcherczyk <fynxor [at] gmail [dot] com>
+Copyright (C) 2014 by Bartosz Szreder <szreder [at] mimuw [dot] edu [dot] pl>
 This file is part of BTech Project.
 
 	BTech Project is free software: you can redistribute it and/or modify
@@ -43,7 +44,7 @@ public:
 	operator int() const;
 	explicit operator QString() const;
 
-	int getAngle() const;
+	int toAngle() const;
 
 	Direction onRight() const;
 	Direction onLeft() const;
@@ -75,7 +76,7 @@ namespace BTech {
 	static const Direction DirectionLeftRear(4);
 	static const Direction DirectionLeftFront(5);
 
-	static const QList <Direction> directions = {
+	static const QVector <Direction> directions = {
 		DirectionN,
 		DirectionNE,
 		DirectionSE,
@@ -120,21 +121,49 @@ namespace BTech {
 }
 
 /**
+ * \class Coordinate
+ * A thin abstraction over QPoint for representing coordinates of Hexes
+ */
+
+class Coordinate : public QPoint
+{
+	friend uint qHash(const Coordinate &c, uint seed);
+public:
+	constexpr Coordinate(QPoint p = QPoint{0, 0}) : QPoint(p) {}
+	constexpr Coordinate(int x, int y) : Coordinate(QPoint(x, y)) {}
+
+	QString toString() const {return QString("[%1, %2]").arg(y(), x());}
+};
+
+inline uint qHash(const Coordinate &c, uint seed)
+{
+	return qHash(QPair <int, int>(c.x(), c.y()), seed);
+}
+
+template <typename T, typename U>
+inline const Coordinate operator + (const T &c1, const U &c2)
+{
+	return Coordinate(QPoint(c1.x() + c2.x(), c1.y() + c2.y()));
+}
+
+/**
  * \class Position
  * Represents a position that a unit can have (not necessarily Mech).
  */
 class Position
 {
+	friend uint qHash(const Position &p, uint seed);
 public:
-	Position();
-	Position(int number, Direction direction);
+	Position() = default;
+	Position(Coordinate position, Direction direction);
+	Position(const Position &) = default;
+	Position & operator = (const Position &) = default;
 
-	Position & operator = (const Position &obj);
 	bool operator == (const Position &obj) const;
 	bool operator != (const Position &obj) const;
 
-	void setNumber(int number);
-	int getNumber() const;
+	void setCoordinate(Coordinate coordinate);
+	Coordinate getCoordinate() const;
 	void setDirection(Direction direction);
 	Direction getDirection() const;
 
@@ -145,8 +174,24 @@ public:
 	friend QDataStream & operator >> (QDataStream &in, Position &position);
 
 private:
-	int number;
+	Coordinate coordinate;
 	Direction direction;
+};
+
+inline uint qHash(const Position &p, uint seed = 0)
+{
+	return qHash(QPair <uint, uint>(qHash(p.coordinate, seed), qHash(p.direction, seed)));
+}
+
+/**
+ * \class CoordinateMapper
+ * Maps Hex coordinates into its corresponding GraphicsHex position on the scene
+ */
+
+class CoordinateMapper
+{
+public:
+	virtual QPointF mapCoordinateToScene(const Coordinate &c) const = 0;
 };
 
 /**
@@ -172,29 +217,6 @@ public:
 
 	void operator += (const LineOfSight &lineOfSight);
 	friend LineOfSight qMax(const LineOfSight &lhs, const LineOfSight &rhs);
-};
-
-/**
- * \class PathFinder
- * Provides a functions findPath() and getPosition(). Grid derives after PathFinder.
- */
-class PathFinder
-{
-public:
-	virtual ~PathFinder() = 0;
-	virtual QPoint getPosition(int number) const = 0;
-};
-
-/**
- * \class VisibilityManager
- * Provides info about lines of sight.
- */
-class VisibilityManager
-{
-public:
-	virtual ~VisibilityManager() = 0;
-	virtual LineOfSight getLineOfSight(int src, int dest) const = 0;	/**< Returns the line of sight object for the hexes. */
-	virtual Direction getAttackDirection(int src, int dest) const = 0;	/**< Returns the direction from which the target would be hit. */
 };
 
 /**

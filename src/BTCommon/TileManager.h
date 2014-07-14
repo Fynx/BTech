@@ -20,14 +20,10 @@ This file is part of BTech Project.
 #define TILE_MANAGER_H
 
 #include <QtCore>
+#include "BTCommon/Position.h"
 
 class Hex;
 class Tile;
-
-inline uint qHash(const QPoint &p, uint seed = 0)
-{
-	return qHash(QPair <int, int>(p.x(), p.y()), seed);
-}
 
 class TileManager {
 
@@ -40,7 +36,7 @@ public:
 	static const Tile * registerTile(const QFileInfo &tileFile);
 	static void saveTileDictionary(QDataStream &out, const QVector <Hex *> &hexes);
 	static const Tile * tile(const Hex *hex);
-	static const Tile * tile(QPoint hexCoord);
+	static const Tile * tile(Coordinate hexCoord);
 
 private:
 	TileManager();
@@ -53,7 +49,7 @@ private:
 	QHash <QString, const Tile *> pathToTile;
 	QHash <const Tile *, QFileInfo> tileToFileInfo;
 	QVector <Tile *> tiles;
-	QHash <QPoint, const Tile *> coordToTile;
+	QHash <Coordinate, const Tile *> coordToTile;
 };
 
 #endif

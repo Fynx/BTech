@@ -1,5 +1,6 @@
 /*
 Copyright (C) 2014 by Piotr Majcherczyk <fynxor [at] gmail [dot] com>
+Copyright (C) 2014 by Bartosz Szreder <szreder [at] mimuw [dot] edu [dot] pl>
 This file is part of BTech Project.
 
 	BTech Project is free software: you can redistribute it and/or modify
@@ -26,9 +27,9 @@ This file is part of BTech Project.
 
 /**
  * WARNING
- * If you want make Movable move, set destination position. The best way to do this is to call setDestinationPosition.
- * However, you may need to separate setting destination rotation and position number.
- * In that case... for gods' sake, do it in order 1. POSITION NUMBER 2. ROTATION.
+ * If you want make Movable move, set destination coordinate. The best way to do this is to call setDestinationCoordinate.
+ * However, you may need to separate setting destination rotation and coordinate.
+ * In that case... for gods' sake, do it in order 1. COORDINATE 2. ROTATION.
  * If you don't, happy debugging.
  * The reason is simple: the program functions assume the signals from these classes go in order: Movable, Rotable.
  */
@@ -47,22 +48,22 @@ public:
 	virtual bool isRotable() const;
 	virtual bool isMovable() const;
 
+	void setCurrentCoordinate(Coordinate coordinate);
+	Coordinate getCurrentCoordinate() const;
+
 	void setCurrentDirection(Direction direction);
 	Direction getCurrentDirection() const;
 
-	void setCurrentPositionNumber(int position);
-	int getCurrentPositionNumber() const;
-
+	void setCurrentPosition(Coordinate coordinate, Direction direction);
 	void setCurrentPosition(const Position &position);
-	void setCurrentPosition(int position, Direction direction);
 	Position getCurrentPosition() const;
 
 	friend QDataStream & operator << (QDataStream &out, const Entity &entity);
 	friend QDataStream & operator >> (QDataStream &in, Entity &entity);
 
 signals:
+	void coordinateSet();
 	void directionSet();
-	void positionNumberSet();
 
 private:
 	Position currentPosition;
@@ -77,7 +78,7 @@ class Rotable : public Entity
 Q_OBJECT;
 
 public:
-	Rotable();
+	Rotable() = default;
 
 	bool isRotable() const;
 
@@ -112,20 +113,19 @@ class Movable : public Rotable
 Q_OBJECT;
 
 public:
-	Movable();
+	Movable() = default;
 
 	bool isMovable() const;
 
-	void setPositionNumber(int position);
+	void setCoordinate(Coordinate coordinate);
+	void setDestinationCoordinate(Coordinate coordinate);
+	Coordinate getDestinationCoordinate() const;
 
+	void setPosition(Coordinate coordinate, Direction direction);
 	void setPosition(const Position &position);
-	void setPosition(int positionNumber, Direction direction);
 
-	void setDestinationPositionNumber(int position);
-	int getDestinationPositionNumber() const;
-
+	void setDestinationPosition(Coordinate coordinate, Direction direction);
 	void setDestinationPosition(const Position &position);
-	void setDestinationPosition(int position, Direction direction);
 	Position getDestinationPosition() const;
 
 	virtual void reachDestination();
@@ -135,10 +135,10 @@ public:
 	friend QDataStream & operator >> (QDataStream &in, Movable &movable);
 
 signals:
-	void positionChanged();
+	void coordinateChanged();
 
 private:
-	int destinationPositionNumber;
+	Coordinate destinationCoordinate;
 };
 
 #endif // OBJECTS_H

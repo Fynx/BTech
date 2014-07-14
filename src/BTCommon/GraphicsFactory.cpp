@@ -16,7 +16,10 @@ This file is part of BTech Project.
 	along with BTech.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "BTCommon/GraphicsEntity.h"
 #include "BTCommon/GraphicsFactory.h"
+#include "BTCommon/GraphicsHex.h"
+#include "BTCommon/Objects.h"
 
 QHash <const Entity *, GraphicsEntity *> GraphicsFactory::entityToGraphics;
 QHash <const Hex *, GraphicsHex *> GraphicsFactory::hexToGraphics;
@@ -31,7 +34,7 @@ GraphicsEntity * GraphicsFactory::get(Entity *entity)
 		GraphicsEntity *newGraphicsEntity;
 		switch (entity->getEntityType()) {
 			case BTech::EntityType::Mech:
-				newGraphicsEntity = new GraphicsMech((MechEntity *)entity);
+				newGraphicsEntity = new GraphicsMech(reinterpret_cast<MechEntity *>(entity));
 				break;
 		}
 		entityToGraphics[constEntity] = newGraphicsEntity;

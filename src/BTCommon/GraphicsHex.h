@@ -1,5 +1,6 @@
 /*
 Copyright (C) 2014 by Piotr Majcherczyk <fynxor [at] gmail [dot] com>
+Copyright (C) 2014 by Bartosz Szreder <szreder [at] mimuw [dot] edu [dot] pl>
 This file is part of BTech Project.
 
 	BTech Project is free software: you can redistribute it and/or modify
@@ -66,10 +67,10 @@ public:
 	void paintMouseMoveDependentGrid(QPainter *painter);
 
 signals:
-	void activated(int);
-	void mouseEntered(int);
-	void mouseLeft(int);
-	void newAreaTracked(int);
+	void activated(Hex *hex);
+	void mouseEntered(Hex *hex);
+	void mouseLeft(Hex *hex);
+	void newAreaTracked(Hex *hex);
 
 private:
 	GridGraphicsObject *baseGridGraphicsObject;

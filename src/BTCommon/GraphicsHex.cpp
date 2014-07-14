@@ -1,5 +1,6 @@
 /*
 Copyright (C) 2014 by Piotr Majcherczyk <fynxor [at] gmail [dot] com>
+Copyright (C) 2014 by Bartosz Szreder <szreder [at] mimuw [dot] edu [dot] pl>
 This file is part of BTech Project.
 
 	BTech Project is free software: you can redistribute it and/or modify
@@ -18,8 +19,8 @@ This file is part of BTech Project.
 
 #include "BTCommon/EnumHashFunctions.h"
 #include "BTCommon/GraphicsFactory.h"
-
 #include "BTCommon/GraphicsHex.h"
+#include "BTCommon/MechEntity.h"
 #include "BTCommon/Tile.h"
 
 bool GraphicsHex::gridVisible = false;
@@ -222,7 +223,7 @@ void GraphicsHex::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWi
 		painter->drawRect(QRect(-getSize() / 2, getSize() / 4, getSize(), getSize() / 2));
 		painter->setPen(Color::CoordinatesText);
 		painter->drawText(-getSize() / 2, getSize() / 4, getSize(), getSize() / 2, Qt::AlignCenter,
-			QString("%1, %2").arg(hex->getPoint().x()).arg(hex->getPoint().y()));
+			QString("%1, %2").arg(hex->getCoordinate().x()).arg(hex->getCoordinate().y()));
 	}
 }
 
@@ -294,14 +295,14 @@ void GraphicsHex::paintBorder(QPainter *painter, int width, const QColor &color)
 
 void GraphicsHex::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-	emit activated(hex->getNumber());
+	emit activated(hex);
 	event->accept();
 }
 
 void GraphicsHex::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
 	setTracked(true);
-	emit mouseEntered(hex->getNumber());
+	emit mouseEntered(hex);
 	event->accept();
 }
 
@@ -309,7 +310,7 @@ void GraphicsHex::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
 	setTracked(false);
 	trackedArea = -1;
-	emit mouseLeft(hex->getNumber());
+	emit mouseLeft(hex);
 	event->accept();
 }
 
@@ -331,7 +332,7 @@ void GraphicsHex::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
 	trackedArea = i % BTech::NODES_NUMBER;
 	if (trackedArea != prevHexTracked) {
 		hex->setMoveObject(trackedArea);
-		emit newAreaTracked(hex->getNumber());
+		emit newAreaTracked(hex);
 	}
 	QGraphicsItem::update();
 }

@@ -20,7 +20,9 @@ This file is part of BTech Project.
 #define BTMAPMANAGER_H
 
 #include <QtWidgets>
-#include "BTCommon/GraphicsMap.h"
+
+class GraphicsMap;
+class InfoBar;
 
 class BTMapManager : public QMainWindow
 {

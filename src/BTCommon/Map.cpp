@@ -18,14 +18,28 @@ This file is part of BTech Project.
 */
 
 #include "BTCommon/EnumHashFunctions.h"
+#include "BTCommon/Grid.h"
+#include "BTCommon/Hex.h"
 #include "BTCommon/Map.h"
+#include "BTCommon/MechEntity.h"
+#include "BTCommon/Player.h"
 #include "BTCommon/TileManager.h"
 
 const QColor Map::DefaultMessageColor = Qt::white;
 
 Map::Map()
+	: mapLoaded(false), grid(new Grid())
 {
-	mapLoaded = false;
+}
+
+qint16 Map::getMapWidth() const
+{
+	return mapWidth;
+}
+
+qint16 Map::getMapHeight() const
+{
+	return mapHeight;
 }
 
 void Map::setDescription(const QString &description)
@@ -51,13 +65,12 @@ QList <BTech::GameVersion> & Map::getAllowedVersionsRef()
 void Map::createNewMap(int width, int height)
 {
 	setMapFileName(QString());
-	hexWidth = width;
-	hexHeight = height;
-	for (int i = 0; i < height; ++i) {
-		for (int j = 0; j < width; ++j) {
+	this->mapWidth = width;
+	this->mapHeight = height;
+	for (int i = 0; i < mapHeight; ++i) {
+		for (int j = 0; j < mapWidth; ++j) {
 			Hex *hex = new Hex;
-			hex->setPoint({j + 1, i + 1});
-			hex->setNumber(i * width + j);
+			hex->setCoordinate({j + 1, i + 1});
 			hex->setTerrain(BTech::Terrain::Clear);
 			hex->setHeight(0);
 			hexes << hex;
@@ -84,7 +97,8 @@ bool Map::loadMap(const QString &mapFileName)
 
 	for (Player *player : players) {
 		for (MechEntity *mech : player->getMechs()) {
-			Hex *hex = hexes[mech->getCurrentPositionNumber()];
+			const Coordinate mechCoord = mech->getCurrentPosition().getCoordinate();
+			Hex *hex = grid->getHexByCoordinate(mechCoord);
 			hex->setMech(mech);
 			mech->setMechPosition(hex);
 		}
@@ -202,7 +216,7 @@ QDataStream & operator << (QDataStream &out, const Map &map)
 
 	out << Rules::getVersion();
 
-	out << map.hexWidth << map.hexHeight;
+	out << map.mapWidth << map.mapHeight;
 	for (Hex *hex : map.hexes)
 		out << *hex;
 
@@ -226,13 +240,14 @@ QDataStream & operator >> (QDataStream &in, Map &map)
 	in >> version;
 	Rules::setVersion(version);
 
-	in >> map.hexWidth >> map.hexHeight;
+	in >> map.mapWidth >> map.mapHeight;
 
-	for (int i = 0; i < map.hexWidth * map.hexHeight; ++i) {
+	for (int i = 0; i < map.mapWidth * map.mapHeight; ++i) {
 		Hex *hex = new Hex;
 		in >> *hex;
 		map.hexes.append(hex);
 	}
+	map.grid->initGrid(map.hexes);
 	qDebug() << "Hexes loaded.";
 
 	int playersSize;
@@ -251,6 +266,11 @@ QDataStream & operator >> (QDataStream &in, Map &map)
 	qDebug() << "Done.\n";
 
 	return in;
+}
+
+const Grid * Map::getGrid() const
+{
+	return grid;
 }
 
 void Map::setMechsMoved(bool moved)
@@ -399,7 +419,7 @@ void Map::movementPhase()
 				qDebug() << "\tno existing move object";
 				break;
 			}
-			hexes[getCurrentMech()->getCurrentPositionNumber()]->removeMech();
+			grid->getHexByCoordinate(getCurrentMech()->getCurrentPosition().getCoordinate())->removeMech();
 			getCurrentMech()->move(moveObject);
 			getCurrentHex()->setMech(getCurrentMech());
 			emitMechInfoNeeded(getCurrentMech());
@@ -635,6 +655,11 @@ void Map::setCurrentAction(const Action *action)
 const Action * Map::getCurrentAction() const
 {
 	return currentMech->getCurrentAction();
+}
+
+void Map::initGrid()
+{
+	grid->initGrid(hexes);
 }
 
 void Map::initPlayers()

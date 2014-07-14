@@ -20,8 +20,9 @@ This file is part of BTech Project.
 #define INFOBAR_H
 
 #include <QtWidgets>
-#include "BTCommon/Hex.h"
-#include "BTCommon/MechEntity.h"
+
+class Hex;
+class MechEntity;
 
 class InfoBar : public QDockWidget
 {
@@ -53,7 +54,6 @@ public slots:
 	void updateHexWindow();
 
 private:
-	QImage *image;
 	QVector <QString> information;
 	const MechEntity *curMech;
 	const Hex *curHex;

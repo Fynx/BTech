@@ -1,5 +1,6 @@
 /*
 Copyright (C) 2014 by Piotr Majcherczyk <fynxor [at] gmail [dot] com>
+Copyright (C) 2014 by Bartosz Szreder <szreder [at] mimuw [dot] edu [dot] pl>
 This file is part of BTech Project.
 
 	BTech Project is free software: you can redistribute it and/or modify
@@ -18,8 +19,8 @@ This file is part of BTech Project.
 
 #include "BTCommon/EnumHashFunctions.h"
 
-#include "BTCommon/Position.h"
 #include <QtGui>
+#include "BTCommon/Position.h"
 
 /**
  * \class Direction
@@ -39,7 +40,7 @@ Direction Direction::operator + (int change) const
 
 Direction Direction::operator + (Direction direction) const
 {
-	return direction + value;
+	return this->operator + (direction.value);
 }
 
 void Direction::operator += (int change)
@@ -89,7 +90,7 @@ Direction::operator QString() const
 	return BTech::directionStringChange[*this];
 }
 
-int Direction::getAngle() const
+int Direction::toAngle() const
 {
 	return value * BTech::Math::HEX_ANGLE;
 }
@@ -187,24 +188,13 @@ QDataStream & BTech::operator >> (QDataStream &in, BTech::Terrain &terrain)
  */
 
 /* constructor */
-Position::Position()
+Position::Position(Coordinate coordinate, Direction direction)
+	: coordinate(coordinate), direction(direction)
 {}
-
-/* constructor */
-Position::Position(int number, Direction direction)
-	: number(number), direction(direction)
-{}
-
-Position & Position::operator = (const Position &obj)
-{
-	setDirection(obj.getDirection());
-	setNumber(obj.getNumber());
-	return *this;
-}
 
 bool Position::operator == (const Position &obj) const
 {
-	return	obj.getNumber() == getNumber() &&
+	return	obj.getCoordinate() == getCoordinate() &&
 		obj.getDirection() == getDirection();
 }
 
@@ -213,14 +203,14 @@ bool Position::operator != (const Position &obj) const
 	return !((*this) == obj);
 }
 
-void Position::setNumber(int number)
+void Position::setCoordinate(Coordinate coordinate)
 {
-	this->number = number;
+	this->coordinate = coordinate;
 }
 
-int Position::getNumber() const
+Coordinate Position::getCoordinate() const
 {
-	return number;
+	return coordinate;
 }
 
 void Position::setDirection(Direction direction)
@@ -245,13 +235,13 @@ void Position::turnLeft()
 
 QDataStream & operator << (QDataStream &out, const Position &position)
 {
-	out << position.number << position.direction;
+	out << position.coordinate << position.direction;
 	return out;
 }
 
 QDataStream & operator >> (QDataStream &in, Position &position)
 {
-	in >> position.number >> position.direction;
+	in >> position.coordinate >> position.direction;
 	return in;
 }
 
@@ -297,20 +287,6 @@ LineOfSight qMax(const LineOfSight &lhs, const LineOfSight &rhs)
 
 	return result;
 }
-
-/**
- * \class PathFinder
- */
-
-PathFinder::~PathFinder()
-{}
-
-/**
- * \class VisibilityManager
- */
-
-VisibilityManager::~VisibilityManager()
-{}
 
 /**
  * \class MechPosition

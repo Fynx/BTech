@@ -20,19 +20,14 @@ This file is part of BTech Project.
 #define MECH_ENTITY_H
 
 #include <QtWidgets>
-#include "BTCommon/Action.h"
 #include "BTCommon/AttackObject.h"
-#include "BTCommon/CommonStrings.h"
-#include "BTCommon/Effect.h"
 #include "BTCommon/Mech.h"
-#include "BTCommon/MechPart.h"
-#include "BTCommon/MechWarrior.h"
-#include "BTCommon/MoveObject.h"
 #include "BTCommon/Objects.h"
-#include "BTCommon/Position.h"
-#include "BTCommon/Rules.h"
-#include "BTCommon/Utils.h"
 #include "BTCommon/Weapon.h"
+
+class Action;
+class CombatAction;
+class MechWarrior;
 
 /**
  * \class MechEntity

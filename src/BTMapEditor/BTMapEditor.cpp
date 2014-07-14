@@ -19,9 +19,15 @@ This file is part of BTech Project.
 
 #include "BTCommon/CommonSettings.h"
 #include "BTCommon/DataManager.h"
+#include "BTCommon/GraphicsFactory.h"
+#include "BTCommon/GraphicsHex.h"
+#include "BTCommon/GraphicsMap.h"
+#include "BTCommon/InfoBar.h"
 #include "BTCommon/Paths.h"
 #include "BTCommon/Settings.h"
 #include "BTMapEditor/BTMapEditor.h"
+#include "BTMapEditor/ToolBar.h"
+#include "BTMapEditor/dialogs/MapEditorDialogs.h"
 
 BTMapEditor::BTMapEditor()
 {
@@ -210,7 +216,6 @@ void BTMapEditor::onSaveData()
 
 void BTMapEditor::onHexClicked(Hex *hex)
 {
-	qDebug() << __func__ << hex->getNumber();
 	map->clearHexes();
 	GraphicsFactory::get(hex)->setClicked(true);
 

@@ -1,5 +1,6 @@
 /*
 Copyright (C) 2014 by Piotr Majcherczyk <fynxor [at] gmail [dot] com>
+Copyright (C) 2014 by Bartosz Szreder <szreder [at] mimuw [dot] edu [dot] pl>
 This file is part of BTech Project.
 
 	BTech Project is free software: you can redistribute it and/or modify
@@ -20,11 +21,11 @@ This file is part of BTech Project.
 #define HEX_H
 
 #include <QtWidgets>
-#include "BTCommon/AttackObject.h"
-#include "BTCommon/MechEntity.h"
 #include "BTCommon/MoveObject.h"
 #include "BTCommon/Position.h"
-#include "BTCommon/Weapon.h"
+
+class AttackObject;
+class MechEntity;
 
 namespace BTech {
 	static const int NODES_NUMBER = 6;
@@ -34,7 +35,6 @@ namespace BTech {
  * \class Hex
  * This is a game-system representation of a hex.
  * Inheriting QObject is required, so the children can be killed, when the Hex is destroyed.
- * In order to make instances of this class work properly, static function setVisibilityManager require to be called.
  */
 class Hex : public QObject, public MechPosition
 {
@@ -43,14 +43,10 @@ public:
 	Hex();
 	virtual ~Hex();
 
-	static void setVisibilityManager(const VisibilityManager *manager);
-
+	void setCoordinate(const Coordinate &coordinate);
+	Coordinate getCoordinate() const;
 	void setNeighbour(Direction direction, Hex *neighbour);
 	Hex * getNeighbour(Direction direction) const;
-	void setNumber(int number);
-	int getNumber() const;
-	void setPoint(const QPoint &point);
-	QPoint getPoint() const;
 
 	void setHeight(int height);
 	int getHeight() const;
@@ -82,11 +78,8 @@ public:
 	friend QDataStream & operator >> (QDataStream &in, Hex &hex);
 
 private:
-	static const VisibilityManager *visibilityManager;
-
 	Hex *neighbour[BTech::NODES_NUMBER];
-	int number;
-	QPoint point;
+	Coordinate coordinate;
 
 	void initNeighbours();  /**< Sets all neighbours to nullptr. */
 

@@ -22,9 +22,9 @@ This file is part of BTech Project.
 
 #include <QtWidgets>
 #include "BTCommon/BTMapManager.h"
-#include "BTCommon/GraphicsMap.h"
-#include "BTMapEditor/dialogs/MapEditorDialogs.h"
-#include "BTMapEditor/ToolBar.h"
+
+class Hex;
+class ToolBar;
 
 /**
  * \class BTMapEditor

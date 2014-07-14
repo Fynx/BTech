@@ -1,5 +1,6 @@
 /*
 Copyright (C) 2014 by Piotr Majcherczyk <fynxor [at] gmail [dot] com>
+Copyright (C) 2014 by Bartosz Szreder <szreder [at] mimuw [dot] edu [dot] pl>
 This file is part of BTech Project.
 
 	BTech Project is free software: you can redistribute it and/or modify
@@ -20,33 +21,29 @@ This file is part of BTech Project.
 #define GRAPHICSENTITY_H
 
 #include <QtWidgets>
-#include "BTCommon/Objects.h"
-#include "BTCommon/MechEntity.h" // TODO this should be eradicated from here, along with class GraphicsMech
+#include "BTCommon/Position.h"
+
+class Entity;
+class MechEntity;
 
 /**
  * \class GraphicsEntity
  * This class is a QGraphicsObject with an Entity attached.
  * It provides Entity with all display functions and QGraphicsScene coordinates' control and maintenance.
  * What is displayed is entirely dependent on entity's functions and state.
- * To make this class properly, PathFinder must be set with static function setPathFinder.
  */
 class GraphicsEntity : public QGraphicsObject
 {
 Q_OBJECT;
 
 public:
-	static void setPathFinder(PathFinder *pathFinder);
+	GraphicsEntity(Entity *entity);
 
-	GraphicsEntity(Entity *entity = nullptr);
-
-	void setEntity(Entity *entity);
+	void init(const CoordinateMapper *coordinateMapper);
 	void setStraightSpeed(int speed);
 	int getStraightSpeed() const;
 	void setRotationSpeed(int angleSpeed);
 	int getRotationSpeed() const;
-
-public slots:
-	void init(QPoint position);
 
 signals:
 	void movementStarted();
@@ -60,11 +57,9 @@ protected:
 	Entity *entity;
 
 private:
-	static const PathFinder *pathFinder;
-
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
-	QPoint nextPoint(const QPoint &src, const QPoint &dest) const;
+	QPointF nextPoint(const QPointF &src, const QPointF &dest) const;
 	int nextRotation(int src, int dest) const;
 
 	bool isInMove() const;
@@ -73,7 +68,7 @@ private:
 
 	QList <Position> path;
 
-	QPoint destPoint;
+	QPointF destPosition;
 	int destRotation;
 
 	static const int DEFAULT_ROTATION_SPEED = 10;
@@ -85,6 +80,7 @@ private:
 	static const int TIMER_INTERVAL = 70;
 
 	QTimer *timer;
+	const CoordinateMapper *coordinateMapper;
 
 private slots:
 	void startMovement();

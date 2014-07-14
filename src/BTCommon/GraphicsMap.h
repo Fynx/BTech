@@ -1,5 +1,6 @@
 /*
 Copyright (C) 2014 by Piotr Majcherczyk <fynxor [at] gmail [dot] com>
+Copyright (C) 2014 by Bartosz Szreder <szreder [at] mimuw [dot] edu [dot] pl>
 This file is part of BTech Project.
 
 	BTech Project is free software: you can redistribute it and/or modify
@@ -20,27 +21,35 @@ This file is part of BTech Project.
 #define GRAPHICSMAP_H
 
 #include <QtWidgets>
-#include "BTCommon/GraphicsFactory.h"
 #include "BTCommon/Map.h"
+#include "BTCommon/Position.h"
+
+class Grid;
+class Hex;
+class MechEntity;
+class MovementObject;
+class Player;
 
 /**
  * \class GraphicsMap
  * Provides game-based Map with display functions and QObject-like functionalities.
  */
-class GraphicsMap : public QGraphicsView, public Map
+class GraphicsMap : public QGraphicsView, public Map, public CoordinateMapper
 {
 Q_OBJECT;
 
 public:
-	GraphicsMap();
+	GraphicsMap() = default;
 
 	void createNewMap(int width, int height);
 	bool loadMap(const QString &mapFileName);
 
+	void clearHexes();
 	void toggleGrid();
 	bool isGridVisible() const;
 	void toggleCoordinates();
 	bool areCoordinatesVisible() const;
+	QPointF mapCoordinateToScene(const Coordinate &c) const;
 
 	void addMechToHex(MechEntity *mech, Hex *hex, Player *player);
 
@@ -53,8 +62,6 @@ public slots:
 
 	void onChooseAction(const Action *action);
 	void onEndMove();
-
-	void clearHexes();
 
 signals:
 	void mapHasBeenLoaded();
@@ -81,7 +88,6 @@ private:
 	void initMap();
 
 	void initScene();
-	void initGrid();
 	void initHexes();
 	void initUnits();
 	void initUnit(MechEntity *mech);
@@ -95,7 +101,7 @@ private:
 	static const int SCALE_ANIM_TIME           = 200;
 	static const int SCALE_ANIM_INTERVAL       = 20;
 
-	Grid *grid;
+	QHash <Coordinate, QPointF> coordinateToScenePos;
 
 	qreal maxScale;
 	qreal minScale;
@@ -111,7 +117,19 @@ private:
 	void wheelEvent(QWheelEvent *event);
 	void resizeEvent(QResizeEvent *event);
 
+	void drawFriendlyMechs(const Player *player);
+	void drawShootRange(const MechEntity *mech);
+	void drawWalkRange(const MovementObject &movement);
+	void hideAll();
+	void hideShootRange();
+	void hideWalkRange();
+	void showShootRange(const MechEntity *mech);
+	void showWalkRange(const MovementObject &movement);
+
 	void noPhase();
+
+	bool shootRangeVisible;
+	bool walkRangeVisible;
 
 	void emitGameStarted();
 	void emitGameEnded();
@@ -139,10 +157,10 @@ private:
 	static const QHash <BTech::GamePhase, void (GraphicsMap::*)()> phaseToFunction;
 
 private slots:
-	void hexClicked(int hexNumber);
-	void hexTracked(int hexNumber);
-	void hexAbandoned(int hexNumber);
-	void hexNewAreaTracked(int hexNumber);
+	void onHexClicked(Hex *hex);
+	void onHexTracked(Hex *hex);
+	void onHexAbandoned();
+	void onHexNewAreaTracked();
 
 	void mechInfoReceived();
 	void mechExtensiveInfoReceived();

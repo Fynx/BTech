@@ -17,8 +17,8 @@ This file is part of BTech Project.
 */
 
 #include "BTCommon/EnumHashFunctions.h"
-
 #include "BTCommon/MechEntity.h"
+#include "BTCommon/MechWarrior.h"
 
 /**
  * \class MechEntity
@@ -129,7 +129,7 @@ void MechEntity::move(const MoveObject &moveObject)
 	}
 
 	sendExtensiveInfo();
-	sendExtensiveInfo(QString(" ") + BTech::ExtInfo::MovedToHex.arg(moveObject.getDest().getNumber()));
+	sendExtensiveInfo(QString(" ") + BTech::ExtInfo::MovedToHex.arg(moveObject.getDest().getCoordinate().toString()));
 }
 
 void MechEntity::turnRight()
