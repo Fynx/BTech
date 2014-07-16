@@ -231,8 +231,8 @@ void GraphicsMech::paintEntity(QPainter *painter)
 	painter->setPen(Qt::black);
 	painter->setBrush(Qt::black);
 	QPainterPath path;
-	QPolygon polygon;
-	polygon << QPoint(-4, 0) << QPoint(0, -7) << QPoint(4, 0);
+	QPolygonF polygon;
+	polygon << QPointF(-4, 0) << QPointF(0, -7) << QPointF(4, 0);
 	path.addPolygon(polygon);
 	painter->drawPath(path);
 

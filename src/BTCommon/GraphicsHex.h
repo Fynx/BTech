@@ -43,8 +43,8 @@ public:
 	~GraphicsHex();
 
 	QList <GridGraphicsObject *> getGridGraphicsObjects();
-	QPoint getNode(int nodeNumber) const;
-	QPoint getAbsNode(int nodeNumber) const;
+	QPointF getNode(int nodeNumber) const;
+	QPointF getAbsNode(int nodeNumber) const;
 
 	void setClicked(bool clicked);
 	bool isClicked() const;
@@ -106,7 +106,7 @@ private:
 	Hex *hex;
 	const Tile *tile;
 
-	static const QPoint nodes[BTech::NODES_NUMBER];
+	static const QPointF nodes[BTech::NODES_NUMBER];
 
 	static bool gridVisible;
 	static bool coordinatesVisible;

@@ -27,7 +27,7 @@ bool GraphicsHex::gridVisible = false;
 bool GraphicsHex::coordinatesVisible = false;
 
 // TODO yeah, the potato aspect of hexness
-const QPoint GraphicsHex::nodes[BTech::NODES_NUMBER] = {
+const QPointF GraphicsHex::nodes[BTech::NODES_NUMBER] = {
 	{ DEFAULT_HEX_SIZE / 2, -DEFAULT_HEX_SIZE},
 	{ DEFAULT_HEX_SIZE,      0},
 	{ DEFAULT_HEX_SIZE / 2,  DEFAULT_HEX_SIZE},
@@ -110,12 +110,12 @@ QList <GridGraphicsObject *> GraphicsHex::getGridGraphicsObjects()
 	         mouseMoveDependentGridGraphicsObject };
 }
 
-QPoint GraphicsHex::getNode(int nodeNumber) const
+QPointF GraphicsHex::getNode(int nodeNumber) const
 {
 	return nodes[(nodeNumber + BTech::NODES_NUMBER) % BTech::NODES_NUMBER];
 }
 
-QPoint GraphicsHex::getAbsNode(int nodeNumber) const
+QPointF GraphicsHex::getAbsNode(int nodeNumber) const
 {
 	return getNode(nodeNumber) + pos().toPoint();
 }
@@ -191,7 +191,7 @@ QRectF GraphicsHex::boundingRect() const
 QPainterPath GraphicsHex::shape() const
 {
 	QPainterPath path;
-	QPolygon polygon;
+	QPolygonF polygon;
 	for (int i = 0; i < BTech::NODES_NUMBER; ++i)
 		polygon << getNode(i);
 	path.addPolygon(polygon);
@@ -263,8 +263,8 @@ void GraphicsHex::paintMouseMoveDependentGrid(QPainter *painter)
 	if (isTracked()) {
 		paintBorder(painter, 3, Color::UnderMouse);
 		if (hex->hasMoveObject()) {
-			QPolygon polygon;
-			polygon << QPoint(0, 0) << getNode(trackedArea - 1) << getNode(trackedArea);
+			QPolygonF polygon;
+			polygon << QPointF(0, 0) << getNode(trackedArea - 1) << getNode(trackedArea);
 			QPainterPath path;
 			path.addPolygon(polygon);
 			painter->setPen(Qt::NoPen);
@@ -284,12 +284,11 @@ void GraphicsHex::paintBorder(QPainter *painter, int width, const QColor &color)
 	pen.setColor(color);
 	painter->setPen(pen);
 
-	QPoint node1;
-	QPoint node2;
+	QPointF node[2];
 	for (int i = 0; i < BTech::NODES_NUMBER; ++i) {
-		node1 = getNode(i);
-		node2 = getNode(i + 1);
-		painter->drawLine(node1.x(), node1.y(), node2.x(), node2.y());
+		node[0] = getNode(i);
+		node[1] = getNode(i + 1);
+		painter->drawLine(node[0].x(), node[0].y(), node[1].x(), node[1].y());
 	}
 }
 
