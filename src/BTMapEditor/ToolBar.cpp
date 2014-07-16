@@ -32,7 +32,7 @@ This file is part of BTech Project.
 ToolBar::ToolBar(Map *map)
 {
 	this->map = map;
-	initManagers(map->getPlayers(), map->getHexes(), map->getDescriptionReference(), map->getAllowedVersionsRef());
+	initManagers(map->getPlayers(), map->getDescriptionReference(), map->getAllowedVersionsRef());
 	initTabs();
 	initWindow();
 	initWidget();
@@ -105,7 +105,7 @@ void ToolBar::initTabs()
 	tabs->addTab(clickModeManager,     BTech::Strings::LabelClickMode);
 }
 
-void ToolBar::initManagers(QVector <Player *> &players, QVector <Hex *> &hexes, QString &mapDescriptionRef, QList <BTech::GameVersion> &allowedVersions)
+void ToolBar::initManagers(QVector <Player *> &players, QString &mapDescriptionRef, QList <BTech::GameVersion> &allowedVersions)
 {
 	mapPropertiesManager = new MapPropertiesManager(players, mapDescriptionRef, allowedVersions);
 	connect(mapPropertiesManager, &MapPropertiesManager::playerNeedsRemoving, this, &ToolBar::removePlayer);
@@ -117,7 +117,7 @@ void ToolBar::initManagers(QVector <Player *> &players, QVector <Hex *> &hexes, 
 
 	unitsManager = new UnitsManager(players);
 	connect(mapPropertiesManager, &MapPropertiesManager::playerInfoChanged, unitsManager, &UnitsManager::refresh);
-	tabMode.insert(mapPropertiesManager, Mode::Unit);
+	tabMode.insert(unitsManager, Mode::Unit);
 
 	terrainManager = new TerrainManager;
 	tabMode.insert(terrainManager, Mode::Terrain);

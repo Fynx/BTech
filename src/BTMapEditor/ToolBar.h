@@ -82,7 +82,7 @@ private:
 	static const int DEFAULT_HEIGHT = 800;
 
 	void initTabs();
-	void initManagers(QVector <Player *> &players, QVector <Hex *> &hexes, QString &mapDescriptionRef, QList <BTech::GameVersion> &allowedVersions);
+	void initManagers(QVector <Player *> &players, QString &mapDescriptionRef, QList <BTech::GameVersion> &allowedVersions);
 	void initWindow();
 	void initWidget();
 	void initLayout();
