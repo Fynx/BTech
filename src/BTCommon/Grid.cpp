@@ -192,12 +192,12 @@ QList <MoveObject> Grid::getWalkRange(const MovementObject &movementObject) cons
 	QHash <Position, BfsState> states;
 	states[src] = {src, src, 0, 0};
 
-	QQueue <BfsState> queue;
-	queue.enqueue({src, src, 0, 0});
+	QQueue <Position> queue;
+	queue.enqueue(src);
 
 	/* BFS */
 	while (!queue.empty()) {
-		BfsState cur = queue.dequeue();
+		BfsState cur = states[queue.dequeue()];
 		Position cPos = cur.position;
 		int cMPS = cur.movePoints;
 		int cDist = cur.distance;
@@ -208,7 +208,7 @@ QList <MoveObject> Grid::getWalkRange(const MovementObject &movementObject) cons
 			repeat_twice {
 				if (!states.contains(nPos) || states[nPos].movePoints > cMPS + 1) {
 					states[nPos] = {nPos, cPos, cMPS + 1, cDist};
-					queue.enqueue(states[nPos]);
+					queue.enqueue(nPos);
 				}
 				nPos.setDirection(nPos.getDirection().onLeft());
 			}
@@ -224,7 +224,7 @@ QList <MoveObject> Grid::getWalkRange(const MovementObject &movementObject) cons
 						         + movementObject.getTerrainPenalty(nHex->getTerrain()); // TODO jump (right now it's cheat)
 					if (!states.contains(nPos) || states[nPos].movePoints > cMPS + travelCost) {
 						states[nPos] = {nPos, cPos, cMPS + travelCost, cDist + 1};
-						queue.enqueue(states[nPos]);
+						queue.enqueue(nPos);
 					}
 				}
 			}
