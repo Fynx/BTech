@@ -190,7 +190,7 @@ QList <MoveObject> Grid::getWalkRange(const MovementObject &movementObject) cons
 	};
 
 	QHash <Position, BfsState> states;
-	states[src].movePoints = 0;
+	states[src] = {src, src, 0, 0};
 
 	QQueue <BfsState> queue;
 	queue.enqueue({src, src, 0, 0});
@@ -215,10 +215,11 @@ QList <MoveObject> Grid::getWalkRange(const MovementObject &movementObject) cons
 
 			/* Make progress */
 			for (QPair <Direction, Direction> next : movementObject.getAllowedMoves()) {
-				Hex *nHex = nextHex(getHexByCoordinate(cPos.getCoordinate()), cPos.getDirection() + next.first);
+				Hex *cHex = getHexByCoordinate(cPos.getCoordinate());
+				Hex *nHex = nextHex(cHex, cPos.getDirection() + next.first);
 				if (nHex != nullptr && nHex->getMech() == nullptr) {
 					Position nPos{nHex->getCoordinate(), cPos.getDirection() + next.second};
-					int heightDifference = qAbs(nHex->getHeight() - nHex->getHeight());
+					int heightDifference = qAbs(cHex->getHeight() - nHex->getHeight());
 					int travelCost = movementObject.getHeightPenalty(heightDifference)
 						         + movementObject.getTerrainPenalty(nHex->getTerrain()); // TODO jump (right now it's cheat)
 					if (!states.contains(nPos) || states[nPos].movePoints > cMPS + travelCost) {

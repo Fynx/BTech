@@ -82,7 +82,7 @@ QDataStream & operator << (QDataStream &out, const Entity &entity)
 QDataStream & operator >> (QDataStream &in, Entity &entity)
 {
 	in >> entity.currentPosition;
-	operator >> (in, reinterpret_cast<EffectProne &>(entity));
+	operator >> (in, static_cast<EffectProne &>(entity));
 	return in;
 }
 
