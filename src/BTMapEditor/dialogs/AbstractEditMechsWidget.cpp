@@ -16,6 +16,7 @@ This file is part of BTech Project.
 	along with BTech.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "BTCommon/Models/MechModel.h"
 #include "BTMapEditor/dialogs/AbstractEditMechsWidget.h"
 
 AbstractEditMechsWidget::AbstractEditMechsWidget()

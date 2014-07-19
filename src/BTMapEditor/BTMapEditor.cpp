@@ -23,6 +23,7 @@ This file is part of BTech Project.
 #include "BTCommon/GraphicsHex.h"
 #include "BTCommon/GraphicsMap.h"
 #include "BTCommon/InfoBar.h"
+#include "BTCommon/Models/WeaponModel.h"
 #include "BTCommon/Paths.h"
 #include "BTCommon/Settings.h"
 #include "BTMapEditor/BTMapEditor.h"

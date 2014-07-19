@@ -17,6 +17,9 @@ This file is part of BTech Project.
 */
 
 #include "BTCommon/EnumHashFunctions.h"
+
+#include "BTCommon/Bases/MechBase.h"
+#include "BTCommon/Models/MechModel.h"
 #include "BTMapEditor/dialogs/EditMechStatsWidget.h"
 
 /**

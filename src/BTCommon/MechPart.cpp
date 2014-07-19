@@ -16,6 +16,7 @@ This file is part of BTech Project.
 	along with BTech.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "BTCommon/Bases/MechPartBase.h"
 #include "BTCommon/MechPart.h"
 
 MechPart::MechPart()

@@ -17,6 +17,9 @@ This file is part of BTech Project.
 	along with BTech.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "BTCommon/Bases/MechPartBase.h"
+#include "BTCommon/Models/MechModel.h"
+#include "BTCommon/Models/WeaponModel.h"
 #include "BTMapEditor/dialogs/EditMechPartsWidget.h"
 #include "BTMapEditor/MapEditorPaths.h"
 

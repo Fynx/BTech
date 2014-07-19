@@ -18,6 +18,8 @@ This file is part of BTech Project.
 */
 
 #include "BTCommon/EnumHashFunctions.h"
+
+#include "BTCommon/Action.h"
 #include "BTCommon/Grid.h"
 #include "BTCommon/Hex.h"
 #include "BTCommon/Map.h"

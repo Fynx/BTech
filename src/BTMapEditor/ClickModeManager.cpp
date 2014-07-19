@@ -16,7 +16,9 @@ This file is part of BTech Project.
 	along with BTech.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "BTCommon/Bases/MechBase.h"
 #include "BTCommon/GraphicsFactory.h"
+#include "BTCommon/Models/MechModel.h"
 #include "BTMapEditor/ClickModeManager.h"
 
 /**

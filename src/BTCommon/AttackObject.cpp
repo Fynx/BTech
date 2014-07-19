@@ -19,6 +19,8 @@ This file is part of BTech Project.
 #include "BTCommon/EnumHashFunctions.h"
 
 #include "BTCommon/AttackObject.h"
+#include "BTCommon/Bases/WeaponBase.h"
+#include "BTCommon/Utils.h"
 
 /**
  * \class AttackObject

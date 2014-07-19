@@ -20,6 +20,7 @@ This file is part of BTech Project.
 #define EDIT_MECH_STATS_WIDGET_H
 
 #include <QtWidgets>
+#include "BTCommon/Utils.h"
 #include "BTMapEditor/dialogs/AbstractEditMechsWidget.h"
 
 /**

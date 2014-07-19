@@ -18,7 +18,10 @@ This file is part of BTech Project.
 
 #include "BTCommon/EnumHashFunctions.h"
 
+#include "BTCommon/Bases/MechBase.h"
 #include "BTCommon/Mech.h"
+#include "BTCommon/MechPart.h"
+#include "BTCommon/Models/MechModel.h"
 
 /**
  * \class Mech

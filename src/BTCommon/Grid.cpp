@@ -17,6 +17,7 @@ This file is part of BTech Project.
 	along with BTech.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "BTCommon/Action.h"
 #include "BTCommon/GraphicsFactory.h"
 #include "BTCommon/GraphicsHex.h"
 #include "BTCommon/Grid.h"

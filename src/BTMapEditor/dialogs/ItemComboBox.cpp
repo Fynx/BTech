@@ -1,5 +1,6 @@
 /*
 Copyright (C) 2014 by Piotr Majcherczyk <fynxor [at] gmail [dot] com>
+Copyright (C) 2014 by Krzysztof Adamek <squadack [at] students [dot] mimuw [dot] edu [dot] pl>
 This file is part of BTech Project.
 
 	BTech Project is free software: you can redistribute it and/or modify
@@ -16,10 +17,11 @@ This file is part of BTech Project.
 	along with BTech.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "BTCommon/MechBase.h"
-#include "BTCommon/MechPartBase.h"
-#include "BTCommon/WeaponBase.h"
+#include "BTCommon/Bases/MechBase.h"
+#include "BTCommon/Bases/MechPartBase.h"
+#include "BTCommon/Bases/WeaponBase.h"
 #include "BTMapEditor/dialogs/ItemComboBox.h"
+#include "BTMapEditor/Utils.h"
 
 /**
  * \class ComboBox

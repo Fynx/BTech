@@ -17,6 +17,8 @@ This file is part of BTech Project.
 */
 
 #include "BTCommon/EnumHashFunctions.h"
+
+#include "BTCommon/Models/WeaponModel.h"
 #include "BTMapEditor/dialogs/EditWeaponsDialog.h"
 
 static const int StatusBarMessageTimeoutMs = 5000;

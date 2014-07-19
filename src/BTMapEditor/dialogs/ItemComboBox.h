@@ -20,7 +20,6 @@ This file is part of BTech Project.
 #define ITEMS_COMBO_BOX_H
 
 #include <QtWidgets>
-#include "BTMapEditor/Utils.h"
 
 /**
  * \class ComboBox

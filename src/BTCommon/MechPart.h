@@ -19,10 +19,11 @@ This file is part of BTech Project.
 #ifndef MECH_PART_H
 #define MECH_PART_H
 
-#include "BTCommon/AttackObject.h"
 #include "BTCommon/Effect.h"
-#include "BTCommon/MechPartBase.h"
 #include "BTCommon/Weapon.h"
+
+class AttackObject;
+class MechPartBase;
 
 class MechPart : public WeaponHolder, public EffectProne
 {

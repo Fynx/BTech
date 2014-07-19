@@ -19,6 +19,8 @@ This file is part of BTech Project.
 
 #include "BTCommon/DataManager.h"
 #include "BTCommon/FileIO.h"
+#include "BTCommon/Models/MechModel.h"
+#include "BTCommon/Models/WeaponModel.h"
 
 DataManager & DataManager::getInstance()
 {

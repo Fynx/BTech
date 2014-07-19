@@ -17,7 +17,10 @@ This file is part of BTech Project.
 */
 
 #include "BTCommon/EnumHashFunctions.h"
+
+#include "BTCommon/Action.h"
 #include "BTCommon/MechEntity.h"
+#include "BTCommon/MechPart.h"
 #include "BTCommon/MechWarrior.h"
 
 /**

@@ -19,6 +19,7 @@ This file is part of BTech Project.
 #ifndef ATTACKOBJECT_H
 #define ATTACKOBJECT_H
 
+#include "BTCommon/Bases/WeaponBase.h"
 #include "BTCommon/Position.h"
 #include "BTCommon/Weapon.h"
 

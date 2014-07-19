@@ -28,6 +28,7 @@ This file is part of BTech Project.
 class Action;
 class CombatAction;
 class MechWarrior;
+class MovementAction;
 
 /**
  * \class MechEntity

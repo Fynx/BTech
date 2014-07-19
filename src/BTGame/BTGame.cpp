@@ -16,6 +16,7 @@ This file is part of BTech Project.
 	along with BTech.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "BTCommon/Action.h"
 #include "BTCommon/CommonSettings.h"
 #include "BTGame/BTGame.h"
 #include "BTGame/GameStrings.h"

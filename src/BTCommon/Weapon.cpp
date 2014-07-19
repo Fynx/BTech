@@ -16,6 +16,8 @@ This file is part of BTech Project.
 	along with BTech.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "BTCommon/Bases/WeaponBase.h"
+#include "BTCommon/Models/WeaponModel.h"
 #include "BTCommon/Weapon.h"
 
 /**
