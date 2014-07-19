@@ -314,16 +314,16 @@ namespace BTech {
 	}
 
 	/**
-	* \class Matrix
+	* \struct Matrix
 	* Enables the simplest matrix operations for Z(2, 2)
 	*/
-	class Matrix {
-	public:
+	struct Matrix {
 		int x1, y1, x2, y2;
 
 		Matrix(int x1 = 0, int y1 = 0,
 		       int x2 = 0, int y2 = 0);
-		Matrix & operator = (Matrix arg);
+		Matrix(const Matrix &) = default;
+		Matrix & operator = (const Matrix &) = default;
 		int det() const;
 	};
 }

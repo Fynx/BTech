@@ -369,16 +369,6 @@ BTech::Matrix::Matrix(int x1, int y1, int x2, int y2)
 	: x1(x1), y1(y1), x2(x2), y2(y2)
 {}
 
-BTech::Matrix & BTech::Matrix::operator = (Matrix arg)
-{
-	x1 = arg.x1;
-	y1 = arg.y1;
-	x2 = arg.x2;
-	y2 = arg.y2;
-
-	return *this;
-}
-
 int BTech::Matrix::det() const
 {
 	return x2 * y1 - x1 * y2;
