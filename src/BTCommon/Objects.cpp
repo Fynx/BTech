@@ -74,6 +74,8 @@ Position Entity::getCurrentPosition() const
 
 QDataStream & operator << (QDataStream &out, const Entity &entity)
 {
+	qDebug() << "\t\tposition:        " << entity.getCurrentCoordinate();
+	qDebug() << "\t\tdirection:       " << BTech::directionStringChange[entity.getCurrentDirection()];
 	out << entity.currentPosition;
 	operator << (out, static_cast<const EffectProne &>(entity));
 	return out;
@@ -82,6 +84,8 @@ QDataStream & operator << (QDataStream &out, const Entity &entity)
 QDataStream & operator >> (QDataStream &in, Entity &entity)
 {
 	in >> entity.currentPosition;
+	qDebug() << "\t\tposition:        " << entity.getCurrentCoordinate();
+	qDebug() << "\t\tdirection:       " << BTech::directionStringChange[entity.getCurrentDirection()];
 	operator >> (in, static_cast<EffectProne &>(entity));
 	return in;
 }

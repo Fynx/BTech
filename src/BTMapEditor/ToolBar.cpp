@@ -125,6 +125,7 @@ void ToolBar::initManagers(QVector <Player *> &players, QString &mapDescriptionR
 	clickModeManager = new ClickModeManager;
 	connect(clickModeManager, &ClickModeManager::hexInfoChanged,    this, &ToolBar::hexesInfoChanged);
 	connect(clickModeManager, &ClickModeManager::mechNeedsRemoving, this, &ToolBar::removeMech);
+	tabMode.insert(clickModeManager, Mode::Click);
 
 	connect(mapPropertiesManager, &MapPropertiesManager::playerChosen, unitsManager, &UnitsManager::setCurrentPlayer);
 	connect(unitsManager, &UnitsManager::playerChosen, mapPropertiesManager, &MapPropertiesManager::setCurrentPlayer);

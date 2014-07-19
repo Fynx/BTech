@@ -162,6 +162,10 @@ QList <const Weapon *> Mech::getWeapons() const
 
 QDataStream & operator << (QDataStream &out, const Mech &mech)
 {
+	qDebug() << "\t\tuid:             " << mech.base->getUid() << "\n"
+	         << "\t\tarmorValue:      " << mech.armorValue << "\n"
+	         << "\t\tbaseFireRange:   " << mech.baseFireRange << "\n"
+	         << "\t\theatSinksNumber: " << mech.heatSinksNumber;
 	out << mech.base->getUid()
 	    << mech.armorValue << mech.baseFireRange << mech.heatSinksNumber;
 
@@ -177,6 +181,11 @@ QDataStream & operator >> (QDataStream &in, Mech &mech)
 	in >> uid;
 	mech.setBase(MechModel::getMech(uid));
 	in >> mech.armorValue >> mech.baseFireRange >> mech.heatSinksNumber;
+
+	qDebug() << "\t\tuid:             " << mech.base->getUid() << "\n"
+	         << "\t\tarmorValue:      " << mech.armorValue << "\n"
+	         << "\t\tbaseFireRange:   " << mech.baseFireRange << "\n"
+	         << "\t\theatSinksNumber: " << mech.heatSinksNumber;
 
 	for (MechPart *mechPart : mech.parts)
 		in >> *mechPart;

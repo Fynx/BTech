@@ -413,6 +413,8 @@ void MechEntity::recover()
 
 QDataStream & operator << (QDataStream &out, const MechEntity &mech)
 {
+	qDebug() << "\tSave mech:";
+
 	out << static_cast<const Mech &>(mech) << static_cast<const Movable &>(mech)
 	    << mech.ownerName
 	    << mech.heatLevel
@@ -423,6 +425,8 @@ QDataStream & operator << (QDataStream &out, const MechEntity &mech)
 
 QDataStream & operator >> (QDataStream &in, MechEntity &mech)
 {
+	qDebug() << "\tLoad mech:";
+
 	mech.clearData();
 
 	in >> static_cast<Mech &>(mech) >> static_cast<Movable &>(mech);

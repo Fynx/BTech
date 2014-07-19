@@ -196,7 +196,7 @@ QList <MoveObject> Grid::getWalkRange(const MovementObject &movementObject) cons
 					states[nPos] = {nPos, cPos, cMPS + 1, cDist};
 					queue.enqueue(nPos);
 				}
-				nPos.setDirection(nPos.getDirection().onLeft());
+				nPos.setDirection(cPos.getDirection().onLeft());
 			}
 
 			/* Make progress */
@@ -230,10 +230,14 @@ QList <MoveObject> Grid::getWalkRange(const MovementObject &movementObject) cons
 			QList <Position> path;
 			BfsState current = state;
 
-			do {
+			int i_ = 0;
+			while (current.position != movementObject.getSrc()) {
 				path.prepend(current.position);
 				current = states[current.parent];
-			} while (current.position != movementObject.getSrc());
+				++i_;
+				if (i_ > 50)
+					exit(0);
+			}
 
 			result.append(MoveObject(movementObject,
 			                         state.position,

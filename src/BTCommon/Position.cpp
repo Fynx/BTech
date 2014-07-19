@@ -156,19 +156,19 @@ const BiHash <BTech::Terrain, QString> BTech::terrainStringChange {
 };
 
 const QHash <BTech::Terrain, QColor> BTech::terrainColorMap {
-	{ Terrain::Clear,      BTech::Colors::PeachPuff       },
-	{ Terrain::LightWoods, BTech::Colors::CobaltGreen     },
-	{ Terrain::HeavyWoods, BTech::Colors::DarkCyan        },
-	{ Terrain::Rough,      BTech::Colors::LightYellow     },
-	{ Terrain::Water,      BTech::Colors::MediumTurquoise },
+	{ Terrain::Clear,      BTech::Colors::PeachPuff},
+	{ Terrain::LightWoods, BTech::Colors::CobaltGreen},
+	{ Terrain::HeavyWoods, BTech::Colors::DarkCyan},
+	{ Terrain::Rough,      BTech::Colors::LightYellow},
+	{ Terrain::Water,      BTech::Colors::MediumTurquoise},
 };
 
 const QHash <BTech::Terrain, int> BTech::travelPenalty {
-	{ Terrain::Clear,      BTech::TravelPenalty::Clear      },
-	{ Terrain::LightWoods, BTech::TravelPenalty::LightWoods },
-	{ Terrain::HeavyWoods, BTech::TravelPenalty::HeavyWoods },
-	{ Terrain::Rough,      BTech::TravelPenalty::Rough      },
-	{ Terrain::Water,      BTech::TravelPenalty::Water      },
+	{Terrain::Clear,      BTech::TravelPenalty::Clear},
+	{Terrain::LightWoods, BTech::TravelPenalty::LightWoods},
+	{Terrain::HeavyWoods, BTech::TravelPenalty::HeavyWoods},
+	{Terrain::Rough,      BTech::TravelPenalty::Rough},
+	{Terrain::Water,      BTech::TravelPenalty::Water},
 };
 
 QDataStream & BTech::operator << (QDataStream &out, const BTech::Terrain &terrain)
@@ -279,7 +279,7 @@ LineOfSight qMax(const LineOfSight &lhs, const LineOfSight &rhs)
 	result.lightWoods = qMax(lhs.lightWoods, rhs.lightWoods);
 	result.heavyWoods = qMax(lhs.heavyWoods, rhs.heavyWoods);
 
-	result.srcTerrain = lhs.srcTerrain;
+	result.srcTerrain  = lhs.srcTerrain;
 	result.destTerrain = lhs.destTerrain;
 
 	result.heightBetween = qMax(lhs.heightBetween, rhs.heightBetween);

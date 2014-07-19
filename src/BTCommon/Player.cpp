@@ -20,7 +20,7 @@ This file is part of BTech Project.
 
 /* constructor */
 Player::Player(const QString name, const QString description)
-	: name(name), description(description)
+	: name(name), description(description), color(Qt::white)
 {}
 
 /* destructor */
@@ -89,28 +89,37 @@ bool Player::hasMech(const MechEntity *mech) const
 
 QDataStream & operator << (QDataStream &out, const Player &player)
 {
-// 	qDebug() << "saving player" << player.name << "\n";
-	out << player.name << player.description;
-	out << player.mechs.size();
+	qDebug() << "Save player" << "\n"
+	         << "\tname:        " << player.name << "\n"
+	         << "\tdescription: " << player.description << "\n"
+	         << "\tcolor:       " << player.color << "\n"
+	         << "\tmechs:       " << player.mechs.size();
+	out << player.name << player.description << player.color;
+
+	out << (quint32) player.mechs.size();
 	for (MechEntity *mech : player.mechs)
 		out << *mech;
 
-// 	qDebug() << "player saved\n";
 	return out;
 }
 
 QDataStream & operator >> (QDataStream &in, Player &player)
 {
-	in >> player.name >> player.description;
-	qDebug() << "loading" << player.name;
+	in >> player.name >> player.description >> player.color;
 	quint32 mechsSize;
 	in >> mechsSize;
+
+	qDebug() << "Load player" << "\n"
+	         << "\tname:        " << player.name << "\n"
+	         << "\tdescription: " << player.description << "\n"
+	         << "\tcolor:       " << player.color << "\n"
+		 << "\tmechs:       " << mechsSize;
+
 	for (quint32 i = 0; i < mechsSize; ++i) {
 		MechEntity *mech = new MechEntity;
 		in >> *mech;
 		player.addMech(mech);
 	}
 
-	qDebug() << "player loaded";
 	return in;
 }
