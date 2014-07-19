@@ -326,12 +326,12 @@ QList <MechBase *> MechModel::mechList;
 QHash <UID, MechBase *> MechModel::uidToMech;
 
 MechModel::MechModelNode::MechModelNode(MechModelNode *parent, void *data, Level level)
-	: parent(parent), data(data), constData(nullptr), level(level)
+	: parent(parent), data(data), level(level)
 {
 }
 
 MechModel::MechModelNode::MechModelNode(MechModelNode *parent, const void *constData, Level level)
-	: parent(parent), data(nullptr), constData(constData), level(level)
+	: parent(parent), constData(constData), level(level)
 {
 }
 
@@ -529,13 +529,11 @@ bool MechModel::removeRows(int row, int count, const QModelIndex &parent)
 {
 	if (!parent.isValid()) {
 		beginRemoveRows(parent, row, row + count - 1);
-		for (int i = 0; i < count; ++i) {
-			UID uid = mechList[i]->getUid();
-			uidToMech.remove(uid);
-			delete mechList.takeAt(i);
-			treeRoot->deleteChild(i);
-		}
+		for (int i = 0; i < count; ++i)
+			removeMechFromRow(row + i);
 		endRemoveRows();
+
+		return true;
 	}
 
 	return false;
@@ -786,7 +784,7 @@ void MechModel::clearModel()
 
 void MechModel::initModel()
 {
-	treeRoot = new MechModelNode(nullptr, (const void *)nullptr, Level::Root);
+	treeRoot = new MechModelNode(nullptr, static_cast<const void *>(nullptr), Level::Root);
 	uidToMech.clear();
 }
 
