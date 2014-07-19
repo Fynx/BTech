@@ -113,7 +113,7 @@ private:
 
 	BTech::WeaponType type;
 
-	static const std::array <int, BTech::ranges.size()> rangeModifier;
+	static const QHash <BTech::Range, int> rangeModifier;
 	int minRange;
 	QHash <BTech::Range, int> maxRange;
 
@@ -142,7 +142,7 @@ namespace BTech {
 
 	extern const QHash <Modifier, QString> modifierStringChange;
 
-	static const std::array <Modifier, 7> modifiers {
+	static const QVector <Modifier> modifiers {
 		Modifier::Base,
 		Modifier::Range,
 		Modifier::Direction,

@@ -22,7 +22,6 @@ This file is part of BTech Project.
 
 BTech::GameVersion Rules::version;
 QString Rules::description;
-QList <BTech::GamePhase> Rules::allowedPhases;
 
 void Rules::setVersion(const BTech::GameVersion newVersion)
 {
@@ -44,7 +43,7 @@ QString Rules::getDescription()
 	return description;
 }
 
-QList <BTech::GamePhase> Rules::getAllowedPhases()
+QVector <BTech::GamePhase> Rules::getAllowedPhases()
 {
 	return BTech::versionToPhaseList[getVersion()];
 }

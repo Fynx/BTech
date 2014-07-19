@@ -97,7 +97,7 @@ int WeaponBase::getRangeModifier(int distance) const
 
 int WeaponBase::getRangeModifier(BTech::Range range) const
 {
-	return rangeModifier[toUnderlying(range)];
+	return rangeModifier[range];
 }
 
 BTech::Range WeaponBase::distanceToRange(int distance) const

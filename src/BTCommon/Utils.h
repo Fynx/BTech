@@ -44,7 +44,7 @@ namespace BTech {
 		End            =  7
 	};
 
-	static const QList <GamePhase> phases {
+	static const QVector <GamePhase> phases {
 		GamePhase::Initiative,
 		GamePhase::Movement,
 		GamePhase::Reaction,
@@ -65,14 +65,14 @@ namespace BTech {
 		AdvancedBattleDroids,
 	};
 
-	static const QList <GameVersion> gameVersions {
+	static const QVector <GameVersion> gameVersions {
 		GameVersion::BasicBattleDroids,
 		GameVersion::AdvancedBattleDroids
 	};
 
 	extern const BiHash <GameVersion, QString> gameVersionStringChange;
 
-	extern const QHash <GameVersion, QList <GamePhase> > versionToPhaseList;
+	extern const QHash <GameVersion, QVector <GamePhase> > versionToPhaseList;
 
 	QDataStream & operator << (QDataStream &out, const GameVersion &rules);
 	QDataStream & operator >> (QDataStream &in, GameVersion &rules);
@@ -160,20 +160,20 @@ namespace BTech {
 		OutOfRange = 4
 	};
 
-	static const std::array <Range, 5> ranges {
+	static const QVector <Range> ranges {
 		Range::Contact,
 		Range::Short,
 		Range::Medium,
 		Range::Long,
 		Range::OutOfRange,
 	};
-	static const std::array <Range, 4> attackRanges {
+	static const QVector <Range> attackRanges {
 		Range::Contact,
 		Range::Short,
 		Range::Medium,
 		Range::Long,
 	};
-	static const std::array <Range, 3> shootRanges {
+	static const QVector <Range> shootRanges {
 		Range::Short,
 		Range::Medium,
 		Range::Long,
@@ -240,7 +240,7 @@ namespace BTech {
 		TurnLeft,
 	};
 
-	const QList <MovementAction> movementActions = {
+	const QVector <MovementAction> movementActions = {
 		MovementAction::Idle,
 		MovementAction::Walk,
 		MovementAction::Run,
@@ -265,7 +265,7 @@ namespace BTech {
 		Charge
 	};
 
-	const QList <CombatAction> combatActions = {
+	const QVector <CombatAction> combatActions = {
 		CombatAction::Idle,
 		CombatAction::SimpleAttack,
 		CombatAction::WeaponAttack,
@@ -291,7 +291,7 @@ namespace BTech {
 	*/
 	namespace General {
 		QString indexString(const QString &string, const QList <QString> &existing);
-		
+
 		QString bashColorString(const QString &string, const QColor &color);
 
 		// world timer

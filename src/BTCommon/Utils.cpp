@@ -43,7 +43,7 @@ const BiHash <BTech::GameVersion, QString> BTech::gameVersionStringChange {
 	{GameVersion::AdvancedBattleDroids, Strings::AdvancedBattleDroids},
 };
 
-const QHash <BTech::GameVersion, QList <BTech::GamePhase> > BTech::versionToPhaseList {
+const QHash <BTech::GameVersion, QVector <BTech::GamePhase> > BTech::versionToPhaseList {
 	{GameVersion::BasicBattleDroids,
 		{GamePhase::Initiative, GamePhase::Movement, GamePhase::Combat, GamePhase::End}
 	},
@@ -322,9 +322,9 @@ QString BTech::General::bashColorString(const QString &string, const QColor& col
 		{Qt::yellow, "33m"},
 		{Qt::blue,   "34m"},
 	};
-	
+
 	static const QString pref = QString("\e[");
-	
+
 	if (colorBashValue.contains(color))
 		return pref + colorBashValue[color] + string + pref + colorBashValue[Qt::white];
 	else

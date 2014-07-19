@@ -37,7 +37,7 @@ public:
 	static BTech::GameVersion getVersion();
 	static void setDescription(const QString &description);
 	static QString getDescription();
-	static QList <BTech::GamePhase> getAllowedPhases();
+	static QVector <BTech::GamePhase> getAllowedPhases();
 
 private:
 	Rules() = delete;
@@ -48,7 +48,6 @@ private:
 
 	static BTech::GameVersion version;
 	static QString description;
-	static QList <BTech::GamePhase> allowedPhases;
 };
 
 #endif // RULES_H
