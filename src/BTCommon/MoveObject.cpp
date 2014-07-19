@@ -37,14 +37,15 @@ MovementObject::MovementObject(Position src,
 	: src(src), movePoints(movePoints), action(action)
 {}
 
-static QList <QPair <Direction, Direction> > getAllDirectionsPairs()
+static QList <QPair <Direction, Direction> > getAllDirectionPairs()
 {
-	//TODO CFiend: nie da się tego zainicjować na stałe przez constexpr?
-	//TODO Fynx: Jak wymyślisz jak, to proszę bardzo.
-	QList <QPair <Direction, Direction> > result;
-	for (Direction l : BTech::directions)
-		for (Direction r : BTech::directions)
-			result.append({l, r});
+	static const QList <QPair <Direction, Direction> > result = []() {
+		QList <QPair <Direction, Direction> > dirPairs;
+		for (Direction l : BTech::directions)
+			for (Direction r : BTech::directions)
+				dirPairs.append({l, r});
+		return dirPairs;
+	}();
 	return result;
 }
 
@@ -53,7 +54,7 @@ const QHash <BTech::MovementAction, QList <QPair <Direction, Direction> > > Move
 	{BTech::MovementAction::Walk, { {BTech::DirectionFront, BTech::DirectionFront},
 	                                {BTech::DirectionRear,  BTech::DirectionFront}, } },
 	{BTech::MovementAction::Run,  { {BTech::DirectionFront, BTech::DirectionFront}, } },
-	{BTech::MovementAction::Jump, getAllDirectionsPairs()},
+	{BTech::MovementAction::Jump, getAllDirectionPairs()},
 };
 
 Position MovementObject::getSrc() const
