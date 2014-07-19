@@ -140,27 +140,13 @@ QList <Hex *> Grid::getShootRange(Hex *src, Direction direction) const
 
 	Hex *cur, *next;
 
-	cur = nextHex(src, direction.onRight());
-	Direction curDir = direction.onRight();
-	repeat_twice {
-		cur = src;
-		while (cur != nullptr) {
-			visited.insert(cur);
-			cur = nextHex(cur, curDir);
-		}
-		curDir = direction.onLeft();
-	}
-
-	cur = nextHex(src, direction);
 	QQueue <Hex *> queue;
-	if (cur != nullptr) {
-		queue.enqueue(cur);
-		visited.insert(cur);
-	}
+	queue.enqueue(src);
 
+	QList <Direction> directions {direction.onLeft(), direction, direction.onRight()};
 	while (!queue.empty()) {
 		cur = queue.dequeue();
-		for (Direction curDirection : BTech::directions) {
+		for (Direction curDirection : directions) {
 			next = nextHex(cur, curDirection);
 			if (next != nullptr && !visited.contains(next)) {
 				queue.enqueue(next);
@@ -197,10 +183,10 @@ QList <MoveObject> Grid::getWalkRange(const MovementObject &movementObject) cons
 
 	/* BFS */
 	while (!queue.empty()) {
-		BfsState cur = states[queue.dequeue()];
+		BfsState cur  = states[queue.dequeue()];
 		Position cPos = cur.position;
-		int cMPS = cur.movePoints;
-		int cDist = cur.distance;
+		int cMPS      = cur.movePoints;
+		int cDist     = cur.distance;
 
 		if (cMPS <= movePoints) {
 			/* Turn right, turn left */
@@ -221,7 +207,7 @@ QList <MoveObject> Grid::getWalkRange(const MovementObject &movementObject) cons
 					Position nPos{nHex->getCoordinate(), cPos.getDirection() + next.second};
 					int heightDifference = qAbs(cHex->getHeight() - nHex->getHeight());
 					int travelCost = movementObject.getHeightPenalty(heightDifference)
-						         + movementObject.getTerrainPenalty(nHex->getTerrain()); // TODO jump (right now it's cheat)
+					               + movementObject.getTerrainPenalty(nHex->getTerrain()); // TODO jump (right now it's cheat)
 					if (!states.contains(nPos) || states[nPos].movePoints > cMPS + travelCost) {
 						states[nPos] = {nPos, cPos, cMPS + travelCost, cDist + 1};
 						queue.enqueue(nPos);
@@ -315,11 +301,11 @@ const Coordinate Grid::nextCoord(const Coordinate &coordinate, Direction directi
 	//Coordinate change depends on direction AND parity of x()
 	static const Coordinate coordChange[6][2] {
 		{Coordinate{ 0, -1}, Coordinate{ 0, -1}}, //DirectionN
-		{Coordinate{ 1, -1}, Coordinate{ 1,  0}}, //DirectionNE
-		{Coordinate{ 1,  0}, Coordinate{ 1,  1}}, //DirectionSE
+		{Coordinate{ 1,  0}, Coordinate{ 1, -1}}, //DirectionNE
+		{Coordinate{ 1,  1}, Coordinate{ 1,  0}}, //DirectionSE
 		{Coordinate{ 0,  1}, Coordinate{ 0,  1}}, //DirectionS
-		{Coordinate{-1,  0}, Coordinate{-1,  1}}, //DirectionSW
-		{Coordinate{-1, -1}, Coordinate{-1,  0}}, //DirectionNW
+		{Coordinate{-1,  1}, Coordinate{-1,  0}}, //DirectionSW
+		{Coordinate{-1,  0}, Coordinate{-1, -1}}, //DirectionNW
 	};
 
 	return coordinate + coordChange[direction][coordinate.x() & 1];
