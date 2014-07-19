@@ -174,8 +174,13 @@ void MechEntity::resolveAttacks()
 	(this->*MechEntity::resolveAttacks_version[Rules::getVersion()])();
 }
 
+/*
+ * BattleDroids (Advanced)
+ * Effects of Heat, pages 12-13 (Heat Scale on the bottom right of mech record sheet)
+ */
 void MechEntity::resolveHeat()
 {
+	//TODO ammunition explosion
 	heatLevel = qMax(heatLevel - heatSinksNumber, 0);
 
 	removeEffects(BTech::EffectSource::Heat);
@@ -652,6 +657,10 @@ void MechEntity::resolveAttacks_BBD()
 				rollAgain = false;
 				BTech::DiceRoll diceRoll = BTech::d2Throw();
 
+				/*
+				 * BattleDroids (Basic)
+				 * Damage Effects Table, page 6
+				 */
 				switch (diceRoll) {
 				case 2:
 				case 3:
@@ -768,6 +777,10 @@ const QHash <Direction, BTech::MechPartSide> BTech::directionToMechPartSide {
 	{DirectionLeftFront,  BTech::MechPartSide::Left},
 };
 
+/*
+ * BattleDroids (Advanced)
+ * Hit Location Table, page 11
+ */
 const QHash <QPair <BTech::DiceRoll, BTech::MechPartSide>, QPair <BTech::MechPartType, BTech::MechPartSide> > BTech::hitLocationTable {
 	{{ 2, BTech::MechPartSide::Left},   {BTech::MechPartType::Torso, BTech::MechPartSide::Left}},
 	{{ 2, BTech::MechPartSide::Center}, {BTech::MechPartType::Torso, BTech::MechPartSide::Center}},

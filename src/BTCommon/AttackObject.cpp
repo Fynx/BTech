@@ -145,6 +145,10 @@ bool AttackObject::isEffective() const
 	return distance > 0;
 }
 
+/*
+ * BattleDroids (Basic)
+ * Base To-Hit Numbers, page 5
+ */
 int AttackObject::getRangeAttackModifier_BBD(BTech::Range range)
 {
 	if (range == BTech::Range::Contact)
@@ -158,6 +162,10 @@ int AttackObject::getRangeAttackModifier_ABD(BTech::Range range)
 	return 0; //TODO
 }
 
+/*
+ * BattleDroids (Basic)
+ * Armor Value Modifier Diagram, page 6
+ */
 int AttackObject::getDirectionArmorPenetrationModifier_BBD(Direction direction)
 {
 	if (direction == BTech::DirectionRear)
@@ -172,6 +180,11 @@ int AttackObject::getDirectionArmorPenetrationModifier_ABD(Direction direction)
 	return 0;
 }
 
+/*
+ * BattleDroids (Basic)
+ * Terrain Modifiers, page 5
+ */
+
 int AttackObject::getTerrainAttackModifier_BBD(const LineOfSight &path)
 {
 	if (path.lightWoods > 2 || path.heavyWoods > 0 || path.heightBarrier || path.heightBetween > 0)
@@ -181,6 +194,11 @@ int AttackObject::getTerrainAttackModifier_BBD(const LineOfSight &path)
 
 	return path.lightWoods + 2 * (srcHeavyWoods + destHeavyWoods);
 }
+
+/*
+ * BattleDroids (Advanced)
+ * Terrain Modifiers, pages 9-10
+ */
 
 int AttackObject::getTerrainAttackModifier_ABD(const LineOfSight &path)
 {

@@ -239,12 +239,16 @@ UID WeaponBase::getUid() const
 	return uid;
 }
 
-const std::array <int, BTech::ranges.size()> WeaponBase::rangeModifier {
-	BTech::CONTACT_RANGE_ATTACK_MODIFIER,
-	BTech::SHORT_RANGE_ATTACK_MODIFIER,
-	BTech::MEDIUM_RANGE_ATTACK_MODIFIER,
-	BTech::LONG_RANGE_ATTACK_MODIFIER,
-	BTech::INF_ATTACK_MODIFIER
+/*
+ * BattleDroids (Advanced)
+ * Range Modifier, page 9
+ */
+const QHash <BTech::Range, int> WeaponBase::rangeModifier {
+	{ BTech::Range::Contact, 0 },
+	{ BTech::Range::Contact, 0 },
+	{ BTech::Range::Contact, 2 },
+	{ BTech::Range::Contact, 4 },
+	{ BTech::Range::Contact, BTech::INF_ATTACK_MODIFIER }
 };
 
 void WeaponBase::load(const QString &name,

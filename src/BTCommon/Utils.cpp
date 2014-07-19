@@ -153,6 +153,10 @@ const BiHash <BTech::Range, QString> BTech::rangeStringChange {
 	{Range::Long,    Strings::RangeLong},
 };
 
+/*
+ * BattleDroids (Basic)
+ * Range Table, page 5
+ */
 const QHash <BTech::Range, int> BTech::MAX_RANGE {
 	{Range::Contact,  1},
 	{Range::Short,    3},

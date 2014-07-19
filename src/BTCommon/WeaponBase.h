@@ -158,10 +158,6 @@ namespace BTech {
 	};
 
 	static const int INF_ATTACK_MODIFIER           = 100;
-	static const int CONTACT_RANGE_ATTACK_MODIFIER = 0;
-	static const int SHORT_RANGE_ATTACK_MODIFIER   = 0;
-	static const int MEDIUM_RANGE_ATTACK_MODIFIER  = 2;
-	static const int LONG_RANGE_ATTACK_MODIFIER    = 4;
 	static const int OUT_OF_RANGE_ATTACK_MODIFIER  = INF_ATTACK_MODIFIER;
 
 	static const int MAXIMAL_MAX_SHORT_RANGE  = 97;
@@ -179,6 +175,10 @@ namespace BTech {
 	static const int DEFAULT_AMMO_PER_TON         = 0;
 	static const int DEFAULT_MISSILES_PER_SHOT    = 1;
 
+	/*
+	 * BatleDroids (Advanced)
+	 * Missile Hit Table, page 10
+	 */
 	static const QHash <QPair <int, BTech::DiceRoll>, int> missileHitTable {
 		{{ 2,  2},  1}, {{ 4,  2},  1}, {{ 5,  2},  1}, {{ 6,  2},  2}, {{10,  2},  3}, {{15,  2},  5}, {{20,  2},  6},
 		{{ 2,  3},  1}, {{ 4,  3},  2}, {{ 5,  3},  2}, {{ 6,  3},  2}, {{10,  3},  3}, {{15,  3},  5}, {{20,  3},  6},
