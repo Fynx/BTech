@@ -124,7 +124,7 @@ void GraphicsMap::decScale(int times)
 	changeScale(newScale);
 }
 
-void GraphicsMap::onChooseAction(const Action &action)
+void GraphicsMap::onChooseAction(const Action *action)
 {
 	hideAttackRange();
 	hideMovementRange();

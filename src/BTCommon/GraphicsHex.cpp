@@ -267,7 +267,7 @@ void GraphicsHex::paintMouseMoveDependentGrid(QPainter *painter)
 			QPainterPath path;
 			path.addPolygon(polygon);
 			painter->setPen(Qt::NoPen);
-			if (hex->getMoveObject().getActionType() == BTech::ActionType::Idle)
+			if (hex->getMoveObject().getAction() == BTech::MovementAction::Idle)
 				painter->setBrush(Color::MoveObjectActionIdle);
 			else
 				painter->setBrush(Color::MoveObjectActionNotIdle);

@@ -57,31 +57,30 @@ AttackObject Grid::getAttackObject(const MechEntity *attacker, const MechEntity 
 
 	obj.setDirection(getAttackDirection(target->getTorsoDirection() + target->getCurrentDirection(),
 	                                    getAttackDirection(src, dest)));
-	obj.setActionType(attacker->getCurrentAction().getActionType());
+	obj.setActionType(attacker->getCurrentCombatAction()->getType());
 
 	/** Damage */
 
 	switch (obj.getActionType()) {
-		case BTech::ActionType::Idle:
+		case BTech::CombatAction::Idle:
 			qCritical() << "Error: Creating AttackObject with action 'idle'";
 			exit(EXIT_FAILURE);
-		case BTech::ActionType::SimpleAttack:
+		case BTech::CombatAction::SimpleAttack:
 			obj.setDamage(attacker->getDamageValue(obj.getDistance()));
 			break;
-		case BTech::ActionType::Punch:
+		case BTech::CombatAction::Punch:
 			obj.setDamage(attacker->getTonnage() / 10);
 			break;
-		case BTech::ActionType::Kick:
+		case BTech::CombatAction::Kick:
 			obj.setDamage(attacker->getTonnage() / 5);
 			break;
-		case BTech::ActionType::Push:
+		case BTech::CombatAction::Push:
 			break;
-		case BTech::ActionType::Charge:
+		case BTech::CombatAction::Charge:
 			break;
-		case BTech::ActionType::WeaponAttack:
+		case BTech::CombatAction::WeaponAttack:
 			obj.setDamage(obj.getWeapon()->getDamage());
 			break;
-		default:;
 	}
 
 	/** Attack modifiers */
@@ -228,9 +227,13 @@ QList <MoveObject> Grid::getWalkRange(const MovementObject &movementObject) cons
 			QList <Position> path;
 			BfsState current = state;
 
+			int i_ = 0;
 			while (current.position != movementObject.getSrc()) {
 				path.prepend(current.position);
 				current = states[current.parent];
+				++i_;
+				if (i_ > 50)
+					exit(0);
 			}
 
 			result.append(MoveObject(movementObject,

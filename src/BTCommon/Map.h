@@ -21,10 +21,10 @@ This file is part of BTech Project.
 #define MAP_H
 
 #include <QtWidgets>
-#include "BTCommon/Action.h"
-#include "BTCommon/MoveObject.h"
 #include "BTCommon/Utils.h"
+#include "BTCommon/MoveObject.h"
 
+class Action;
 class Grid;
 class Hex;
 class MechEntity;
@@ -65,7 +65,7 @@ public:
 	void endMove();
 	void trigger();
 
-	void chooseAction(const Action &action);
+	void chooseAction(const Action *action);
 
 	void startGame();
 	void endGame();
@@ -82,7 +82,7 @@ public:
 	Hex * getCurrentHex() const;
 	MechEntity * getCurrentUnit() const;
 	Player * getCurrentPlayer() const;
-	Action getCurrentAction() const;
+	const Action * getCurrentAction() const;
 	MovementObject getCurrentMovement() const;
 
 	void setCurrentHex(Hex *hex);
@@ -205,10 +205,10 @@ private:
 
 	QVector <Player *> players;
 
-	Action         currentAction;
 	MovementObject currentMovement;
 	Player         *currentPlayer;
 	MechEntity     *currentUnit;
+	Action         *currentAction;
 	Hex            *currentHex;
 
 private slots:

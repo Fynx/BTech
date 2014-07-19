@@ -229,48 +229,54 @@ namespace BTech {
 	QDataStream & operator >> (QDataStream &in, EffectSource &source);
 
 	/**
-	 * \enum ActionType
+	 * \enum MovementAction
 	 */
-	enum class ActionType : quint8 {
+	enum class MovementAction : quint8 {
 		Idle,
-
 		Walk,
 		Run,
 		Jump,
 		TurnRight,
 		TurnLeft,
+	};
 
+	const QVector <MovementAction> movementActions {
+		MovementAction::Idle,
+		MovementAction::Walk,
+		MovementAction::Run,
+		MovementAction::Jump,
+		MovementAction::TurnRight, // only for rotate-only movement
+		MovementAction::TurnLeft,
+	};
+
+	QDataStream & operator << (QDataStream &out, const MovementAction &action);
+	QDataStream & operator >> (QDataStream &in, MovementAction &action);
+
+	/**
+	 * \enum CombatAction
+	 */
+	enum class CombatAction : quint8 {
+		Idle,
 		SimpleAttack,
 		WeaponAttack,
 		Punch,
 		Kick,
 		Push,
-		Charge,
+		Charge
 	};
 
-	extern const QHash <BTech::ActionType, QString> actionTypeToString;
-
-	const QVector <ActionType> movementActions {
-		ActionType::Idle,
-		ActionType::Walk,
-		ActionType::Run,
-		ActionType::Jump,
-		ActionType::TurnRight, // only for rotate-only movement
-		ActionType::TurnLeft,
+	const QVector <CombatAction> combatActions {
+		CombatAction::Idle,
+		CombatAction::SimpleAttack,
+		CombatAction::WeaponAttack,
+		CombatAction::Punch,
+		CombatAction::Kick,
+		CombatAction::Push,
+		CombatAction::Charge,
 	};
 
-	const QVector <ActionType> combatActions {
-		ActionType::Idle,
-		ActionType::SimpleAttack,
-		ActionType::WeaponAttack,
-		ActionType::Punch,
-		ActionType::Kick,
-		ActionType::Push,
-		ActionType::Charge,
-	};
-
-	QDataStream & operator << (QDataStream &out, const ActionType &action);
-	QDataStream & operator >> (QDataStream &in, ActionType &action);
+	QDataStream & operator << (QDataStream &out, const CombatAction &action);
+	QDataStream & operator >> (QDataStream &in, CombatAction &action);
 
 	/**
 	 * \function random

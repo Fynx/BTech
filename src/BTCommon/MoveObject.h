@@ -38,23 +38,23 @@ class MovementObject
 {
 public:
 	MovementObject();
-	MovementObject(BTech::ActionType actionType);
+	MovementObject(BTech::MovementAction action);
 	MovementObject(Position src,
 	               int movePoints,
-	               BTech::ActionType actionType);
+	               BTech::MovementAction action);
 	Position getSrc() const;
 	int getMovePoints() const;
 	int getTerrainPenalty(BTech::Terrain terrain) const;
 	int getHeightPenalty(int heightDifference) const;
-	BTech::ActionType getActionType() const;
+	BTech::MovementAction getAction() const;
 	QList <QPair <Direction, Direction> >  getAllowedMoves() const;
 
 private:
-	static const QHash <BTech::ActionType, QList <QPair <Direction, Direction> > > allowedMoves;
+	static const QHash <BTech::MovementAction, QList <QPair <Direction, Direction> > > allowedMoves;
 
 	Position src;
 	int movePoints;
-	BTech::ActionType actionType;
+	BTech::MovementAction action;
 };
 
 /**
@@ -65,7 +65,7 @@ class MoveObject : public MovementObject
 {
 public:
 	MoveObject();
-	MoveObject(BTech::ActionType actionType);
+	MoveObject(BTech::MovementAction action);
 	MoveObject(const MovementObject &movement,
 	           Position dest,
 	           int movePointsUsed,
@@ -76,7 +76,7 @@ public:
 	           int movePoints,
 	           int movePointsUsed,
 	           int distance,
-	           BTech::ActionType actionType,
+	           BTech::MovementAction action,
 	           const QList <Position> &path);
 
 	Position getDest() const;

@@ -224,30 +224,32 @@ QDataStream & BTech::operator >> (QDataStream &in, BTech::EffectSource &source)
 }
 
 /**
- * \enum BTech::ActionType
+ * \enum BTech::MovementAction
  */
 
-const QHash <BTech::ActionType, QString> BTech::actionTypeToString {
-	{BTech::ActionType::Idle,         BTech::Strings::None      },
-	{BTech::ActionType::Walk,         BTech::Strings::Walk      },
-	{BTech::ActionType::Run,          BTech::Strings::Run       },
-	{BTech::ActionType::Jump,         BTech::Strings::Jump      },
-	{BTech::ActionType::TurnRight,    BTech::Strings::TurnRight },
-	{BTech::ActionType::TurnLeft,     BTech::Strings::TurnLeft  },
-
-	{BTech::ActionType::SimpleAttack, BTech::Strings::Attack},
-	{BTech::ActionType::Kick,         BTech::Strings::Kick},
-	{BTech::ActionType::Punch,        BTech::Strings::Punch},
-	{BTech::ActionType::Push,         BTech::Strings::Push}
-};
-
-QDataStream & BTech::operator << (QDataStream &out, const BTech::ActionType &action)
+QDataStream & BTech::operator << (QDataStream &out, const BTech::MovementAction &action)
 {
 	out << toUnderlying(action);
 	return out;
 }
 
-QDataStream & BTech::operator >> (QDataStream &in, BTech::ActionType &action)
+QDataStream & BTech::operator >> (QDataStream &in, BTech::MovementAction &action)
+{
+	in >> toUnderlyingRef(action);
+	return in;
+}
+
+/**
+ * \enum BTech::CombatAction
+ */
+
+QDataStream & BTech::operator << (QDataStream &out, const BTech::CombatAction &action)
+{
+	out << toUnderlying(action);
+	return out;
+}
+
+QDataStream & BTech::operator >> (QDataStream &in, BTech::CombatAction &action)
 {
 	in >> toUnderlyingRef(action);
 	return in;

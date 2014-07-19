@@ -215,15 +215,6 @@ MechPart * Mech::findMechPart(BTech::MechPartType type, BTech::MechPartSide side
 	return nullptr;
 }
 
-QList <Weapon *> Mech::editWeapons() const
-{
-	QList <Weapon *> result;
-	for (MechPart *mechPart : parts)
-		for (Weapon *weapon : mechPart->getWeapons())
-			result.append(weapon);
-	return result;
-}
-
 void Mech::clearData()
 {
 	qDeleteAll(parts);

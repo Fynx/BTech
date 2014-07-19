@@ -27,19 +27,15 @@ This file is part of BTech Project.
 MovementObject::MovementObject()
 {}
 
-MovementObject::MovementObject(BTech::ActionType actionType)
-	: actionType(actionType)
-{
-	Q_ASSERT(BTech::movementActions.contains(actionType));
-}
+MovementObject::MovementObject(BTech::MovementAction action)
+	: action(action)
+{}
 
 MovementObject::MovementObject(Position src,
-                               int movePoints,
-                               BTech::ActionType actionType)
-	: src(src), movePoints(movePoints), actionType(actionType)
-{
-	Q_ASSERT(BTech::movementActions.contains(actionType));
-}
+	                       int movePoints,
+	                       BTech::MovementAction action)
+	: src(src), movePoints(movePoints), action(action)
+{}
 
 static QList <QPair <Direction, Direction> > getAllDirectionPairs()
 {
@@ -53,12 +49,12 @@ static QList <QPair <Direction, Direction> > getAllDirectionPairs()
 	return result;
 }
 
-const QHash <BTech::ActionType, QList <QPair <Direction, Direction> > > MovementObject::allowedMoves {
-	{BTech::ActionType::Idle, {} },
-	{BTech::ActionType::Walk, { {BTech::DirectionFront, BTech::DirectionFront},
-	                            {BTech::DirectionRear,  BTech::DirectionFront}, } },
-	{BTech::ActionType::Run,  { {BTech::DirectionFront, BTech::DirectionFront}, } },
-	{BTech::ActionType::Jump, getAllDirectionPairs()},
+const QHash <BTech::MovementAction, QList <QPair <Direction, Direction> > > MovementObject::allowedMoves {
+	{BTech::MovementAction::Idle, {} },
+	{BTech::MovementAction::Walk, { {BTech::DirectionFront, BTech::DirectionFront},
+	                                {BTech::DirectionRear,  BTech::DirectionFront}, } },
+	{BTech::MovementAction::Run,  { {BTech::DirectionFront, BTech::DirectionFront}, } },
+	{BTech::MovementAction::Jump, getAllDirectionPairs()},
 };
 
 Position MovementObject::getSrc() const
@@ -84,14 +80,14 @@ int MovementObject::getHeightPenalty(int heightDifference) const
 	return diff;
 }
 
-BTech::ActionType MovementObject::getActionType() const
+BTech::MovementAction MovementObject::getAction() const
 {
-	return actionType;
+	return action;
 }
 
 QList <QPair <Direction, Direction> > MovementObject::getAllowedMoves() const
 {
-	return allowedMoves[actionType];
+	return allowedMoves[action];
 }
 
 /**
@@ -101,8 +97,8 @@ QList <QPair <Direction, Direction> > MovementObject::getAllowedMoves() const
 MoveObject::MoveObject()
 {}
 
-MoveObject::MoveObject(BTech::ActionType actionType)
-	: MovementObject(actionType)
+MoveObject::MoveObject(BTech::MovementAction action)
+	: MovementObject(action)
 {}
 
 MoveObject::MoveObject(const MovementObject &movement,
@@ -118,7 +114,7 @@ MoveObject::MoveObject(Position src,
                        int movePoints,
                        int movePointsUsed,
                        int distance,
-                       BTech::ActionType action,
+                       BTech::MovementAction action,
                        const QList <Position> &path)
 	: MovementObject(src, movePoints, action), dest(dest), movePointsUsed(movePointsUsed), distance(distance), path(path)
 {}

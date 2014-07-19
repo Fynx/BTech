@@ -20,7 +20,6 @@ This file is part of BTech Project.
 #define SIDEBAR_H
 
 #include <QtWidgets>
-#include "BTCommon/Action.h"
 #include "BTCommon/MechEntity.h"
 
 /**
@@ -32,11 +31,11 @@ class ActionLabel : public QLabel
 Q_OBJECT;
 
 public:
-	ActionLabel(QWidget *parent, QString text, int num, const Action &action);
+	ActionLabel(QWidget *parent, QString text, int num, const Action *action);
 	~ActionLabel();
 
 	int number;
-	Action action;
+	const Action *action;
 
 	void activate();
 	void deactivate();
@@ -46,7 +45,7 @@ public:
 	bool isCheckable() const;
 
 signals:
-	void clicked(const Action &action);
+	void clicked(const Action *action);
 
 private:
 	bool checkable;
@@ -75,23 +74,26 @@ public:
 	void keyPressEvent(QKeyEvent *event);
 
 public slots:
-	void insertActions(const BTech::GamePhase &phase, MechEntity *mech);
-	void insertActions(const QList <Action> &actions);
-	void insertAction(const Action &action);
-	void onActivateAction(const Action &action);
+	void insertActions(const BTech::GamePhase &phase, const MechEntity *mech);
+	void insertActions(QList <const Action *> actions);
+	void insertAction(const Action *action);
+	void onActivateAction(const Action *action);
 	void clear();
 
 signals:
-	void actionActivated(const Action &action);
+	void actionActivated(const Action *action);
 
 private:
 	static const int DEFAULT_WIDTH = 300;
 	static const int DEFAULT_HEIGHT = 200;
 
-	QString actionToString(const Action &action) const;
-	bool isActionCheckable(const Action &action) const;
+	QString actionToString(const Action *action) const;
+	bool isActionCheckable(const Action *action) const;
 
-	static const QHash <BTech::ActionType, bool> actionTypeCheckable;
+	static const QHash <BTech::MovementAction, QString> movementActionToString;
+	static const QHash <BTech::CombatAction, QString> combatActionToString;
+	static const QHash <BTech::MovementAction, bool> movementActionCheckable;
+	static const QHash <BTech::CombatAction, bool> combatActionCheckable;
 
 	void initLayout();
 
@@ -99,9 +101,9 @@ private:
 	QMap <QString, int> list;
 	QList <ActionLabel *> actionList;
 
-	Action currentAction;
+	const Action *currentAction;
 
-	ActionLabel * getActionLabel(const Action &action);
+	ActionLabel * getActionLabel(const Action *action);
 };
 
 /**

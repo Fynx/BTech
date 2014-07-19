@@ -133,7 +133,7 @@ MoveObject Hex::getMoveObject() const
 bool Hex::hasMoveObject() const
 {
 	for (Direction direction : BTech::directions)
-		if (moveObject[direction].getActionType() != BTech::ActionType::Idle)
+		if (moveObject[direction].getAction() != BTech::MovementAction::Idle)
 			return true;
 	return false;
 }
@@ -141,7 +141,7 @@ bool Hex::hasMoveObject() const
 void Hex::removeMoveObject()
 {
 	for (Direction direction : BTech::directions)
-		moveObject[direction] = MoveObject(BTech::ActionType::Idle);
+		moveObject[direction] = MoveObject(BTech::MovementAction::Idle);
 	currentMovementObjectNumber = 0;
 }
 

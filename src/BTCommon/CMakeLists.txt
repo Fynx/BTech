@@ -57,3 +57,7 @@ qt5_wrap_cpp (BTCommon_SRCS ${BTCommon_HDRS})
 
 add_library (BTCommon ${BTCommon_SRCS})
 target_link_libraries (BTCommon ${Qt5Widgets_LIBRARIES})
+
+if (BUILD_TESTS)
+	add_subdirectory (tests)
+endif (BUILD_TESTS)

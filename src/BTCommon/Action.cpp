@@ -18,54 +18,101 @@ This file is part of BTech Project.
 
 #include "BTCommon/Action.h"
 #include "BTCommon/EnumSerialization.h"
-#include "BTCommon/Weapon.h"
 
 /**
  * \class Action
  */
 
-Action::Action(BTech::ActionType actionType, WeaponHolder *weaponHolder)
-	: actionType(actionType), weapon(nullptr), weaponHolder(weaponHolder)
+Action::~Action()
 {}
 
-Action::Action(BTech::ActionType actionType, Weapon *weapon)
-	: actionType(actionType), weapon(weapon)
+bool Action::operator == (const Action *rhs) const
+{
+	if (this->getActionType() != rhs->getActionType())
+		return false;
+
+	switch (getActionType()) {
+		case Action::Type::Movement:
+			return static_cast<const MovementAction *>(this) == static_cast<const MovementAction *>(rhs);
+		case Action::Type::Combat:
+			return static_cast<const CombatAction *>(this) == static_cast<const CombatAction *>(rhs);
+		default:
+			return false;
+	}
+}
+
+/**
+ * \class MovementAction
+ */
+
+MovementAction::MovementAction(BTech::MovementAction type)
+	: type(type)
 {}
 
-BTech::ActionType Action::getActionType() const
+bool MovementAction::operator == (const MovementAction *rhs) const
 {
-	return actionType;
+	return this->getType() == rhs->getType();
 }
 
-bool Action::isCombat() const
+Action::Type MovementAction::getActionType() const
 {
-	return BTech::combatActions.contains(actionType);
+	return Action::Type::Movement;
 }
 
-bool Action::isMovement() const
+BTech::MovementAction MovementAction::getType() const
 {
-	return BTech::movementActions.contains(actionType);
+	return type;
 }
 
-Weapon * Action::getWeapon() const
+/**
+ * \class CombatAction
+ */
+
+CombatAction::CombatAction(BTech::CombatAction type,
+                           const WeaponHolder *weaponHolder,
+                           BTech::MechPartSide side)
+	: type(type), weaponHolder(weaponHolder), side(side)
+{}
+
+bool CombatAction::operator == (const CombatAction *rhs) const
 {
-	return weapon;
+	return this->getType() == rhs->getType()
+	    && this->getWeaponHolder() == rhs->getWeaponHolder();
 }
 
-void Action::setWeapon(Weapon *weapon)
+Action::Type CombatAction::getActionType() const
 {
-	this->weapon = weapon;
+	return Action::Type::Combat;
 }
 
-WeaponHolder * Action::getWeaponHolder() const
+BTech::CombatAction CombatAction::getType() const
 {
-	if (weapon == nullptr)
-		return weaponHolder;
-	else
-		return weapon->getWeaponHolder();
+	return type;
 }
 
-void Action::setWeaponHolder(WeaponHolder *weaponHolder)
+const WeaponHolder * CombatAction::getWeaponHolder() const
+{
+	return weaponHolder;
+}
+
+void CombatAction::setWeaponHolder(const WeaponHolder *weaponHolder)
 {
 	this->weaponHolder = weaponHolder;
+}
+
+const Weapon * CombatAction::getWeapon() const
+{
+	return getWeaponHolder() == nullptr
+		? nullptr
+		: getWeaponHolder()->getCurrentWeapon();
+}
+
+bool CombatAction::hasWeapon() const
+{
+	return weaponHolder->getCurrentWeapon() != nullptr;
+}
+
+BTech::MechPartSide CombatAction::getMechPartSide() const
+{
+	return side;
 }
