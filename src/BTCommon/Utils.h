@@ -240,7 +240,7 @@ namespace BTech {
 		TurnLeft,
 	};
 
-	const QVector <MovementAction> movementActions = {
+	const QVector <MovementAction> movementActions {
 		MovementAction::Idle,
 		MovementAction::Walk,
 		MovementAction::Run,
@@ -265,7 +265,7 @@ namespace BTech {
 		Charge
 	};
 
-	const QVector <CombatAction> combatActions = {
+	const QVector <CombatAction> combatActions {
 		CombatAction::Idle,
 		CombatAction::SimpleAttack,
 		CombatAction::WeaponAttack,

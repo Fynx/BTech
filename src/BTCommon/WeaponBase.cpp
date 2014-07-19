@@ -298,7 +298,7 @@ void WeaponBase::load(const WeaponBase &weapon)
  * \namespace BTech
  */
 
-const QHash <BTech::Modifier, QString> BTech::modifierStringChange = {
+const QHash <BTech::Modifier, QString> BTech::modifierStringChange {
 	{BTech::Modifier::Base,             BTech::Strings::ModifierBase},
 	{BTech::Modifier::Range,            BTech::Strings::ModifierRange},
 	{BTech::Modifier::Direction,        BTech::Strings::ModifierDirection},
@@ -308,13 +308,13 @@ const QHash <BTech::Modifier, QString> BTech::modifierStringChange = {
 	{BTech::Modifier::TargetMovement,   BTech::Strings::ModifierTargetMovement},
 };
 
-const QHash <BTech::Range, int> BTech::maximalMaxRange = {
+const QHash <BTech::Range, int> BTech::maximalMaxRange {
 	{BTech::Range::Short,  BTech::MAXIMAL_MAX_SHORT_RANGE},
 	{BTech::Range::Medium, BTech::MAXIMAL_MAX_MEDIUM_RANGE},
 	{BTech::Range::Long,   BTech::MAXIMAL_MAX_LONG_RANGE},
 };
 
-const QHash <BTech::Range, int> BTech::minimalMaxRange = {
+const QHash <BTech::Range, int> BTech::minimalMaxRange {
 	{BTech::Range::Short,  BTech::MINIMAL_MAX_SHORT_RANGE},
 	{BTech::Range::Medium, BTech::MINIMAL_MAX_MEDIUM_RANGE},
 	{BTech::Range::Long,   BTech::MINIMAL_MAX_LONG_RANGE},

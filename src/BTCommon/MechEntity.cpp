@@ -827,6 +827,10 @@ const QHash <QPair <BTech::DiceRoll, BTech::MechPartSide>, QPair <BTech::MechPar
 	{{12, BTech::MechPartSide::Right},  {BTech::MechPartType::Head,  BTech::MechPartSide::Center}},
 };
 
+/*
+ * BattleDroids (Basic)
+ * Movement Modifiers Table - Attacker, page 5
+ */
 const QHash <BTech::MovementAction, int> BTech::attackerMovementModifierTable {
 	{BTech::MovementAction::Idle, 0},
 	{BTech::MovementAction::Walk, 1},
@@ -834,6 +838,10 @@ const QHash <BTech::MovementAction, int> BTech::attackerMovementModifierTable {
 	{BTech::MovementAction::Jump, 3},
 };
 
+/*
+ * BattleDroids (Basic)
+ * Movement Modifiers Table - Target, page 5
+ */
 const QHash <int, int> BTech::targetMovementModifierTable {
 	{2, 0},
 	{4, 1},
@@ -841,7 +849,11 @@ const QHash <int, int> BTech::targetMovementModifierTable {
 	{9, 3},
 };
 
-const int BTech::armorPenetrationTable[BTech::MAX_POSSIBLE_DAMAGE + 1][BTech::MAX_POSSIBLE_ARMOR_VALUE + 1] = {
+/*
+ * BattleDroids (Basic)
+ * Armor Penetration Table, page 6
+ */
+const int BTech::armorPenetrationTable[BTech::MAX_POSSIBLE_DAMAGE + 1][BTech::MAX_POSSIBLE_ARMOR_VALUE + 1] {
 	{7,  7,  8,  8,  9,  9, 10, 10, 10, 11, 11, 11, 11, 11},
 	{6,  7,  7,  8,  8,  9,  9, 10, 10, 10, 11, 11, 11, 11},
 	{6,  6,  7,  7,  8,  8,  9,  9, 10, 10, 10, 11, 11, 11},

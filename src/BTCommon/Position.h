@@ -76,7 +76,7 @@ namespace BTech {
 	static const Direction DirectionLeftRear(4);
 	static const Direction DirectionLeftFront(5);
 
-	static const QVector <Direction> directions = {
+	static const QVector <Direction> directions {
 		DirectionN,
 		DirectionNE,
 		DirectionSE,
@@ -102,7 +102,13 @@ namespace BTech {
 		Water = 5
 	};
 
-	static const Terrain terrainTypes[] = {Terrain::Clear, Terrain::LightWoods, Terrain::HeavyWoods, Terrain::Rough, Terrain::Water};
+	static const QVector <Terrain> terrainTypes {
+		Terrain::Clear,
+		Terrain::LightWoods,
+		Terrain::HeavyWoods,
+		Terrain::Rough,
+		Terrain::Water
+	};
 
 	namespace TravelPenalty {
 		static const int Clear      = 1;

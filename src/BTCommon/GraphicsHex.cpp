@@ -27,7 +27,7 @@ bool GraphicsHex::gridVisible = false;
 bool GraphicsHex::coordinatesVisible = false;
 
 // TODO yeah, the potato aspect of hexness
-const QPointF GraphicsHex::nodes[BTech::NODES_NUMBER] = {
+const QPointF GraphicsHex::nodes[BTech::NODES_NUMBER] {
 	{ DEFAULT_HEX_SIZE / 2, -DEFAULT_HEX_SIZE},
 	{ DEFAULT_HEX_SIZE,      0},
 	{ DEFAULT_HEX_SIZE / 2,  DEFAULT_HEX_SIZE},
