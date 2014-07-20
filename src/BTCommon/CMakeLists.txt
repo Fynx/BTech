@@ -42,6 +42,7 @@ set (BTCommon_HDRS
 	GraphicsHex.h
 	GraphicsMap.h
 	InfoBar.h
+	Map.h
 	MechBase.h
 	MechEntity.h
 	Objects.h

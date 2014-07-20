@@ -45,7 +45,7 @@ MechEntity::~MechEntity()
 
 MechEntity::operator QString() const
 {
-	return Mech::operator QString();
+	return getName() + " (" + getOwnerName() + ")";
 }
 
 BTech::EntityType MechEntity::getEntityType() const
@@ -151,6 +151,7 @@ int MechEntity::getDistanceCrossed() const
 
 void MechEntity::attack(MechEntity *enemy)
 {
+	qDebug() << "attack";
 	sendExtensiveInfo(BTech::ExtInfo::AttackedObject.arg(QString(*enemy)));
 
 	AttackObject attackObject = enemy->getAttackObject();
@@ -340,7 +341,7 @@ void MechEntity::setMoved(bool moved)
 		jumpPointsUsed = getMaxJumpPoints();
 	} else {
 		movePointsUsed = 0;
-		runPointsUsed = 0;
+		runPointsUsed  = 0;
 		jumpPointsUsed = 0;	//TODO check it.
 	}
 }

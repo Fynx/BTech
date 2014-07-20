@@ -27,43 +27,55 @@ This file is part of BTech Project.
 #include "BTCommon/Player.h"
 #include "BTCommon/TileManager.h"
 
-const QHash <BTech::GamePhase, void (GraphicsMap::*)()> GraphicsMap::phaseToFunction {
-	{BTech::GamePhase::None,           &GraphicsMap::noPhase},
-	{BTech::GamePhase::Initiative,     &GraphicsMap::initiativePhase},
-	{BTech::GamePhase::Movement,       &GraphicsMap::movementPhase},
-	{BTech::GamePhase::Reaction,       &GraphicsMap::reactionPhase},
-	{BTech::GamePhase::WeaponAttack,   &GraphicsMap::weaponAttackPhase},
-	{BTech::GamePhase::PhysicalAttack, &GraphicsMap::physicalAttackPhase},
-	{BTech::GamePhase::Combat,         &GraphicsMap::combatPhase},
-	{BTech::GamePhase::Heat,           &GraphicsMap::heatPhase},
-	{BTech::GamePhase::End,            &GraphicsMap::endPhase},
-};
-
-void GraphicsMap::createNewMap(int width, int height)
+GraphicsMap::GraphicsMap(Map *map)
+	: map(map), valid(false)
 {
-	if (mapLoaded)
+	initScene();
+
+	connect(map, &Map::hexesInitialized, this, &GraphicsMap::onHexesInitialized);
+	connect(map, &Map::unitInitialized, this, &GraphicsMap::onUnitInitialized);
+
+	connect(map, &Map::movementRangeNeeded, this, &GraphicsMap::onMovementRangeNeeded);
+	connect(map, &Map::attackRangeNeeded, this, &GraphicsMap::onAttackRangeNeeded);
+	connect(map, &Map::rangesNotNeeded, this, &GraphicsMap::onRangesNotNeeded);
+
+	connect(map, &Map::playerTurn, this, &GraphicsMap::onPlayerTurn);
+
+	connect(map, &Map::hexesNeedClearing, this, &GraphicsMap::onHexesNeedClearing);
+	connect(map, &Map::hexesNeedUpdating, this, &GraphicsMap::onHexesNeedUpdating);
+}
+
+void GraphicsMap::newMap(int width, int height)
+{
+	if (valid)
 		clearMap();
-	Map::createNewMap(width, height);
+	map->newMap(width, height);
 	initMap();
-	mapLoaded = true;
-	emit mapHasBeenLoaded();
+	valid = true;
+	emit mapLoaded();
 }
 
 bool GraphicsMap::loadMap(const QString &mapFileName)
 {
-	if (mapLoaded)
+	if (valid)
 		clearMap();
-	if (!Map::loadMap(mapFileName))
+	if (!map->loadMap(mapFileName))
 		return false;
 	initMap();
-	mapLoaded = true;
-	emit mapHasBeenLoaded();
+// 	initUnits();
+	valid = true;
+	emit mapLoaded();
 	return true;
+}
+
+bool GraphicsMap::isValid() const
+{
+	return valid;
 }
 
 void GraphicsMap::clearHexes()
 {
-	for (Hex *hex : hexes)
+	for (Hex *hex : map->getHexes())
 		GraphicsFactory::get(hex)->setClicked(false);
 }
 
@@ -80,7 +92,7 @@ bool GraphicsMap::isGridVisible() const
 
 void GraphicsMap::toggleCoordinates()
 {
-	GraphicsHex::setCoordinatesVisible(!areCoordinatesVisible() && isGridVisible());
+	GraphicsHex::setCoordinatesVisible(!areCoordinatesVisible());
 	scene()->update();
 }
 
@@ -92,31 +104,6 @@ bool GraphicsMap::areCoordinatesVisible() const
 QPointF GraphicsMap::mapCoordinateToScene(const Coordinate &c) const
 {
 	return coordinateToScenePos[c];
-}
-
-void GraphicsMap::addMechToHex(MechEntity *mech, Hex *hex, Player *player)
-{
-	if (hex->getMech() != nullptr) {
-		delete mech;
-		return;
-	}
-	mech->setPosition({hex->getCoordinate(), BTech::DirectionN});
-
-	player->addMech(mech);
-	hex->setMech(mech);
-	initUnit(mech);
-
-	emit hexDisplayChanged();
-}
-
-QPair <QString, QColor> GraphicsMap::getMessage() const
-{
-	return {message, messageColor};
-}
-
-QPair <QString, QColor> GraphicsMap::getExtInfo() const
-{
-	return {extensiveInfo, extensiveInfoColor};
 }
 
 void GraphicsMap::incScale(int times)
@@ -139,14 +126,14 @@ void GraphicsMap::decScale(int times)
 
 void GraphicsMap::onChooseAction(const Action *action)
 {
-	hideShootRange();
-	hideWalkRange();
-	chooseAction(action);
+	hideAttackRange();
+	hideMovementRange();
+	map->chooseAction(action);
 }
 
 void GraphicsMap::onEndMove()
 {
-	endMove();
+	map->endMove();
 }
 
 void GraphicsMap::initMap()
@@ -154,9 +141,6 @@ void GraphicsMap::initMap()
 	walkRangeVisible = false;
 	shootRangeVisible = false;
 
-	initScene();
-	initHexes();
-	initUnits();
 	initScaling();
 	initWindowSettings();
 }
@@ -170,11 +154,11 @@ void GraphicsMap::initScene()
 
 void GraphicsMap::initHexes()
 {
-	const int leftBorder  = GraphicsHex::getSize();
+	const int leftBorder  = +GraphicsHex::getSize();
 	const int upperBorder = -GraphicsHex::getSize();
 
 	coordinateToScenePos.clear();
-	for (Hex *hex : hexes) {
+	for (Hex *hex : map->getHexes()) {
 		GraphicsHex *graphicsHex = GraphicsFactory::get(hex);
 		const qreal x = leftBorder + hex->getCoordinate().x() * GraphicsHex::getSize() * 3 / 2;
 		const qreal y = upperBorder + (hex->getCoordinate().y() * 2 + (hex->getCoordinate().x() % 2 == 0)) * GraphicsHex::getSize();
@@ -197,22 +181,9 @@ void GraphicsMap::initHexes()
 
 void GraphicsMap::initUnits()
 {
-	for (Player *player : players)
+	for (Player *player : map->getPlayers())
 		for (MechEntity *mech : player->getMechs())
 			initUnit(mech);
-}
-
-void GraphicsMap::initUnit(MechEntity *mech)
-{
-	GraphicsEntity *gEnt = GraphicsFactory::get(mech);
-	gEnt->init(this);
-	scene()->addItem(gEnt);
-
-	connect(mech, &MechEntity::stateInfoSent, this, &GraphicsMap::mechStateInfoReceived);
-	connect(mech, &MechEntity::infoSent, this, &GraphicsMap::mechInfoReceived);
-	connect(mech, &MechEntity::extensiveInfoSent, this, &GraphicsMap::mechExtensiveInfoReceived);
-
-	emit mechAdded(mech);
 }
 
 void GraphicsMap::initScaling()
@@ -222,15 +193,15 @@ void GraphicsMap::initScaling()
 	scale = 1;
 	scaleSpeed = DEFAULT_SCALE_SPEED;
 
-	qreal mDim = (qreal)(qMax(getMapWidth(), getMapHeight()));
+	qreal mDim = (qreal)(qMax(width(), height()));
 	minScale = MIN_SCALE_MULT / mDim;
 	maxScale = 3;
 }
 
 void GraphicsMap::initWindowSettings()
 {
-	QPointF firstHex = GraphicsFactory::get(hexes.first())->pos();
-	QPointF lastHex  = GraphicsFactory::get(hexes.last())->pos();
+	QPointF firstHex = GraphicsFactory::get(map->getHexes().first())->pos();
+	QPointF lastHex  = GraphicsFactory::get(map->getHexes().last())->pos();
 	scene()->setSceneRect(
 		firstHex.x() - SCENE_BORDER + GraphicsHex::getSize(),
 		firstHex.y() - SCENE_BORDER,
@@ -242,6 +213,15 @@ void GraphicsMap::initWindowSettings()
 	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	setMouseTracking(true);
 	setEnabled(true);
+}
+
+void GraphicsMap::initUnit(MechEntity *mech)
+{
+	GraphicsEntity *gEnt = GraphicsFactory::get(mech);
+	gEnt->init(this);
+	scene()->addItem(gEnt);
+
+	emit hexDisplayChanged();
 }
 
 void GraphicsMap::changeScale(qreal scale)
@@ -309,158 +289,107 @@ void GraphicsMap::drawFriendlyMechs(const Player *player)
 
 void GraphicsMap::drawShootRange(const MechEntity *mech)
 {
-	Hex *mechHex = getGrid()->getHexByCoordinate(mech->getCurrentCoordinate());
-	QList <Hex *> vArc = getGrid()->getShootRange(mechHex, mech->getTorsoDirection() + mech->getCurrentDirection());
+	Hex *mechHex = map->getGrid()->getHexByCoordinate(mech->getCurrentCoordinate());
+	QList <Hex *> vArc = map->getGrid()->getShootRange(mechHex, mech->getTorsoDirection() + mech->getCurrentDirection());
 	for (Hex *dest : vArc)
-		dest->setAttackObject(getGrid()->getAttackObject(mech, dest->getMech()));
+		dest->setAttackObject(map->getGrid()->getAttackObject(mech, dest->getMech()));
 }
 
 void GraphicsMap::drawWalkRange(const MovementObject &movement)
 {
-	QList <MoveObject> wRange = getGrid()->getWalkRange(movement);
+	QList <MoveObject> wRange = map->getGrid()->getWalkRange(movement);
 	for (MoveObject &object : wRange)
-		getGrid()->getHexByCoordinate(object.getDest().getCoordinate())->setMoveObject(object);
+		map->getGrid()->getHexByCoordinate(object.getDest().getCoordinate())->setMoveObject(object);
 }
 
 void GraphicsMap::hideAll()
 {
-	hideWalkRange();
-	hideShootRange();
-	for (Hex *hex : hexes)
+	hideMovementRange();
+	hideAttackRange();
+	for (Hex *hex : map->getHexes())
 		hex->clear();
+	scene()->update();
 }
 
-void GraphicsMap::hideShootRange()
+void GraphicsMap::hideAttackRange()
 {
 	shootRangeVisible = false;
-	for (Hex *hex : hexes)
+	for (Hex *hex : map->getHexes())
 		hex->removeAttackObject();
+
+	scene()->update();
 }
 
-void GraphicsMap::hideWalkRange()
+void GraphicsMap::hideMovementRange()
 {
 	if (!walkRangeVisible)
 		return;
 	walkRangeVisible = false;
-	for (Hex *hex : hexes)
+	for (Hex *hex : map->getHexes())
 		hex->removeMoveObject();
+
+	scene()->update();
 }
 
-void GraphicsMap::showShootRange(const MechEntity *mech)
+void GraphicsMap::showAttackRange(const MechEntity *mech)
 {
 	if (mech == nullptr)
 		return;
 
 	drawShootRange(mech);
 	shootRangeVisible = true;
+
+	scene()->update();
 }
 
-void GraphicsMap::showWalkRange(const MovementObject &movement)
+void GraphicsMap::showMovementRange(const MovementObject &movement)
 {
-	hideWalkRange();
+	hideMovementRange();
 	drawWalkRange(movement);
 	walkRangeVisible = true;
-}
 
-void GraphicsMap::noPhase()
-{
-	hideShootRange();
-	hideWalkRange();
-}
-
-void GraphicsMap::emitGameStarted()
-{
-	emit gameStarted();
-}
-
-void GraphicsMap::emitGameEnded()
-{
-	emit gameEnded();
-}
-
-void GraphicsMap::emitMechInfoNeeded(const MechEntity *mech)
-{
-	emit mechInfoNeeded(mech);
-}
-
-void GraphicsMap::emitMechInfoNotNeeded()
-{
-	emit mechInfoNotNeeded();
-}
-
-void GraphicsMap::emitMechActionsNeeded(BTech::GamePhase phase)
-{
-	emit mechActionsNeeded(phase);
-}
-
-void GraphicsMap::emitMechActionsNotNeeded()
-{
-	emit mechActionsNotNeeded();
-}
-
-void GraphicsMap::emitMechWalkRangeNeeded(const MovementObject &movement)
-{
-	showWalkRange(movement);
 	scene()->update();
 }
 
-void GraphicsMap::emitMechShootRangeNeeded(const MechEntity *mech)
+void GraphicsMap::onPlayerTurn()
 {
-	showShootRange(mech);
-	scene()->update();
+	drawFriendlyMechs(map->getCurrentPlayer());
 }
 
-void GraphicsMap::emitMechRangesNotNeeded()
-{
-	hideWalkRange();
-	hideShootRange();
-	scene()->update();
-}
-
-void GraphicsMap::emitPlayerTurn(const Player *player)
-{
-	drawFriendlyMechs(player);
-	emit playerTurn(player);
-}
-
-void GraphicsMap::emitHexesNeedClearing()
+void GraphicsMap::onHexesNeedClearing()
 {
 	hideAll();
 	scene()->update();
 }
 
-void GraphicsMap::emitHexesNeedUpdating()
+void GraphicsMap::onHexesNeedUpdating()
 {
 	scene()->update();
 }
 
-void GraphicsMap::emitMessageSent(const QString &message, const QColor &color)
-{
-	this->message = message;
-	this->messageColor = color;
-	emit messageSent();
-}
-
-void GraphicsMap::emitExtensiveInfoSent(const QString &info, const QColor &color)
-{
-	this->extensiveInfo = info;
-	this->extensiveInfoColor = color;
-	emit extensiveInfoSent();
-}
-
 void GraphicsMap::clearMap()
 {
-	Map::clearMap();
-	mapLoaded = false;
+	map->clearMap();
+	valid = false;
 	GraphicsFactory::clear();
 	emit mapCleared();
+}
+
+void GraphicsMap::onHexesInitialized()
+{
+	initHexes();
+}
+
+void GraphicsMap::onUnitInitialized()
+{
+	initUnit(map->getCurrentUnit());
 }
 
 void GraphicsMap::onHexClicked(Hex *hex)
 {
 	emit hexClicked(hex);
-	setCurrentHex(hex);
-	(this->*GraphicsMap::phaseToFunction[getCurrentPhase()])();
+	map->setCurrentHex(hex);
+	map->trigger();
 }
 
 void GraphicsMap::onHexTracked(Hex *hex)
@@ -478,27 +407,20 @@ void GraphicsMap::onHexNewAreaTracked()
 	emit hexDisplayChanged();
 }
 
-void GraphicsMap::mechInfoReceived()
+void GraphicsMap::onAttackRangeNeeded()
 {
-	MechEntity *mech = static_cast<MechEntity *>(sender());
-	emitMessageSent(mech->getName() + ": " + mech->getInfo(),
-	                playerNameToColor[mech->getOwnerName()]);
+	showAttackRange(map->getCurrentUnit());
 }
 
-void GraphicsMap::mechExtensiveInfoReceived()
+void GraphicsMap::onMovementRangeNeeded()
 {
-	MechEntity *mech = static_cast<MechEntity *>(sender());
-	if (mech->getInfo().isEmpty())
-		emitExtensiveInfoSent(mech->getName() + " (" + mech->getOwnerName() + ")",
-		                      playerNameToColor[mech->getOwnerName()]); /** signature */
-	else
-		emitExtensiveInfoSent(mech->getInfo());
+	showMovementRange(map->getCurrentMovement());
 }
 
-void GraphicsMap::mechStateInfoReceived(const QString &message)
+void GraphicsMap::onRangesNotNeeded()
 {
-	emitMessageSent(getCurrentMech()->getOwnerName() + ": " + getCurrentMech()->getName() + ": " + message,
-	                playerNameToColor[getCurrentMech()->getOwnerName()]);
+	hideMovementRange();
+	hideAttackRange();
 }
 
 void GraphicsMap::scaleView()

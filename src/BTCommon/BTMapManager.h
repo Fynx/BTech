@@ -23,6 +23,7 @@ This file is part of BTech Project.
 
 class GraphicsMap;
 class InfoBar;
+class Map;
 
 class BTMapManager : public QMainWindow
 {
@@ -33,6 +34,15 @@ public:
 	virtual ~BTMapManager() = 0;
 
 protected:
+	void startMapManagement();
+
+	Map * getMap();
+	GraphicsMap * getGraphicsMap();
+	InfoBar * getInfoBar();
+
+	QString getMapFileName() const;
+	void setMapFileName(const QString &mapFileName);
+
 	QMenu *fileMenu;
 	QAction *menuLoadMapAction;
 	QAction *menuQuitAction;
@@ -42,31 +52,36 @@ protected:
  	QAction *menuShowCoordsAction;
 	QAction *menuShowInfoBarAction;
 
-	GraphicsMap *map;
-	InfoBar *infoBar;
-
-	void initBaseFunctions();
-	void initWindow();
-	void initInfoBar();
-	void initCentralWindow();
-	void initMenu();
-	void initEventsHandling();
-
 	virtual void readSettings() = 0;
 	virtual void writeSettings() = 0;
-
-	void startMapManagement();
-
-	void wheelEvent(QWheelEvent *event);
 
 protected slots:
 	virtual void onLoadMapAction();
 	virtual void onQuitAction();
 
+private:
+	void initBaseFunctions();
+	void initCentralWindow();
+	void initData();
+	void initEventsHandling();
+	void initInfoBar();
+	void initMenu();
+	void initWindow();
+
+	void wheelEvent(QWheelEvent *event);
+
+	Map *map;
+	GraphicsMap *graphicsMap;
+	InfoBar *infoBar;
+	QString mapFileName;
+
 private slots:
-	void onShowGridAction();
 	void onShowCoordsAction();
+	void onShowGridAction();
 	void onShowInfoBarAction();
+
+	void onMechInfoNeeded();
+	void onMechInfoNotNeeded();
 };
 
 #endif // BTMAPMANAGER_H

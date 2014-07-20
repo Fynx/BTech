@@ -23,6 +23,8 @@ This file is part of BTech Project.
 #include "BTCommon/Rules.h"
 #include "BTMapEditor/ManagersUtils.h"
 
+class Map;
+
 /**
  * \class MapPropertiesManager
  */
@@ -31,7 +33,7 @@ class MapPropertiesManager : public QWidget
 Q_OBJECT;
 
 public:
-	MapPropertiesManager(QVector <Player *> &players, QString &mapDescription, QList <BTech::GameVersion> &allowedVersions);
+	MapPropertiesManager(Map *map);
 
 	Player * getCurrentPlayer() const;
 	void setPlayers(QVector <Player *> &players);
@@ -49,13 +51,11 @@ signals:
 	void playerRemoved();
 
 private:
+	Map *map;
+
 	static const int MAX_PLAYERS_SIZE = 8;
 
 	static const int DEFAULT_WIDTH = 200;
-
-	QVector <Player *> &players;
-	QString &mapDescriptionRef;
-	QList <BTech::GameVersion> &allowedVersions;
 
 	QComboBox *playersComboBox;
 	QPushButton *addPlayerButton;

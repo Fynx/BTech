@@ -147,6 +147,7 @@ void InfoBar::initSettings()
 	setMinimumSize(MINIMUM_WIDTH, MINIMUM_HEIGHT);
 	setContentsMargins(0, 0, 0, 0);
 	removeMech();
+	curHex = nullptr;
 	tX = -MAXIMUM_WIDTH;
 }
 

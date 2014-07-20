@@ -46,8 +46,8 @@ namespace BTech {
 		const QString PhaseHeat           = QObject::tr("Heat Phase");
 		const QString PhaseEnd            = QObject::tr("End Phase");
 
-		const QString BasicBattleDroids    = QObject::tr("Basic BattleDroids");
-		const QString AdvancedBattleDroids = QObject::tr("Advanced BattleDroids");
+		const QString BasicBattleDroids    = QObject::tr("Basic Battledroids");
+		const QString AdvancedBattleDroids = QObject::tr("Advanced Battledroids");
 
 		const QString PlayerNone     = QObject::tr("Player None");
 		const QString PlayerComputer = QObject::tr("Computer Player");
@@ -152,13 +152,13 @@ namespace BTech {
 	namespace Messages {
 		const QString Separator = QObject::tr("-----------------------------------------");
 
-		const QString MapLoaded = QObject::tr("Map: ");
+		const QString MapLoaded = QObject::tr("Map loaded");
 
 		const QString GameStarted    = QObject::tr("Game started!");
-		const QString GameOver       = QObject::tr("Game Over");
+		const QString GameOver       = QObject::tr("Game over.");
 		const QString ListInitiative = QObject::tr("initiative:");
 
-		const QString WinMessage = QObject::tr("The winner is:");
+		const QString WinMessage = QObject::tr("The winner is %s!");
 		const QString NoWinner   = QObject::tr("All units destroyed - no one wins.");
 	}
 

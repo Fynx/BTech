@@ -66,7 +66,8 @@ QColor Player::getColor() const
 
 void Player::addMech(MechEntity *mech)
 {
-	mechs << mech;
+	Q_ASSERT(mech != nullptr);
+	mechs.append(mech);
 	mech->setOwnerName(getName());
 }
 

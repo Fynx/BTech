@@ -73,19 +73,21 @@ signals:
 	void newAreaTracked(Hex *hex);
 
 private:
-	GridGraphicsObject *baseGridGraphicsObject;
-	GridGraphicsObject *propertyGridGraphicsObject;
-	GridGraphicsObject *mouseClickDependentGridGraphicsObject;
-	GridGraphicsObject *mouseMoveDependentGridGraphicsObject;
-
 	static const int DEFAULT_HEX_SIZE = 60;
 	static const int MIN_HEX_SIZE     = 10;
 	static const int MAX_HEX_SIZE     = 100;
 
-	static const int BASE_GRID_GRAPHICS_OBJECT_Z_VALUE                  = 1;
-	static const int PROPERTY_GRID_GRAPHICS_OBJECT_Z_VALUE              = 2;
-	static const int MOUSE_CLICK_DEPENDENT_GRID_GRAPHICS_OBJECT_Z_VALUE = 3;
-	static const int MOUSE_MOVE_DEPENDENT_GRID_GRAPHICS_OBJECT_Z_VALUE  = 4;
+	struct {
+		GridGraphicsObject *base;
+		GridGraphicsObject *property;
+		GridGraphicsObject *mouseClick;
+		GridGraphicsObject *mouseMove;
+
+		static const int BaseZValue       = 1;
+		static const int PropertyZValue   = 2;
+		static const int MouseClickZValue = 3;
+		static const int MouseMoveZValue  = 4;
+	} graphicsObjects;
 
 	struct Color {
 		static const QColor Grid;

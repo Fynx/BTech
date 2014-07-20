@@ -17,14 +17,15 @@ This file is part of BTech Project.
 	along with BTech.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "BTCommon/Map.h"
 #include "BTMapEditor/UnitsManager.h"
 
 /**
  * \class UnitsManager
  */
 
-UnitsManager::UnitsManager(QVector <Player *> &players)
-	: players(players), currentUnit(EmptyUid)
+UnitsManager::UnitsManager(Map *map)
+	: map(map), currentUnit(EmptyUid)
 {
 	initMechList();
 
@@ -45,7 +46,7 @@ UnitsManager::UnitsManager(QVector <Player *> &players)
 
 Player * UnitsManager::getCurrentPlayer() const
 {
-	for (Player *player : players)
+	for (Player *player : map->getPlayers())
 		if (player->getName() == playersComboBox->currentText())
 			return player;
 	return nullptr;
@@ -99,9 +100,9 @@ void UnitsManager::initMechList()
 void UnitsManager::updatePlayersComboBox()
 {
 	playersComboBox->clear();
-	for (Player *player : players)
+	for (Player *player : map->getPlayers())
 		playersComboBox->addItem(player->getName());
-	playersComboBox->setEnabled(!players.isEmpty());
+	playersComboBox->setEnabled(!map->getPlayers().isEmpty());
 }
 
 void UnitsManager::onUnitChosen(const QString &unitName)

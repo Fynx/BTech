@@ -45,19 +45,19 @@ BTMapEditor::~BTMapEditor()
 
 void BTMapEditor::initInfoBar()
 {
-	infoBar->setDisplayState(InfoBar::DisplayState::HexWindowOnly);
+	getInfoBar()->setDisplayState(InfoBar::DisplayState::HexWindowOnly);
 }
 
 void BTMapEditor::initMap()
 {
-	connect(map, static_cast<void (GraphicsMap::*)(Hex *)>(&GraphicsMap::hexClicked), this, &BTMapEditor::onHexClicked);
+	connect(getGraphicsMap(), static_cast<void (GraphicsMap::*)(Hex *)>(&GraphicsMap::hexClicked), this, &BTMapEditor::onHexClicked);
 }
 
 void BTMapEditor::initToolBar()
 {
-	toolBar = new ToolBar(map);
+	toolBar = new ToolBar(getMap());
 
-	connect(map, &GraphicsMap::mapHasBeenLoaded, toolBar, &ToolBar::onMapLoaded);
+	connect(getGraphicsMap(), &GraphicsMap::mapLoaded, toolBar, &ToolBar::onMapLoaded);
 
 	connect(toolBar, &ToolBar::playersInfoChanged, this, &BTMapEditor::updatePlayers);
 	connect(toolBar, &ToolBar::hexesInfoChanged,   this, &BTMapEditor::updateHexes);
@@ -135,8 +135,8 @@ bool BTMapEditor::saveMap(const QString &path)
 	if (!file.open(QIODevice::WriteOnly))
 		return false;
 	QDataStream out(&file);
-	map->setMapFileName(path);
-	out << *map;
+	setMapFileName(path);
+	out << *getMap();
 	file.close();
 
 	return true;
@@ -151,23 +151,23 @@ void BTMapEditor::onNewMapAction()
 {
 	NewMapDialog dialog(this);
 	if (dialog.exec()) {
-		map->createNewMap(dialog.getMapWidth(), dialog.getMapHeight());
+		getGraphicsMap()->newMap(dialog.getMapWidth(), dialog.getMapHeight());
 		BTMapManager::startMapManagement();
 	}
 }
 
 void BTMapEditor::onSaveMapAction()
 {
-	if (map->getMapFileName().isEmpty())
+	if (getMapFileName().isEmpty())
 		return onSaveAsMapAction();
-	saveMap(map->getMapFileName());
+	saveMap(getMapFileName());
 }
 
 void BTMapEditor::onSaveAsMapAction()
 {
 	QString path = QFileDialog::getSaveFileName(this, BTech::Strings::DialogSaveMap, BTech::resolvePath(BTech::Paths::MAPS_PATH), BTech::Strings::DialogBTechMapFiles);
 	if (saveMap(path))
-		map->setMapFileName(path);
+		setMapFileName(path);
 }
 
 void BTMapEditor::onQuitAction()
@@ -216,14 +216,17 @@ void BTMapEditor::onSaveData()
 
 void BTMapEditor::onHexClicked(Hex *hex)
 {
-	map->clearHexes();
+	getGraphicsMap()->clearHexes();
 	GraphicsFactory::get(hex)->setClicked(true);
 
 	switch (toolBar->getCurrentMode()) {
 		case ToolBar::Mode::Unit:
-			if (toolBar->getCurrentUnit() != EmptyUid)
-				map->addMechToHex(new MechEntity(toolBar->getCurrentUnit()), hex, toolBar->getCurrentPlayer());
-			break; // responsibility for the new allocated MechEntity goes to GraphicsMap.
+			if (toolBar->getCurrentUnit() != EmptyUid) {
+				MechEntity *newEntity = new MechEntity(toolBar->getCurrentUnit());
+				toolBar->getCurrentPlayer()->addMech(newEntity);
+				getMap()->addMech(newEntity, hex);
+			}
+			break;
 		case ToolBar::Mode::Terrain: {
 			hex->setTerrain(toolBar->getCurrentTerrain());
 			GraphicsHex *gHex = GraphicsFactory::get(hex);
@@ -238,10 +241,10 @@ void BTMapEditor::onHexClicked(Hex *hex)
 
 void BTMapEditor::updatePlayers()
 {
-	map->updatePlayers();
+	getMap()->updateUnitOwners();
 }
 
 void BTMapEditor::updateHexes()
 {
-	map->updateHexes();
+	//TODO perhaps.
 }

@@ -23,6 +23,8 @@ This file is part of BTech Project.
 #include <QtWidgets>
 #include "BTMapEditor/ManagersUtils.h"
 
+class Map;
+
 /**
  * \class UnitsManager
  */
@@ -31,7 +33,7 @@ class UnitsManager : public QWidget
 Q_OBJECT;
 
 public:
-	UnitsManager(QVector <Player *> &players);
+	UnitsManager(Map *map);
 
 	Player * getCurrentPlayer() const;
 
@@ -46,7 +48,7 @@ signals:
 	void playerChosen(Player *player);
 
 private:
-	const QVector <Player *> &players;
+	Map *map;
 
 	void initMechList();
 

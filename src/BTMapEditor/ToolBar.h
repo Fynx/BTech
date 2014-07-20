@@ -57,9 +57,6 @@ public:
 	const Tile * getCurrentTile() const;
 	UID getCurrentUnit() const;
 
-	void setPlayers(QVector <Player *> &players);
-	void setHexes(QVector <Hex *> &hexes);
-
 	void reloadData();
 
 public slots:
@@ -82,7 +79,7 @@ private:
 	static const int DEFAULT_HEIGHT = 800;
 
 	void initTabs();
-	void initManagers(QVector <Player *> &players, QString &mapDescriptionRef, QList <BTech::GameVersion> &allowedVersions);
+	void initManagers(Map *map);
 	void initWindow();
 	void initWidget();
 	void initLayout();

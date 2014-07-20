@@ -163,6 +163,7 @@ QList <const Weapon *> Mech::getWeapons() const
 QDataStream & operator << (QDataStream &out, const Mech &mech)
 {
 	qDebug() << "\t\tuid:             " << mech.base->getUid() << "\n"
+	         << "\t\tname:            " << mech.base->getName() << "\n"
 	         << "\t\tarmorValue:      " << mech.armorValue << "\n"
 	         << "\t\tbaseFireRange:   " << mech.baseFireRange << "\n"
 	         << "\t\theatSinksNumber: " << mech.heatSinksNumber;

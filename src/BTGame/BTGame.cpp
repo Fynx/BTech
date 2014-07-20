@@ -23,7 +23,6 @@ This file is part of BTech Project.
 /* constructor */
 BTGame::BTGame()
 {
-	initBaseFunctions();
 	initLogWindow();
 	initSideBar();
 	initCentralWindow();
@@ -35,9 +34,6 @@ BTGame::~BTGame()
 {
 	writeSettings();
 }
-
-void BTGame::initBaseFunctions()
-{}
 
 void BTGame::initLogWindow()
 {
@@ -55,20 +51,21 @@ void BTGame::initSideBar()
 
 void BTGame::initCentralWindow()
 {
-	map->stackUnder(sideBar);
+	getGraphicsMap()->stackUnder(sideBar);
 
-	connect(map, &GraphicsMap::mechActionsNeeded, this, &BTGame::setActionsInSideBar);
-	connect(map, &GraphicsMap::mechActionsNotNeeded, sideBar->getActionWindow(), &ActionWindow::clear);
-	connect(map, &GraphicsMap::messageSent, this, &BTGame::messageFromMapToSideBar);
-	connect(map, &GraphicsMap::extensiveInfoSent, this, &BTGame::onExtensiveInfo);
+	connect(getMap(), &Map::mechActionsNeeded, this, &BTGame::setActionsInSideBar);
+	connect(getMap(), &Map::mechActionsNotNeeded, sideBar->getActionWindow(), &ActionWindow::clear);
+	connect(getMap(), &Map::messageSent, this, &BTGame::messageFromMapToSideBar);
+	connect(getMap(), &Map::extensiveInfoSent, this, &BTGame::onExtensiveInfo);
 
-	connect(sideBar, &SideBar::endMoveButtonPressed, map, &GraphicsMap::onEndMove);
-	connect(sideBar->getActionWindow(), &ActionWindow::actionActivated, map, &GraphicsMap::onChooseAction);
+	connect(sideBar, &SideBar::endMoveButtonPressed, getGraphicsMap(), &GraphicsMap::onEndMove);
+	connect(sideBar->getActionWindow(), &ActionWindow::actionActivated, getGraphicsMap(), &GraphicsMap::onChooseAction);
 
-	connect(map, &GraphicsMap::gameEnded, this, &BTGame::onEndGame);
+	connect(getMap(), &Map::gameStarted, this, &BTGame::onGameStarted);
+	connect(getMap(), &Map::gameEnded,   this, &BTGame::onGameEnded);
 
-	connect(map, &GraphicsMap::mapCleared, sideBar->getActionWindow(), &ActionWindow::clear);
-	connect(map, &GraphicsMap::mapCleared, sideBar, &SideBar::disable);
+	connect(getGraphicsMap(), &GraphicsMap::mapCleared, sideBar->getActionWindow(), &ActionWindow::clear);
+	connect(getGraphicsMap(), &GraphicsMap::mapCleared, sideBar, &SideBar::disable);
 }
 
 void BTGame::initMenu()
@@ -122,7 +119,7 @@ void BTGame::onTriggerLogWindow()
 void BTGame::onLoadMapAction()
 {
 	BTMapManager::onLoadMapAction();
-	if (map->isLoaded()) {
+	if (getGraphicsMap()->isValid()) {
 		menuStartGameAction->setEnabled(true);
 		menuSetVersion->setEnabled(true);
 	}
@@ -132,40 +129,43 @@ void BTGame::onStartGameAction()
 {
 	sideBar->enable();
 	menuStartGameAction->setEnabled(false);
-	map->startGame();
+	getMap()->startGame();
 }
 
 void BTGame::onSetVersionAction()
 {
-	GameVersionChoiceDialog dialog(map->getAllowedVersionsRef());
+	GameVersionChoiceDialog dialog(getMap()->getAllowedVersions());
 	if (dialog.exec())
 		Rules::setVersion(dialog.getVersion());
 }
 
-void BTGame::onEndGame()
+void BTGame::onGameStarted()
+{}
+
+void BTGame::onGameEnded()
 {
-	infoBar->hide();
+	getInfoBar()->hide();
 	sideBar->disable();
 }
 
 void BTGame::setActionsInSideBar()
 {
-	sideBar->getActionWindow()->insertActions(map->getCurrentPhase(), map->getCurrentMech());
+	sideBar->getActionWindow()->insertActions(getMap()->getCurrentPhase(), getMap()->getCurrentUnit());
 }
 
 void BTGame::messageFromMapToSideBar()
 {
-	auto message = map->getMessage();
-	sideBar->insertMessage(message.first, message.second);
+	auto message = getMap()->getMessage();
+	sideBar->insertMessage(message.text, message.color);
 }
 
 void BTGame::onExtensiveInfo()
 {
-	QColor color    = map->getExtInfo().second;
-	QString message = map->getExtInfo().first;
+	QColor color    = getMap()->getExtensiveInfo().color;
+	QString message = getMap()->getExtensiveInfo().text;
 	qDebug() << BTech::General::bashColorString(message, color).toStdString().c_str();
-	
-	logWindow->print(map->getExtInfo());
+
+	logWindow->print({getMap()->getExtensiveInfo().text, getMap()->getExtensiveInfo().color});
 }
 
 /**

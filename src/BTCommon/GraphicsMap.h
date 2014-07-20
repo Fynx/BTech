@@ -34,15 +34,16 @@ class Player;
  * \class GraphicsMap
  * Provides game-based Map with display functions and QObject-like functionalities.
  */
-class GraphicsMap : public QGraphicsView, public Map, public CoordinateMapper
+class GraphicsMap : public QGraphicsView, public CoordinateMapper
 {
 Q_OBJECT;
 
 public:
-	GraphicsMap() = default;
+	GraphicsMap(Map *map);
 
-	void createNewMap(int width, int height);
+	void newMap(int width, int height);
 	bool loadMap(const QString &mapFileName);
+	bool isValid() const;
 
 	void clearHexes();
 	void toggleGrid();
@@ -53,9 +54,6 @@ public:
 
 	void addMechToHex(MechEntity *mech, Hex *hex, Player *player);
 
-	QPair <QString, QColor> getMessage() const;
-	QPair <QString, QColor> getExtInfo() const;
-
 public slots:
 	void incScale(int steps = 1);
 	void decScale(int steps = 1);
@@ -64,51 +62,23 @@ public slots:
 	void onEndMove();
 
 signals:
-	void mapHasBeenLoaded();
+	void mapLoaded();
 	void mapCleared();
 
 	void hexClicked(Hex *hex);
 	void hexDisplayStarted(const Hex *hex);
 	void hexDisplayQuit();
 	void hexDisplayChanged();
-	void mechAdded(MechEntity *mech);
-
-	void gameStarted();
-	void gameEnded();
-	void mechInfoNeeded(const MechEntity *mech);
-	void mechInfoNotNeeded();
-	void mechActionsNeeded(BTech::GamePhase phase);
-	void mechActionsNotNeeded();
-	void playerTurn(const Player *player);
-
-	void messageSent();
-	void extensiveInfoSent();
 
 private:
 	void initMap();
-
 	void initScene();
 	void initHexes();
 	void initUnits();
-	void initUnit(MechEntity *mech);
 	void initScaling();
 	void initWindowSettings();
 
-	static const int SCENE_BORDER              = 200;
-	static constexpr qreal DEFAULT_SCALE_SPEED = 0.1;
-	static constexpr qreal MAX_SCALE_MULT      = 6;
-	static constexpr qreal MIN_SCALE_MULT      = 0.1;
-	static const int SCALE_ANIM_TIME           = 200;
-	static const int SCALE_ANIM_INTERVAL       = 20;
-
-	QHash <Coordinate, QPointF> coordinateToScenePos;
-
-	qreal maxScale;
-	qreal minScale;
-	qreal scale;
-	qreal scaleSpeed;
-	qreal finalScale;
-	QPoint mousePosition;
+	void initUnit(MechEntity *mech);
 
 	void changeScale(qreal scale);
 	void mouseMoveEvent(QMouseEvent *event);
@@ -121,50 +91,53 @@ private:
 	void drawShootRange(const MechEntity *mech);
 	void drawWalkRange(const MovementObject &movement);
 	void hideAll();
-	void hideShootRange();
-	void hideWalkRange();
-	void showShootRange(const MechEntity *mech);
-	void showWalkRange(const MovementObject &movement);
+	void hideAttackRange();
+	void hideMovementRange();
+	void showAttackRange(const MechEntity *mech);
+	void showMovementRange(const MovementObject &movement);
 
-	void noPhase();
+	void clearMap();
+
+	static const int SCENE_BORDER              = 200;
+	static constexpr qreal DEFAULT_SCALE_SPEED = 0.1;
+	static constexpr qreal MAX_SCALE_MULT      = 6;
+	static constexpr qreal MIN_SCALE_MULT      = 0.1;
+	static const int SCALE_ANIM_TIME           = 200;
+	static const int SCALE_ANIM_INTERVAL       = 20;
+
+	QHash <Coordinate, QPointF> coordinateToScenePos;
+
+	Map *map;
+
+	qreal maxScale;
+	qreal minScale;
+	qreal scale;
+	qreal scaleSpeed;
+	qreal finalScale;
+	QPoint mousePosition;
 
 	bool shootRangeVisible;
 	bool walkRangeVisible;
 
-	void emitGameStarted();
-	void emitGameEnded();
-	void emitMechInfoNeeded(const MechEntity *mech);
-	void emitMechInfoNotNeeded();
-	void emitMechActionsNeeded(BTech::GamePhase phase);
-	void emitMechActionsNotNeeded();
-	void emitMechWalkRangeNeeded(const MovementObject &movement);
-	void emitMechShootRangeNeeded(const MechEntity *mech);
-	void emitMechRangesNotNeeded();
-	void emitPlayerTurn(const Player *player);
-	void emitHexesNeedClearing();
-	void emitHexesNeedUpdating();
-	void emitMessageSent(const QString &message, const QColor &color = DefaultMessageColor);
-	void emitExtensiveInfoSent(const QString &message, const QColor &color = DefaultMessageColor);
-
-	void clearMap();
-
-	QString message;
-	QColor messageColor;
-
-	QString extensiveInfo;
-	QColor extensiveInfoColor;
-
-	static const QHash <BTech::GamePhase, void (GraphicsMap::*)()> phaseToFunction;
+	bool valid;
 
 private slots:
+	void onHexesInitialized();
+	void onUnitInitialized();
+
 	void onHexClicked(Hex *hex);
 	void onHexTracked(Hex *hex);
 	void onHexAbandoned();
 	void onHexNewAreaTracked();
 
-	void mechInfoReceived();
-	void mechExtensiveInfoReceived();
-	void mechStateInfoReceived(const QString &message);
+	void onAttackRangeNeeded();
+	void onMovementRangeNeeded();
+	void onRangesNotNeeded();
+
+	void onPlayerTurn();
+
+	void onHexesNeedClearing();
+	void onHexesNeedUpdating();
 
 	void scaleView();
 	void scaleAnimFinished();

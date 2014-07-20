@@ -22,96 +22,142 @@ This file is part of BTech Project.
 
 #include <QtWidgets>
 #include "BTCommon/Utils.h"
+#include "BTCommon/MoveObject.h"
 
 class Action;
 class Grid;
 class Hex;
 class MechEntity;
-class MovementObject;
 class Player;
 
-/**
- * \class Map
- * This class provides functions and enums required by the game system. Before the game can be started, calling loadMap() is essential.
- * It does not provide the tools for displaying the map or object, due to the fact that it organises only the game structures and objects.
- * Also, instance of this class cannot be created, because of pure virtual non-QObject functions that require implementation.
- */
-class Map
+class Map : public QObject
 {
+Q_OBJECT;
 
 public:
 	Map();
+	~Map();
 
-	qint16 getMapWidth() const;
-	qint16 getMapHeight() const;
+	/** Map shape cannot be changed after the map is created. */
+	//TODO MapShape / Grid
+	quint16 getHeight() const;
+	quint16 getWidth() const;
 
-	void setDescription(const QString &description);
 	QString getDescription() const;
-	QString & getDescriptionReference();
-	QList <BTech::GameVersion> & getAllowedVersionsRef();
+	void setDescription(const QString &description);
 
-	void createNewMap(int width, int height);
+	QList <BTech::GameVersion> getAllowedVersions() const;
+	void setAllowedVersions(const QList <BTech::GameVersion> &allowedVersions);
+
+	void clearMap();
+	void newMap(int width = DEFAULT_WIDTH, int height = DEFAULT_HEIGHT);
 	bool loadMap(const QString &mapFileName);
-	bool isLoaded() const;
-	void setMapFileName(const QString &path);
-	QString getMapFileName() const;
+	bool isValid() const;
+
+	void addMech(MechEntity *mech, Hex *hex);
+	void removeMech(MechEntity *mech);
 
 	void addPlayer(Player *player);
 	void removePlayer(Player *player);
-	void updatePlayers();
+
+	void updateUnitOwners();
+
+	void endMove();
+	void trigger();
+
+	void chooseAction(const Action *action);
 
 	void startGame();
 	void endGame();
 
-	void updateHexes();
-
 	QVector <Player *> & getPlayers();
 	QVector <Hex *> & getHexes();
 
-	MechEntity * getCurrentMech() const;
-	Hex * getCurrentHex() const;
-	Player * getCurrentPlayer() const;
+	const Grid * getGrid() const;
+
+	/** API for signals */
+
 	BTech::GamePhase getCurrentPhase() const;
+	Hex * getCurrentHex() const;
+	MechEntity * getCurrentUnit() const;
+	Player * getCurrentPlayer() const;
+	const Action * getCurrentAction() const;
+	MovementObject getCurrentMovement() const;
+
+	void setCurrentHex(Hex *hex);
+
+	//TODO this should Not be here
+	QHash <QString, QColor> playerNameToColor;
+	static const QColor DefaultMessageColor;
+
+	//TODO push it somewhere
+	struct Message {
+		Message(const QString &text = QString(), const QColor &color = DefaultMessageColor)
+			: text(text), color(color) {}
+		QString text;
+		QColor color;
+	};
+
+	Message getMessage() const;
+	void sendMessage(const Message &message);
+	void sendMessage(const QString &text, const QColor &color = DefaultMessageColor);
+	Message getExtensiveInfo() const;
+	void sendExtensiveInfo(const Message &message);
+	void sendExtensiveInfo(const QString &text, const QColor &color = DefaultMessageColor);
 
 	friend QDataStream & operator << (QDataStream &out, const Map &map);
 	friend QDataStream & operator >> (QDataStream &in, Map &map);
+	friend QDebug operator << (QDebug out, const Map &map);
 
-protected:
-	bool mapLoaded;
-	QString mapFileName;
-	QVector <Hex *> hexes;
-	const Grid * getGrid() const;
+signals:
+	void gameStarted();
+	void gameEnded();
 
-	QVector <Player *> players;
+	void hexesInitialized();
+	void unitInitialized();
+
+	void mechAdded();
+	void mechInfoNeeded();
+	void mechInfoNotNeeded();
+	void mechActionsNeeded();
+	void mechActionsNotNeeded();
+	void movementRangeNeeded();
+	void attackRangeNeeded();
+	void rangesNotNeeded();
+	void playerTurn();
+
+	//TODO these two put inside: for all hexes: clear - signal -> GraphicsHex::clear
+	void hexesNeedClearing();
+	void hexesNeedUpdating();
+
+	void messageSent();
+	void extensiveInfoSent();
+
+private:
+	void initGrid();
+	void initMap();
+	void initPlayers();
+	void initUnits();
+
+	void initUnit(MechEntity *mech);
+
+	void resetCurrentValues();
+
+	void setCurrentPhase(BTech::GamePhase phase);
+
 	void setMechsMoved(bool moved);
 	void clearMechs();
 	void cleanMechs();
 	void decimateMechs();
 	void triggerMechTurnRecovery();
 
-	/**
-	 * \enum GameSubPhase
-	 * This is an auxiliary type specyfying the state in the game graph.
-	 */
-	enum class GameSubPhase : quint8 {
-		None,
-		MechChosen
-	};
-
-	BTech::GamePhase currentPhase;
-	GameSubPhase currentSubPhase;
-	Player *currentPlayer;
-	MechEntity *currentMech;
-	Hex *currentHex;
-	Hex *hexOnMouse;
-
 	Player * nextPlayer() const;
-	void endMove();
 	bool playerEnded(Player *player) const;
 	bool allPlayersEnded() const;
 	bool gameOver();
 	Player * getWinner() const;
 
+	void noPhase();
 	void initiativePhase();
 	void movementPhase();
 	void reactionPhase();
@@ -126,53 +172,49 @@ protected:
 	bool tryToChooseEnemy();
 	void attackEnemy();
 
-	void chooseAction(const Action *action);
+	static const qint16 DEFAULT_WIDTH  = 40;
+	static const qint16 DEFAULT_HEIGHT = 40;
 
-	void setCurrentMech(MechEntity *mech);
-	void setCurrentHex(Hex *hex);
-	void setCurrentPhase(BTech::GamePhase phase);
-	void setCurrentSubPhase(GameSubPhase subPhase);
-	GameSubPhase getCurrentSubPhase() const;
-	void setCurrentPlayer(Player *player);
-	void setCurrentAction(const Action *action);
-	const Action * getCurrentAction() const;
+	quint16 width;
+	quint16 height;
 
-	virtual void emitGameStarted() = 0;
-	virtual void emitGameEnded() = 0;
-	virtual void emitMechInfoNeeded(const MechEntity *mech) = 0;
-	virtual void emitMechInfoNotNeeded() = 0;
-	virtual void emitMechActionsNeeded(BTech::GamePhase phase) = 0;
-	virtual void emitMechActionsNotNeeded() = 0;
-	virtual void emitMechWalkRangeNeeded(const MovementObject &movement) = 0;
-	virtual void emitMechShootRangeNeeded(const MechEntity *mech) = 0;
-	virtual void emitMechRangesNotNeeded() = 0;
-	virtual void emitPlayerTurn(const Player *player) = 0;
-	virtual void emitHexesNeedClearing() = 0;
-	virtual void emitHexesNeedUpdating() = 0;
-	virtual void emitMessageSent(const QString &message, const QColor &color = DefaultMessageColor) = 0;
-
-	virtual void clearMap();
-
-	//TODO this should Not be here
-	QHash <QString, QColor> playerNameToColor;
-
-	static const QColor DefaultMessageColor;
-
-private:
 	QString description;
 	QList <BTech::GameVersion> allowedVersions;
 
-	virtual void initPlayers();
-	virtual void initUnits();
-	void initGrid();
-
-	void resetCurrentValues();
-
-	qint16 mapWidth, mapHeight;
+	QVector <Hex *> hexes;
 	Grid *grid;
 
-	static const qint16 DEFAULT_HEX_WIDTH = 40;
-	static const qint16 DEFAULT_HEX_HEIGHT = 40;
+	bool mapValid;
+
+	/**
+	 * \enum GameSubPhase
+	 * This is an auxiliary type specyfying the state in the game graph.
+	 */
+	enum class GameSubphase : quint8 {
+		None,
+		MechChosen
+	};
+
+	BTech::GamePhase phase;
+	GameSubphase subphase;
+
+	static const QHash <BTech::GamePhase, void (Map::*)()> phaseToFunction;
+
+	Message message;
+	Message extInfo;
+
+	QVector <Player *> players;
+
+	MovementObject currentMovement;
+	Player         *currentPlayer;
+	MechEntity     *currentUnit;
+	Action         *currentAction;
+	Hex            *currentHex;
+
+private slots:
+	void mechInfoReceived();
+	void mechExtensiveInfoReceived();
+	void mechStateInfoReceived();
 };
 
 #endif // MAP_H

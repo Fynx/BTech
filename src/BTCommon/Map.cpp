@@ -25,21 +25,26 @@ This file is part of BTech Project.
 #include "BTCommon/Player.h"
 #include "BTCommon/TileManager.h"
 
+//TODO players colors
 const QColor Map::DefaultMessageColor = Qt::white;
 
 Map::Map()
-	: mapLoaded(false), grid(new Grid())
+	: grid(new Grid()), mapValid(false)
+{}
+
+Map::~Map()
 {
+	delete grid;
 }
 
-qint16 Map::getMapWidth() const
+quint16 Map::getHeight() const
 {
-	return mapWidth;
+	return height;
 }
 
-qint16 Map::getMapHeight() const
+quint16 Map::getWidth() const
 {
-	return mapHeight;
+	return width;
 }
 
 void Map::setDescription(const QString &description)
@@ -52,36 +57,54 @@ QString Map::getDescription() const
 	return description;
 }
 
-QString & Map::getDescriptionReference()
-{
-	return description;
-}
-
-QList <BTech::GameVersion> & Map::getAllowedVersionsRef()
+QList <BTech::GameVersion> Map::getAllowedVersions() const
 {
 	return allowedVersions;
 }
 
-void Map::createNewMap(int width, int height)
+void Map::setAllowedVersions(const QList <BTech::GameVersion> &versions)
 {
-	setMapFileName(QString());
-	this->mapWidth = width;
-	this->mapHeight = height;
-	for (int i = 0; i < mapHeight; ++i) {
-		for (int j = 0; j < mapWidth; ++j) {
+	allowedVersions = versions;
+}
+
+void Map::clearMap()
+{
+	qDebug() << "Clearing map...";
+
+	qDeleteAll(players);
+	players.clear();
+	qDebug() << "\tplayers deleted";
+
+	qDeleteAll(hexes);
+	hexes.clear();
+	qDebug() << "\thexes deleted";
+
+	qDebug("Done.");
+}
+
+void Map::newMap(int width, int height)
+{
+	this->width  = width;
+	this->height = height;
+
+	for (int i = 0; i < height; ++i) {
+		for (int j = 0; j < width; ++j) {
 			Hex *hex = new Hex;
 			hex->setCoordinate({j + 1, i + 1});
 			hex->setTerrain(BTech::Terrain::Clear);
 			hex->setHeight(0);
-			hexes << hex;
+			hexes.append(hex);
 		}
 	}
+	emit hexesInitialized();
+
 	setDescription(QString());
 	allowedVersions = QList <BTech::GameVersion> ();
 	allowedVersions.append(BTech::GameVersion::BasicBattleDroids);
 
-	setCurrentPhase(BTech::GamePhase::None);
-	setCurrentSubPhase(GameSubPhase::None);
+	mapValid = true;
+
+	initMap();
 }
 
 bool Map::loadMap(const QString &mapFileName)
@@ -92,8 +115,8 @@ bool Map::loadMap(const QString &mapFileName)
 	QDataStream in(&file);
 	in >> *this;
 
-	setCurrentPhase(BTech::GamePhase::None);
-	setCurrentSubPhase(GameSubPhase::None);
+	initMap();
+	emit hexesInitialized();
 
 	for (Player *player : players) {
 		for (MechEntity *mech : player->getMechs()) {
@@ -101,29 +124,35 @@ bool Map::loadMap(const QString &mapFileName)
 			Hex *hex = grid->getHexByCoordinate(mechCoord);
 			hex->setMech(mech);
 			mech->setMechPosition(hex);
+			initUnit(mech);
 		}
 	}
 	initPlayers();
 
-	setMapFileName(mapFileName);
-	emitMessageSent(BTech::Messages::MapLoaded + mapFileName);
-	emitMessageSent(BTech::Messages::Separator);
+	mapValid = true;
+
+	sendMessage(BTech::Messages::MapLoaded + mapFileName);
+	sendMessage(BTech::Messages::Separator);
+
 	return true;
 }
 
-bool Map::isLoaded() const
+bool Map::isValid() const
 {
-	return mapLoaded;
+	return mapValid;
 }
 
-void Map::setMapFileName(const QString &path)
+void Map::addMech(MechEntity *mech, Hex *hex)
 {
-	mapFileName = path;
+	if (mech == nullptr || hex == nullptr)
+		return;
+	hex->setMech(mech);
+	mech->setPosition({hex->getCoordinate(), BTech::DirectionN});
+	initUnit(mech);
 }
 
-QString Map::getMapFileName() const
+void Map::removeMech(MechEntity *mech)
 {
-	return mapFileName;
 }
 
 void Map::addPlayer(Player *player)
@@ -138,45 +167,121 @@ void Map::removePlayer(Player *player)
 			players.remove(i);
 }
 
-void Map::updatePlayers()
+void Map::updateUnitOwners()
 {
 	for (Player *player : players)
 		for (MechEntity *mech : player->getMechs())
 			mech->setOwnerName(player->getName());
 }
 
+void Map::endMove()
+{
+	qDebug() << "End move";
+	if (getCurrentUnit() != nullptr)
+		getCurrentUnit()->setMoved(true);
+	clearMechs();
+	emit hexesNeedClearing();
+	emit mechInfoNotNeeded();
+	emit mechActionsNotNeeded();
+	resetCurrentValues();
+	if (allPlayersEnded()) {
+		endThisPhase();
+	} else {
+		do
+			currentPlayer = nextPlayer();
+		while (playerEnded(getCurrentPlayer()));
+		sendMessage(getCurrentPlayer()->getName(), playerNameToColor[getCurrentPlayer()->getName()]);
+		emit playerTurn();
+	}
+}
+
+void Map::trigger()
+{
+	(this->*Map::phaseToFunction[getCurrentPhase()])();
+}
+
+void Map::chooseAction(const Action *action)
+{
+	getCurrentUnit()->setCurrentAction(action);
+	if (getCurrentAction() != nullptr) {
+		if (getCurrentAction()->getActionType() == Action::Type::Movement) {
+			BTech::MovementAction movementAction =
+				static_cast<const MovementAction *>(getCurrentAction())->getType();
+			switch (movementAction) {
+				case BTech::MovementAction::Idle:
+					break;
+				case BTech::MovementAction::Walk:
+				case BTech::MovementAction::Run:
+				case BTech::MovementAction::Jump:
+					currentMovement = MovementObject(
+						getCurrentUnit()->getCurrentPosition(),
+						getCurrentUnit()->getMovePoints(movementAction),
+						movementAction
+					);
+					emit movementRangeNeeded();
+					break;
+				case BTech::MovementAction::TurnLeft:
+					getCurrentUnit()->turnLeft();
+					getCurrentUnit()->setCurrentAction(nullptr);
+					break;
+				case BTech::MovementAction::TurnRight:
+					getCurrentUnit()->turnRight();
+					getCurrentUnit()->setCurrentAction(nullptr);
+					break;
+			}
+		} else {
+			BTech::CombatAction combatAction =
+				static_cast<const CombatAction *>(getCurrentAction())->getType();
+			switch (combatAction) {
+				case BTech::CombatAction::Idle:
+					break;
+				case BTech::CombatAction::SimpleAttack:
+				case BTech::CombatAction::WeaponAttack:
+					emit attackRangeNeeded();
+					break;
+				default:;
+			}
+		}
+	}
+
+	if (getCurrentUnit() != nullptr)
+		emit mechInfoNeeded();
+	emit hexesNeedUpdating();
+}
+
 void Map::startGame()
 {
-	qDebug() << "Start game\n";
-	emitMessageSent(BTech::Messages::GameStarted);
-	emitMessageSent(BTech::Messages::Separator);
-	emitGameStarted();
+	sendExtensiveInfo(BTech::Messages::GameStarted);
+	qDebug() << "sending message that game started: " << BTech::Messages::GameStarted;
+	sendMessage(BTech::Messages::GameStarted);
+	qDebug() << "AND WHERE THE FUCK IS THAT MESSAGE?!";
+	sendMessage(BTech::Messages::Separator);
+	emit gameStarted();
+
 	setCurrentPhase(BTech::GamePhase::Initiative);
 	initiativePhase();
-	updateHexes();
+	//TODO check if it can be done better
+	emit hexesNeedUpdating();
 }
 
 void Map::endGame()
 {
-	qDebug() << "\nEnd game\n";
-	emitMessageSent(BTech::Messages::GameOver);
+	qDebug() << "end game";
+
+	sendExtensiveInfo(BTech::Messages::GameOver);
+	sendMessage(BTech::Messages::GameOver);
 
 	Player *winner = getWinner();
 	if (winner == nullptr) {
-		emitMessageSent(BTech::Messages::NoWinner);
+		sendMessage(BTech::Messages::NoWinner);
 	} else {
 		QString winner = getWinner()->getName();
-		emitMessageSent(BTech::Messages::WinMessage);
-		emitMessageSent(winner, playerNameToColor[winner]);
+		sendMessage(BTech::Messages::WinMessage);
+		sendMessage(winner, playerNameToColor[winner]);
 	}
 
-	emitGameEnded();
+	emit gameEnded();
 	clearMap();
-}
-
-void Map::updateHexes()
-{
-	emitHexesNeedUpdating();
 }
 
 QVector <Player *> & Map::getPlayers()
@@ -189,9 +294,14 @@ QVector <Hex *> & Map::getHexes()
 	return hexes;
 }
 
-MechEntity * Map::getCurrentMech() const
+const Grid * Map::getGrid() const
 {
-	return currentMech;
+	return grid;
+}
+
+BTech::GamePhase Map::getCurrentPhase() const
+{
+	return phase;
 }
 
 Hex * Map::getCurrentHex() const
@@ -199,65 +309,112 @@ Hex * Map::getCurrentHex() const
 	return currentHex;
 }
 
+MechEntity * Map::getCurrentUnit() const
+{
+	return currentUnit;
+}
+
 Player * Map::getCurrentPlayer() const
 {
 	return currentPlayer;
 }
 
-BTech::GamePhase Map::getCurrentPhase() const
+const Action * Map::getCurrentAction() const
 {
-	return currentPhase;
+	return currentUnit->getCurrentAction();
+}
+
+MovementObject Map::getCurrentMovement() const
+{
+	return currentMovement;
+}
+
+void Map::setCurrentHex(Hex *hex)
+{
+	currentHex = hex;
+}
+
+Map::Message Map::getMessage() const
+{
+	return message;
+}
+
+void Map::sendMessage(const Map::Message &message)
+{
+	this->message = message;
+	emit messageSent();
+}
+
+void Map::sendMessage(const QString &text, const QColor &color)
+{
+	return sendMessage({text, color});
+}
+
+Map::Message Map::getExtensiveInfo() const
+{
+	return extInfo;
+}
+
+void Map::sendExtensiveInfo(const Map::Message &message)
+{
+	extInfo = message;
+	emit extensiveInfoSent();
+}
+
+void Map::sendExtensiveInfo(const QString &text, const QColor &color)
+{
+	return sendExtensiveInfo({text, color});
 }
 
 QDataStream & operator << (QDataStream &out, const Map &map)
 {
-	out << map.mapFileName << map.description << map.allowedVersions;
-	qDebug() << "Saving map" << map.mapFileName << "...";
+	qDebug() << map;
+
+	out << map.description << map.allowedVersions;
 
 	out << Rules::getVersion();
 
-	out << map.mapWidth << map.mapHeight;
+	out << map.width << map.height;
 	for (Hex *hex : map.hexes)
 		out << *hex;
 
-	out << map.players.size();
+	out << static_cast<quint16>(map.players.size());
 	for (Player *player : map.players)
 		out << *player;
 
 	TileManager::saveTileDictionary(out, map.hexes);
-
-	qDebug() << "Done";
 
 	return out;
 }
 
 QDataStream & operator >> (QDataStream &in, Map &map)
 {
-	in >> map.mapFileName >> map.description >> map.allowedVersions;
-	qDebug() << "\nLoading map" << map.mapFileName << "...";
+	in >> map.description >> map.allowedVersions;
 
 	BTech::GameVersion version;
 	in >> version;
 	Rules::setVersion(version);
 
-	in >> map.mapWidth >> map.mapHeight;
+	in >> map.width >> map.height;
 
-	for (int i = 0; i < map.mapWidth * map.mapHeight; ++i) {
+	qDebug() << map;
+
+	for (int i = 0; i < map.width * map.height; ++i) {
 		Hex *hex = new Hex;
 		in >> *hex;
 		map.hexes.append(hex);
 	}
+
 	map.grid->initGrid(map.hexes);
 	qDebug() << "Hexes loaded.";
 
-	int playersSize;
+	quint16 playersSize;
 	in >> playersSize;
 	for (int i = 0; i < playersSize; ++i) {
 		Player *player = new Player;
 		in >> *player;
 		map.players.append(player);
 	}
-
 	qDebug() << "Players loaded.";
 
 	TileManager::loadTileDictionary(in, map.hexes);
@@ -268,9 +425,77 @@ QDataStream & operator >> (QDataStream &in, Map &map)
 	return in;
 }
 
-const Grid * Map::getGrid() const
+QDebug operator << (QDebug out, const Map &map)
 {
-	return grid;
+	out << "description:      " << map.getDescription() << "\n";
+	out << "width:            " << map.getWidth() << "\n";
+	out << "height:           " << map.getHeight() << "\n";
+	out << "allowed versions: \n";
+	for (BTech::GameVersion version : map.getAllowedVersions())
+		out << "\t" << BTech::gameVersionStringChange[version] << "\n";
+
+	return out;
+}
+
+void Map::initGrid()
+{
+	grid->initGrid(hexes);
+}
+
+void Map::initMap()
+{
+	phase = BTech::GamePhase::None;
+	resetCurrentValues();
+	currentPlayer = nullptr;
+}
+
+void Map::initPlayers()
+{
+	//TODO these colors definitely do not belong in here
+	QColor colors[] = {
+		Qt::red,
+		Qt::green,
+		Qt::blue,
+		Qt::yellow,
+		Qt::magenta,
+		Qt::gray,
+	};
+	int index = 0;
+	for (Player *player : players)
+		playerNameToColor[player->getName()] = colors[index++];
+}
+
+void Map::initUnits()
+{
+	for (Player *player : players)
+		for (MechEntity *unit : player->getMechs())
+			initUnit(unit);
+}
+
+void Map::initUnit(MechEntity *unit)
+{
+	currentUnit = unit;
+
+	connect(unit, &MechEntity::stateInfoSent, this, &Map::mechStateInfoReceived);
+	connect(unit, &MechEntity::infoSent, this, &Map::mechInfoReceived);
+	connect(unit, &MechEntity::extensiveInfoSent, this, &Map::mechExtensiveInfoReceived);
+
+	emit unitInitialized();
+}
+
+//TODO I sense a Something here
+void Map::resetCurrentValues()
+{
+	subphase      = GameSubphase::None;
+	currentAction = nullptr;
+	currentUnit   = nullptr;
+	currentHex    = nullptr;
+}
+
+void Map::setCurrentPhase(BTech::GamePhase phase)
+{
+	sendMessage(BTech::phaseStringChange[phase]);
+	this->phase = phase;
 }
 
 void Map::setMechsMoved(bool moved)
@@ -299,7 +524,7 @@ void Map::decimateMechs()
 
 	for (Player *player : players) {
 		for (MechEntity *mech : player->getMechs()) {
-			setCurrentMech(mech);
+			currentUnit = mech;
 			mech->resolveAttacks();
 			if (mech->hasEffect(BTech::EffectType::Destroyed))
 				toRemove.append({player, mech});
@@ -327,27 +552,6 @@ Player * Map::nextPlayer() const
 		if (players[i] == getCurrentPlayer())
 			return players[(i + 1) % players.size()];
 	return nullptr;
-}
-
-void Map::endMove()
-{
-	qDebug() << "End move";
-	if (getCurrentMech() != nullptr)
-		getCurrentMech()->setMoved(true);
-	clearMechs();
-	emitHexesNeedClearing();
-	emitMechInfoNotNeeded();
-	emitMechActionsNotNeeded();
-	resetCurrentValues();
-	if (allPlayersEnded()) {
-		endThisPhase();
-	} else {
-		do
-			setCurrentPlayer(nextPlayer());
-		while (playerEnded(getCurrentPlayer()));
-		emitMessageSent(getCurrentPlayer()->getName(), playerNameToColor[getCurrentPlayer()->getName()]);
-		emitPlayerTurn(getCurrentPlayer());
-	}
 }
 
 bool Map::playerEnded(Player *player) const
@@ -387,6 +591,11 @@ Player * Map::getWinner() const
 	return nullptr;
 }
 
+void Map::noPhase()
+{
+	emit rangesNotNeeded();
+}
+
 void Map::initiativePhase()
 {
 	QVector<int> initiative;
@@ -401,32 +610,33 @@ void Map::initiativePhase()
 		}
 	}
 	for (int i = 0; i < players.size(); ++i)
-		emitMessageSent(QString(char(i) + '1') + ": " + players[i]->getName(),
-		                playerNameToColor[players[i]->getName()]);
+		sendMessage(QString(char(i) + '1') + ": " + players[i]->getName(),
+		            playerNameToColor[players[i]->getName()]);
 	endThisPhase();
 }
 
 void Map::movementPhase()
 {
-	switch (getCurrentSubPhase()) {
-		case GameSubPhase::None:
+	switch (subphase) {
+		case GameSubphase::None:
 			if (tryToChooseMech())
-				emitMechActionsNeeded(BTech::GamePhase::Movement);
+				emit mechActionsNeeded();
 			break;
-		case GameSubPhase::MechChosen:
+		case GameSubphase::MechChosen:
 			MoveObject moveObject = getCurrentHex()->getMoveObject();
 			if (getCurrentAction() == nullptr || moveObject.getAction() == BTech::MovementAction::Idle) {
 				qDebug() << "\tno existing move object";
 				break;
 			}
-			grid->getHexByCoordinate(getCurrentMech()->getCurrentPosition().getCoordinate())->removeMech();
-			getCurrentMech()->move(moveObject);
-			getCurrentHex()->setMech(getCurrentMech());
-			emitMechInfoNeeded(getCurrentMech());
-			emitMechWalkRangeNeeded(
+			grid->getHexByCoordinate(getCurrentUnit()->getCurrentPosition().getCoordinate())->removeMech();
+			getCurrentUnit()->move(moveObject);
+			getCurrentHex()->setMech(getCurrentUnit());
+			emit mechInfoNeeded();
+			currentMovement =
 				MovementObject(moveObject.getDest(),
-				               getCurrentMech()->getMovePoints(moveObject.getAction()),
-				               moveObject.getAction()));
+				               getCurrentUnit()->getMovePoints(moveObject.getAction()),
+				               moveObject.getAction());
+			emit movementRangeNeeded();
 			break;
 	}
 }
@@ -437,12 +647,12 @@ void Map::reactionPhase()
 
 void Map::weaponAttackPhase()
 {
-	switch (getCurrentSubPhase()) {
-		case GameSubPhase::None:
+	switch (subphase) {
+		case GameSubphase::None:
 			if (tryToChooseMech())
-				emitMechActionsNeeded(BTech::GamePhase::WeaponAttack);
+				emit mechActionsNeeded();
 			break;
-		case GameSubPhase::MechChosen:
+		case GameSubphase::MechChosen:
 			if (getCurrentAction() == nullptr)
 				break;
 			if (tryToChooseEnemy())
@@ -453,12 +663,12 @@ void Map::weaponAttackPhase()
 
 void Map::physicalAttackPhase()
 {
-	switch (getCurrentSubPhase()) {
-		case GameSubPhase::None:
+	switch (subphase) {
+		case GameSubphase::None:
 			if (tryToChooseMech())
-				emitMechActionsNeeded(BTech::GamePhase::PhysicalAttack);
+				emit mechActionsNeeded();
 			break;
-		case GameSubPhase::MechChosen:
+		case GameSubphase::MechChosen:
 			if (getCurrentAction() == nullptr)
 				break;
 			if (tryToChooseEnemy())
@@ -469,12 +679,12 @@ void Map::physicalAttackPhase()
 
 void Map::combatPhase()
 {
-	switch (getCurrentSubPhase()) {
-		case GameSubPhase::None:
+	switch (subphase) {
+		case GameSubphase::None:
 			if (tryToChooseMech())
-				emitMechActionsNeeded(BTech::GamePhase::Combat);
+				emit mechActionsNeeded();
 			break;
-		case GameSubPhase::MechChosen:
+		case GameSubphase::MechChosen:
 			if (getCurrentAction() == nullptr)
 				break;
 			if (tryToChooseEnemy())
@@ -495,7 +705,7 @@ void Map::heatPhase()
 void Map::endPhase()
 {
 	triggerMechTurnRecovery();
-	emitMessageSent(BTech::Messages::Separator);
+	sendMessage(BTech::Messages::Separator);
 	endThisPhase();
 }
 
@@ -529,11 +739,12 @@ void Map::endThisPhase()
 			endPhase();
 			break;
 		default:
-			setCurrentPlayer(players[0]);
+			currentPlayer = players[0];
 			while (playerEnded(getCurrentPlayer()))
-				setCurrentPlayer(nextPlayer());
-			emitMessageSent(getCurrentPlayer()->getName(), playerNameToColor[getCurrentPlayer()->getName()]);
-			emitPlayerTurn(getCurrentPlayer());
+				currentPlayer = nextPlayer();
+			sendMessage(getCurrentPlayer()->getName(),
+			            playerNameToColor[getCurrentPlayer()->getName()]);
+			emit playerTurn();
 	}
 }
 
@@ -545,11 +756,11 @@ bool Map::tryToChooseMech()
 		qDebug() << "\tfailure";
 		return false;
 	}
-	setCurrentMech(mech);
-	getCurrentMech()->setActive(true);
-	setCurrentSubPhase(GameSubPhase::MechChosen);
-	emitMechInfoNeeded(getCurrentMech());
-	qDebug() << "\tchosen" << static_cast<QString>(*getCurrentMech());
+	currentUnit = mech;
+	getCurrentUnit()->setActive(true);
+	subphase = GameSubphase::MechChosen;
+	emit mechInfoNeeded();
+	qDebug() << "\tchosen" << static_cast<QString>(*getCurrentUnit());
 	return true;
 }
 
@@ -564,147 +775,43 @@ void Map::attackEnemy()
 {
 	qDebug() << "Attack enemy";
 	MechEntity *enemy = getCurrentHex()->getMech();
-	getCurrentMech()->attack(enemy);
-	emitMechRangesNotNeeded();
+	getCurrentUnit()->attack(enemy);
+	emit rangesNotNeeded();
 }
 
-void Map::chooseAction(const Action *action)
+void Map::mechInfoReceived()
 {
-	getCurrentMech()->setCurrentAction(action);
-	if (getCurrentAction() != nullptr) {
-		if (getCurrentAction()->getActionType() == Action::Type::Movement) {
-			BTech::MovementAction movementAction =
-				static_cast<const MovementAction *>(getCurrentAction())->getType();
-			switch (movementAction) {
-				case BTech::MovementAction::Idle:
-					break;
-				case BTech::MovementAction::Walk:
-				case BTech::MovementAction::Run:
-				case BTech::MovementAction::Jump:
-					emitMechWalkRangeNeeded(MovementObject(
-						getCurrentMech()->getCurrentPosition(),
-						getCurrentMech()->getMovePoints(movementAction),
-						movementAction));
-					break;
-				case BTech::MovementAction::TurnLeft:
-					getCurrentMech()->turnLeft();
-					getCurrentMech()->setCurrentAction(nullptr);
-					break;
-				case BTech::MovementAction::TurnRight:
-					getCurrentMech()->turnRight();
-					getCurrentMech()->setCurrentAction(nullptr);
-					break;
-			}
-		} else {
-			BTech::CombatAction combatAction =
-				static_cast<const CombatAction *>(getCurrentAction())->getType();
-			switch (combatAction) {
-				case BTech::CombatAction::Idle:
-					break;
-				case BTech::CombatAction::SimpleAttack:
-				case BTech::CombatAction::WeaponAttack:
-					emitMechShootRangeNeeded(getCurrentMech());
-					break;
-				default:;
-			}
-		}
-	}
-
-	if (getCurrentMech() != nullptr)
-		emitMechInfoNeeded(getCurrentMech());
-	updateHexes();
+	MechEntity *mech = static_cast<MechEntity *>(sender());
+	if (mech->getInfo().isEmpty())
+		sendMessage(QString(*mech), playerNameToColor[mech->getOwnerName()]);
+	else
+		sendMessage(mech->getName() + ": " + mech->getInfo(),
+		            playerNameToColor[mech->getOwnerName()]);
 }
 
-void Map::setCurrentMech(MechEntity *mech)
+void Map::mechExtensiveInfoReceived()
 {
-	currentMech = mech;
+	MechEntity *mech = static_cast<MechEntity *>(sender());
+	if (mech->getInfo().isEmpty())
+		sendExtensiveInfo(QString(*mech), playerNameToColor[mech->getOwnerName()]); /** signature */
+	else
+		sendExtensiveInfo(mech->getInfo());
 }
 
-void Map::setCurrentHex(Hex *hex)
+void Map::mechStateInfoReceived()
 {
-	currentHex = hex;
+	sendMessage(getCurrentUnit()->getOwnerName() + ": " + getCurrentUnit()->getName() + ": " + getCurrentUnit()->getInfo(),
+	            playerNameToColor[getCurrentUnit()->getOwnerName()]);
 }
 
-void Map::setCurrentPhase(BTech::GamePhase phase)
-{
-	emitMessageSent(BTech::phaseStringChange[phase]);
-	currentPhase = phase;
-}
-
-void Map::setCurrentSubPhase(Map::GameSubPhase subPhase)
-{
-	currentSubPhase = subPhase;
-}
-
-Map::GameSubPhase Map::getCurrentSubPhase() const
-{
-	return currentSubPhase;
-}
-
-void Map::setCurrentPlayer(Player *player)
-{
-	currentPlayer = player;
-}
-
-void Map::setCurrentAction(const Action *action)
-{
-	if (currentMech != nullptr)
-		currentMech->setCurrentAction(action);
-}
-
-const Action * Map::getCurrentAction() const
-{
-	return currentMech->getCurrentAction();
-}
-
-void Map::initGrid()
-{
-	grid->initGrid(hexes);
-}
-
-void Map::initPlayers()
-{
-	qDebug() << "Players initialization...";
-	setCurrentMech(nullptr);
-	setCurrentPlayer(nullptr);
-
-	//TODO these colors definitely do not belong in here
-	QColor colors[] = {
-		Qt::red,
-		Qt::green,
-		Qt::blue,
-		Qt::yellow,
-		Qt::magenta,
-		Qt::gray,
-	};
-	int index = 0;
-	for (Player *player : players)
-		playerNameToColor[player->getName()] = colors[index++];
-	qDebug() << "Completed.";
-}
-
-void Map::initUnits()
-{}
-
-void Map::resetCurrentValues()
-{
-	setCurrentSubPhase(GameSubPhase::None);
-	setCurrentAction(nullptr);
-	setCurrentMech(nullptr);
-	setCurrentHex(nullptr);
-}
-
-void Map::clearMap()
-{
-	qDebug() << "Clearing map...";
-
-	qDeleteAll(players);
-	players.clear();
-	qDebug() << "\tplayers deleted";
-
-	qDeleteAll(hexes);
-	hexes.clear();
-	qDebug() << "\thexes deleted";
-
-	qDebug("Done.");
-}
+const QHash <BTech::GamePhase, void (Map::*)()> Map::phaseToFunction {
+	{BTech::GamePhase::None,           &Map::noPhase},
+	{BTech::GamePhase::Initiative,     &Map::initiativePhase},
+	{BTech::GamePhase::Movement,       &Map::movementPhase},
+	{BTech::GamePhase::Reaction,       &Map::reactionPhase},
+	{BTech::GamePhase::WeaponAttack,   &Map::weaponAttackPhase},
+	{BTech::GamePhase::PhysicalAttack, &Map::physicalAttackPhase},
+	{BTech::GamePhase::Combat,         &Map::combatPhase},
+	{BTech::GamePhase::Heat,           &Map::heatPhase},
+	{BTech::GamePhase::End,            &Map::endPhase},
+};

@@ -17,14 +17,15 @@ This file is part of BTech Project.
 */
 
 #include "BTCommon/EnumHashFunctions.h"
+#include "BTCommon/Map.h"
 #include "BTMapEditor/MapPropertiesManager.h"
 
 /**
  * \class MapPropertiesManager
  */
 
-MapPropertiesManager::MapPropertiesManager(QVector <Player *> &players, QString &mapDescriptionRef, QList <BTech::GameVersion> &allowedVersions)
-	: players(players), mapDescriptionRef(mapDescriptionRef), allowedVersions(allowedVersions)
+MapPropertiesManager::MapPropertiesManager(Map *map)
+	: map(map)
 {
 	QLabel *playersLabel = new QLabel(BTech::Strings::LabelPlayers);
 
@@ -113,25 +114,19 @@ Player * MapPropertiesManager::getCurrentPlayer() const
 	return getPlayer(playersComboBox->currentText());
 }
 
-void MapPropertiesManager::setPlayers(QVector <Player *> &players)
-{
-	this->players = players;
-	refresh();
-}
-
 void MapPropertiesManager::refresh()
 {
 	playersComboBox->clear();
-	for (Player *player : players)
+	for (Player *player : map->getPlayers())
 		playersComboBox->addItem(player->getName());
 	if (getCurrentPlayer() != nullptr) {
 		playerName->setText(getCurrentPlayer()->getName());
 		playerDescription->setText(getCurrentPlayer()->getDescription());
 	}
 
-	mapDescription->setText(mapDescriptionRef);
+	mapDescription->setText(map->getDescription());
 
-	bool enabled = !players.empty();
+	bool enabled = !map->getPlayers().empty();
 	playersComboBox->setEnabled(enabled);
 	removePlayerButton->setEnabled(enabled);
 	if (!enabled) {
@@ -173,7 +168,7 @@ void MapPropertiesManager::initVersionsButton()
 
 Player * MapPropertiesManager::getPlayer(const QString &name) const
 {
-	for (Player *player : players)
+	for (Player *player : map->getPlayers())
 		if (player->getName() == name)
 			return player;
 	return nullptr;
@@ -188,18 +183,18 @@ void MapPropertiesManager::onPlayerChosen()
 
 void MapPropertiesManager::addNewPlayer()
 {
-	if (players.size() == MAX_PLAYERS_SIZE)
+	if (map->getPlayers().size() == MAX_PLAYERS_SIZE)
 		return;
 
 	QList <QString> existingNames;
-	for (Player *player : players)
+	for (Player *player : map->getPlayers())
 		existingNames.append(player->getName());
 	QString newName = BTech::General::indexString(BTech::Strings::UnnamedPlayer, existingNames);
 
 	Player *player = new Player;
 	player->setName(newName);
 
-	players.append(player);
+	map->getPlayers().append(player);
 	refresh();
 	emit playerAdded();
 }
@@ -220,7 +215,7 @@ void MapPropertiesManager::savePlayer()
 
 void MapPropertiesManager::saveMapDescription()
 {
-	mapDescriptionRef = mapDescription->document()->toPlainText();
+	map->setDescription(mapDescription->document()->toPlainText());
 	refresh();
 }
 
@@ -228,9 +223,9 @@ void MapPropertiesManager::editVersions()
 {
 	GameVersionDialog dialog;
 	for (BTech::GameVersion gameVersion : BTech::gameVersions)
-		dialog.setChecked(gameVersion, allowedVersions.contains(gameVersion));
+		dialog.setChecked(gameVersion, map->getAllowedVersions().contains(gameVersion));
 	if (dialog.exec())
-		allowedVersions = QList <BTech::GameVersion> (dialog.getAllowedVersions());
+		map->setAllowedVersions(dialog.getAllowedVersions());
 }
 
 /**

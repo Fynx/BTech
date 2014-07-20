@@ -28,6 +28,7 @@ This file is part of BTech Project.
 BTMapManager::BTMapManager()
 {
 	initBaseFunctions();
+	initData();
 	initWindow();
 	initInfoBar();
 	initCentralWindow();
@@ -39,22 +40,92 @@ BTMapManager::BTMapManager()
 BTMapManager::~BTMapManager()
 {}
 
+void BTMapManager::startMapManagement()
+{
+	infoBar->setVisible(true);
+	infoBar->show();
+	menuShowCoordsAction->setEnabled(true);
+	menuShowInfoBarAction->setEnabled(true);
+	menuShowGridAction->setEnabled(true);
+}
+
+Map * BTMapManager::getMap()
+{
+	return map;
+}
+
+GraphicsMap * BTMapManager::getGraphicsMap()
+{
+	return graphicsMap;
+}
+
+InfoBar * BTMapManager::getInfoBar()
+{
+	return infoBar;
+}
+
+QString BTMapManager::getMapFileName() const
+{
+	return mapFileName;
+}
+
+void BTMapManager::setMapFileName(const QString &mapFileName)
+{
+	this->mapFileName = mapFileName;
+}
+
+void BTMapManager::onLoadMapAction()
+{
+	mapFileName =
+		QFileDialog::getOpenFileName(
+			this,
+			BTech::Strings::DialogOpenFile,
+			BTech::resolvePath(BTech::Paths::MAPS_PATH),
+			BTech::Strings::DialogBTechMapFiles);
+	if (!graphicsMap->loadMap(mapFileName)) {
+		mapFileName = QString();
+		return;
+	}
+	startMapManagement();
+}
+
+void BTMapManager::onQuitAction()
+{
+	close();
+}
+
 void BTMapManager::initBaseFunctions()
+{
+	BTech::General::startTime();
+}
+
+void BTMapManager::initCentralWindow()
+{
+	map = new Map;
+
+	graphicsMap = new GraphicsMap(map);
+	setCentralWidget(graphicsMap);
+	graphicsMap->stackUnder(infoBar);
+
+	connect(graphicsMap, &GraphicsMap::hexDisplayStarted, infoBar, &InfoBar::setHex);
+	connect(graphicsMap, &GraphicsMap::hexDisplayQuit,    infoBar, &InfoBar::removeHex);
+	connect(graphicsMap, &GraphicsMap::hexDisplayChanged, infoBar, &InfoBar::updateHexWindow);
+
+	connect(map, &Map::mechInfoNeeded,    this, &BTMapManager::onMechInfoNeeded);
+	connect(map, &Map::mechInfoNotNeeded, this, &BTMapManager::onMechInfoNotNeeded);
+}
+
+void BTMapManager::initData()
 {
 	if (!DataManager::loadFromFile(BTech::resolvePath(BTech::Paths::DATA_PATH)))
 		qWarning() << "Load data failed!";
 	else
 		qDebug() << "Data loaded.";
-
-	BTech::General::startTime();
 }
 
-void BTMapManager::initWindow()
+void BTMapManager::initEventsHandling()
 {
-	statusBar()->hide();
-	resize(1024, 800);
-	//showFullScreen();
-	//showMaximized();
+	setMouseTracking(true);
 }
 
 void BTMapManager::initInfoBar()
@@ -62,19 +133,6 @@ void BTMapManager::initInfoBar()
 	infoBar = new InfoBar;
 	infoBar->resize(0, height());
 	addDockWidget(Qt::LeftDockWidgetArea, infoBar);
-}
-
-void BTMapManager::initCentralWindow()
-{
-	map = new GraphicsMap;
-	setCentralWidget(map);
-	map->stackUnder(infoBar);
-
-	connect(map, &GraphicsMap::hexDisplayStarted, infoBar, &InfoBar::setHex);
-	connect(map, &GraphicsMap::hexDisplayQuit,    infoBar, &InfoBar::removeHex);
-	connect(map, &GraphicsMap::hexDisplayChanged, infoBar, &InfoBar::updateHexWindow);
-	connect(map, &GraphicsMap::mechInfoNeeded,    infoBar, &InfoBar::setMech);
-	connect(map, &GraphicsMap::mechInfoNotNeeded, infoBar, &InfoBar::removeMech);
 }
 
 void BTMapManager::initMenu()
@@ -119,17 +177,10 @@ void BTMapManager::initMenu()
 	menuShowInfoBarAction->setChecked(false);
 }
 
-void BTMapManager::initEventsHandling()
+void BTMapManager::initWindow()
 {
-	setMouseTracking(true);
-}
-
-void BTMapManager::startMapManagement()
-{
-	infoBar->setVisible(true);
-	infoBar->show();
-	menuShowInfoBarAction->setEnabled(true);
-	menuShowGridAction->setEnabled(true);
+	statusBar()->hide();
+	showMaximized();
 }
 
 void BTMapManager::wheelEvent(QWheelEvent *event)
@@ -137,41 +188,20 @@ void BTMapManager::wheelEvent(QWheelEvent *event)
 	int numDegrees = event->delta() / 8;
 	int numSteps = qAbs(numDegrees / 15);
 	if (numDegrees > 0)
-		map->incScale(numSteps);
+		graphicsMap->incScale(numSteps);
 	else
-		map->decScale(numSteps);
+		graphicsMap->decScale(numSteps);
 	event->accept();
-}
-
-void BTMapManager::onLoadMapAction()
-{
-	if (!map->loadMap(QFileDialog::getOpenFileName(this,
-	                                               BTech::Strings::DialogOpenFile,
-	                                               BTech::resolvePath(BTech::Paths::MAPS_PATH),
-	                                               BTech::Strings::DialogBTechMapFiles)))
-		return;
-	startMapManagement();
-}
-
-void BTMapManager::onQuitAction()
-{
-	close();
-}
-
-void BTMapManager::onShowGridAction()
-{
-	if (!map->isGridVisible())
-		menuShowCoordsAction->setEnabled(true);
-	else {
-		menuShowCoordsAction->setChecked(false);
-		menuShowCoordsAction->setEnabled(false);
-	}
-	map->toggleGrid();
 }
 
 void BTMapManager::onShowCoordsAction()
 {
-	map->toggleCoordinates();
+	graphicsMap->toggleCoordinates();
+}
+
+void BTMapManager::onShowGridAction()
+{
+	graphicsMap->toggleGrid();
 }
 
 void BTMapManager::onShowInfoBarAction()
@@ -180,4 +210,14 @@ void BTMapManager::onShowInfoBarAction()
 		infoBar->show();
 	else
 		infoBar->hide();
+}
+
+void BTMapManager::onMechInfoNeeded()
+{
+	infoBar->setMech(map->getCurrentUnit());
+}
+
+void BTMapManager::onMechInfoNotNeeded()
+{
+	infoBar->removeMech();
 }

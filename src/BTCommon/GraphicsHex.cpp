@@ -104,10 +104,10 @@ GraphicsHex::~GraphicsHex()
 
 QList <GridGraphicsObject *> GraphicsHex::getGridGraphicsObjects()
 {
-	return { baseGridGraphicsObject,
-	         propertyGridGraphicsObject,
-	         mouseClickDependentGridGraphicsObject,
-	         mouseMoveDependentGridGraphicsObject };
+	return { graphicsObjects.base,
+	         graphicsObjects.property,
+	         graphicsObjects.mouseClick,
+	         graphicsObjects.mouseMove };
 }
 
 QPointF GraphicsHex::getNode(int nodeNumber) const
@@ -163,22 +163,22 @@ void GraphicsHex::clear()
 
 void GraphicsHex::addGridGraphicsObjects()
 {
-	baseGridGraphicsObject =
+	graphicsObjects.base =
 		new GridGraphicsObject(this,
 		                       &GraphicsHex::paintBaseGrid,
-		                       BASE_GRID_GRAPHICS_OBJECT_Z_VALUE);
-	propertyGridGraphicsObject =
+		                       graphicsObjects.BaseZValue);
+	graphicsObjects.property =
 		new GridGraphicsObject(this,
 		                       &GraphicsHex::paintPropertyGrid,
-		                       PROPERTY_GRID_GRAPHICS_OBJECT_Z_VALUE);
-	mouseClickDependentGridGraphicsObject =
+		                       graphicsObjects.PropertyZValue);
+	graphicsObjects.mouseClick =
 		new GridGraphicsObject(this,
 		                       &GraphicsHex::paintMouseClickDependentGrid,
-		                       MOUSE_CLICK_DEPENDENT_GRID_GRAPHICS_OBJECT_Z_VALUE);
-	mouseMoveDependentGridGraphicsObject =
+		                       graphicsObjects.MouseClickZValue);
+	graphicsObjects.mouseMove =
 		new GridGraphicsObject(this,
 		                       &GraphicsHex::paintMouseMoveDependentGrid,
-		                       MOUSE_MOVE_DEPENDENT_GRID_GRAPHICS_OBJECT_Z_VALUE);
+		                       graphicsObjects.MouseMoveZValue);
 }
 
 // TODO that bounding rect problem

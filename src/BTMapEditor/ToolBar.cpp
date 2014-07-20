@@ -32,7 +32,7 @@ This file is part of BTech Project.
 ToolBar::ToolBar(Map *map)
 {
 	this->map = map;
-	initManagers(map->getPlayers(), map->getDescriptionReference(), map->getAllowedVersionsRef());
+	initManagers(map);
 	initTabs();
 	initWindow();
 	initWidget();
@@ -66,14 +66,6 @@ UID ToolBar::getCurrentUnit() const
 	return unitsManager->getCurrentUnit();
 }
 
-void ToolBar::setPlayers(QVector <Player *> &players)
-{
-	mapPropertiesManager->setPlayers(players);
-}
-
-void ToolBar::setHexes(QVector <Hex *> &hexes)
-{}
-
 void ToolBar::reloadData()
 {
 	// TODO called by the main window, when data has changed - meaning reload data about mechs and weapons in the graphical interface
@@ -105,9 +97,9 @@ void ToolBar::initTabs()
 	tabs->addTab(clickModeManager,     BTech::Strings::LabelClickMode);
 }
 
-void ToolBar::initManagers(QVector <Player *> &players, QString &mapDescriptionRef, QList <BTech::GameVersion> &allowedVersions)
+void ToolBar::initManagers(Map *map)
 {
-	mapPropertiesManager = new MapPropertiesManager(players, mapDescriptionRef, allowedVersions);
+	mapPropertiesManager = new MapPropertiesManager(map);
 	connect(mapPropertiesManager, &MapPropertiesManager::playerNeedsRemoving, this, &ToolBar::removePlayer);
 	connect(mapPropertiesManager, &MapPropertiesManager::playerAdded,         this, &ToolBar::refresh);
 	connect(mapPropertiesManager, &MapPropertiesManager::playerRemoved,       this, &ToolBar::refresh);
@@ -115,7 +107,7 @@ void ToolBar::initManagers(QVector <Player *> &players, QString &mapDescriptionR
 	connect(mapPropertiesManager, &MapPropertiesManager::playerRemoved,       this, &ToolBar::playersInfoChanged);
 	connect(mapPropertiesManager, &MapPropertiesManager::playerInfoChanged,   this, &ToolBar::playersInfoChanged);
 
-	unitsManager = new UnitsManager(players);
+	unitsManager = new UnitsManager(map);
 	connect(mapPropertiesManager, &MapPropertiesManager::playerInfoChanged, unitsManager, &UnitsManager::refresh);
 	tabMode.insert(unitsManager, Mode::Unit);
 

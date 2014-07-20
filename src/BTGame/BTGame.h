@@ -64,12 +64,11 @@ private:
 
 	static const int DEFAULT_SIDEBAR_WIDTH = 300;
 
-	void initBaseFunctions();
-	void initWindow();
-	void initLogWindow();
-	void initSideBar();
 	void initCentralWindow();
+	void initLogWindow();
 	void initMenu();
+	void initSideBar();
+	void initWindow();
 
 	void readSettings();
 	void writeSettings();
@@ -81,7 +80,9 @@ private slots:
 	void onLoadMapAction();
 	void onStartGameAction();
 	void onSetVersionAction();
-	void onEndGame();
+
+	void onGameStarted();
+	void onGameEnded();
 
 	void setActionsInSideBar();
 	void messageFromMapToSideBar();
