@@ -77,7 +77,7 @@ private:
 
 private slots:
 	void onTriggerLogWindow();
-	void onLoadMapAction();
+	void onLoadMap();
 	void onStartGameAction();
 	void onSetVersionAction();
 

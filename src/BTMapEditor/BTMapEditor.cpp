@@ -110,11 +110,11 @@ void BTMapEditor::sortMenu()
 {
 	fileMenu->clear();
 	fileMenu->addAction(menuNewMapAction);
-	fileMenu->addAction(menuLoadMapAction);
+	fileMenu->addAction(menuActionLoadMap);
 	fileMenu->addAction(menuSaveMapAction);
 	fileMenu->addAction(menuSaveAsMapAction);
 	fileMenu->addSeparator();
-	fileMenu->addAction(menuQuitAction);
+	fileMenu->addAction(menuActionQuit);
 }
 
 void BTMapEditor::readSettings()
@@ -171,10 +171,10 @@ void BTMapEditor::onSaveAsMapAction()
 		setMapFileName(path);
 }
 
-void BTMapEditor::onQuitAction()
+void BTMapEditor::onQuit()
 {
 	if (!WeaponModel::getInstance().isChanged() && !MechModel::getInstance().isChanged()) {
-		BTMapManager::onQuitAction();
+		BTMapManager::onQuit();
 		return;
 	}
 
@@ -188,7 +188,7 @@ void BTMapEditor::onQuitAction()
 
 	switch (dialog.buttonRole(dialog.clickedButton())) {
 		case QMessageBox::YesRole: onSaveData();
-		case QMessageBox::NoRole:  BTMapManager::onQuitAction();
+		case QMessageBox::NoRole:  BTMapManager::onQuit();
 		default:                   return;
 	}
 }

@@ -44,20 +44,21 @@ protected:
 	void setMapFileName(const QString &mapFileName);
 
 	QMenu *fileMenu;
-	QAction *menuLoadMapAction;
-	QAction *menuQuitAction;
+	QAction *menuActionLoadMap;
+	QAction *menuActionQuit;
 
 	QMenu *viewMenu;
-	QAction *menuShowGridAction;
- 	QAction *menuShowCoordsAction;
-	QAction *menuShowInfoBarAction;
+	QAction *menuActionToggleGrid;
+	QAction *menuActionToggleCoordinates;
+	QAction *menuActionToggleInfoBar;
+	QAction *menuActionToggleFullscreen;
 
 	virtual void readSettings() = 0;
 	virtual void writeSettings() = 0;
 
 protected slots:
-	virtual void onLoadMapAction();
-	virtual void onQuitAction();
+	virtual void onLoadMap();
+	virtual void onQuit();
 
 private:
 	void initBaseFunctions();
@@ -76,9 +77,10 @@ private:
 	QString mapFileName;
 
 private slots:
-	void onShowCoordsAction();
-	void onShowGridAction();
-	void onShowInfoBarAction();
+	void onToggleCoordinates();
+	void onToggleGrid();
+	void onToggleInfoBar();
+	void onToggleFullscreen();
 
 	void onMechInfoNeeded();
 	void onMechInfoNotNeeded();

@@ -68,7 +68,7 @@ private slots:
 	void onNewMapAction();
 	void onSaveMapAction();
 	void onSaveAsMapAction();
-	void onQuitAction();
+	void onQuit();
 	void onEditWeaponsAction();
 	void onEditMechsAction();
 	void onSaveData();

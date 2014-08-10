@@ -44,9 +44,9 @@ void BTMapManager::startMapManagement()
 {
 	infoBar->setVisible(true);
 	infoBar->show();
-	menuShowCoordsAction->setEnabled(true);
-	menuShowInfoBarAction->setEnabled(true);
-	menuShowGridAction->setEnabled(true);
+	menuActionToggleCoordinates->setEnabled(true);
+	menuActionToggleInfoBar->setEnabled(true);
+	menuActionToggleGrid->setEnabled(true);
 }
 
 Map * BTMapManager::getMap()
@@ -74,7 +74,7 @@ void BTMapManager::setMapFileName(const QString &mapFileName)
 	this->mapFileName = mapFileName;
 }
 
-void BTMapManager::onLoadMapAction()
+void BTMapManager::onLoadMap()
 {
 	mapFileName =
 		QFileDialog::getOpenFileName(
@@ -89,7 +89,7 @@ void BTMapManager::onLoadMapAction()
 	startMapManagement();
 }
 
-void BTMapManager::onQuitAction()
+void BTMapManager::onQuit()
 {
 	close();
 }
@@ -140,41 +140,50 @@ void BTMapManager::initMenu()
 	fileMenu = menuBar()->addMenu(BTech::Strings::MenuFile);
 	viewMenu = menuBar()->addMenu(BTech::Strings::MenuView);
 
-	menuLoadMapAction     = new QAction(this);
-	menuQuitAction        = new QAction(this);
-	menuShowGridAction    = new QAction(this);
-	menuShowCoordsAction  = new QAction(this);
-	menuShowInfoBarAction = new QAction(this);
+	menuActionLoadMap           = new QAction(this);
+	menuActionQuit              = new QAction(this);
+	menuActionToggleGrid        = new QAction(this);
+	menuActionToggleCoordinates = new QAction(this);
+	menuActionToggleInfoBar     = new QAction(this);
+	menuActionToggleFullscreen  = new QAction(this);
 
-	menuLoadMapAction->setText(BTech::Strings::MenuActionLoadMap);
-	menuQuitAction->setText(BTech::Strings::MenuActionQuit);
-	menuShowGridAction->setText(BTech::Strings::MenuActionToggleGrid);
-	menuShowCoordsAction->setText(BTech::Strings::MenuActionToggleCoordinates);
-	menuShowInfoBarAction->setText(BTech::Strings::MenuActionToggleInfoBar);
+	menuActionLoadMap->setText(BTech::Strings::MenuActionLoadMap);
+	menuActionQuit->setText(BTech::Strings::MenuActionQuit);
+	menuActionToggleGrid->setText(BTech::Strings::MenuActionToggleGrid);
+	menuActionToggleCoordinates->setText(BTech::Strings::MenuActionToggleCoordinates);
+	menuActionToggleInfoBar->setText(BTech::Strings::MenuActionToggleInfoBar);
+	menuActionToggleFullscreen->setText(BTech::Strings::MenuActionToggleFullscreen);
 
-	menuLoadMapAction->setShortcut(QKeySequence::Open);
-	menuQuitAction->setShortcut(QKeySequence::Quit);
+	menuActionLoadMap->setShortcut(QKeySequence::Open);
+	menuActionQuit->setShortcut(QKeySequence::Quit);
+	menuActionToggleFullscreen->setShortcut(Qt::Key_F12);
 
-	connect(menuLoadMapAction,     &QAction::triggered, this, &BTMapManager::onLoadMapAction);
-	connect(menuQuitAction,        &QAction::triggered, this, &BTMapManager::onQuitAction);
-	connect(menuShowGridAction,    &QAction::toggled,   this, &BTMapManager::onShowGridAction);
-	connect(menuShowCoordsAction,  &QAction::toggled,   this, &BTMapManager::onShowCoordsAction);
-	connect(menuShowInfoBarAction, &QAction::toggled,   this, &BTMapManager::onShowInfoBarAction);
+	connect(menuActionLoadMap, &QAction::triggered, this, &BTMapManager::onLoadMap);
+	connect(menuActionQuit, &QAction::triggered, this, &BTMapManager::onQuit);
+	connect(menuActionToggleGrid, &QAction::toggled, this, &BTMapManager::onToggleGrid);
+	connect(menuActionToggleCoordinates, &QAction::toggled, this, &BTMapManager::onToggleCoordinates);
+	connect(menuActionToggleInfoBar, &QAction::toggled, this, &BTMapManager::onToggleInfoBar);
+	connect(menuActionToggleFullscreen, &QAction::toggled, this, &BTMapManager::onToggleFullscreen);
 
-	fileMenu->addAction(menuLoadMapAction);
-	fileMenu->addAction(menuQuitAction);
-	viewMenu->addAction(menuShowGridAction);
-	viewMenu->addAction(menuShowCoordsAction);
-	viewMenu->addAction(menuShowInfoBarAction);
+	fileMenu->addAction(menuActionLoadMap);
+	fileMenu->addAction(menuActionQuit);
+	viewMenu->addAction(menuActionToggleGrid);
+	viewMenu->addAction(menuActionToggleCoordinates);
+	viewMenu->addAction(menuActionToggleInfoBar);
+	viewMenu->addAction(menuActionToggleFullscreen);
 
-	menuShowGridAction->setEnabled(false);
-	menuShowGridAction->setCheckable(true);
+	menuActionToggleGrid->setEnabled(false);
+	menuActionToggleGrid->setCheckable(true);
 
-	menuShowCoordsAction->setEnabled(false);
-	menuShowCoordsAction->setCheckable(true);
+	menuActionToggleCoordinates->setEnabled(false);
+	menuActionToggleCoordinates->setCheckable(true);
 
-	menuShowInfoBarAction->setCheckable(true);
-	menuShowInfoBarAction->setChecked(false);
+	menuActionToggleInfoBar->setCheckable(true);
+	menuActionToggleInfoBar->setChecked(false);
+
+	menuActionToggleFullscreen->setCheckable(true);
+	//TODO
+	menuActionToggleFullscreen->setChecked(false);
 }
 
 void BTMapManager::initWindow()
@@ -194,22 +203,30 @@ void BTMapManager::wheelEvent(QWheelEvent *event)
 	event->accept();
 }
 
-void BTMapManager::onShowCoordsAction()
+void BTMapManager::onToggleCoordinates()
 {
 	graphicsMap->toggleCoordinates();
 }
 
-void BTMapManager::onShowGridAction()
+void BTMapManager::onToggleGrid()
 {
 	graphicsMap->toggleGrid();
 }
 
-void BTMapManager::onShowInfoBarAction()
+void BTMapManager::onToggleInfoBar()
 {
 	if (!infoBar->isVisible())
 		infoBar->show();
 	else
 		infoBar->hide();
+}
+
+void BTMapManager::onToggleFullscreen()
+{
+	if (menuActionToggleFullscreen->isChecked())
+		showFullScreen();
+	else
+		showMaximized();
 }
 
 void BTMapManager::onMechInfoNeeded()

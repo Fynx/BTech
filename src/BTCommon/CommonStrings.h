@@ -112,9 +112,10 @@ namespace BTech {
 		const QString MenuActionLoadMap           = QObject::tr("Load map");
 		const QString MenuActionQuit              = QObject::tr("Quit");
 		const QString MenuView                    = QObject::tr("&View");
-		const QString MenuActionToggleGrid        = QObject::tr("Toggle hexagonal &grid");
-		const QString MenuActionToggleCoordinates = QObject::tr("Toggle &coordinates");
-		const QString MenuActionToggleInfoBar     = QObject::tr("Toggle &infobar");
+		const QString MenuActionToggleGrid        = QObject::tr("Toggle hexagonal grid");
+		const QString MenuActionToggleCoordinates = QObject::tr("Toggle coordinates");
+		const QString MenuActionToggleInfoBar     = QObject::tr("Toggle infobar");
+		const QString MenuActionToggleFullscreen  = QObject::tr("Toggle fullscreen");
 
 		const QString DialogOpenFile               = QObject::tr("Open file");
 		const QString DialogBTechMapFilesExtension = QObject::tr("btm");

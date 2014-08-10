@@ -117,9 +117,9 @@ void BTGame::onTriggerLogWindow()
 	logWindow->setVisible(!logWindow->isVisible());
 }
 
-void BTGame::onLoadMapAction()
+void BTGame::onLoadMap()
 {
-	BTMapManager::onLoadMapAction();
+	BTMapManager::onLoadMap();
 	if (getGraphicsMap()->isValid()) {
 		menuStartGameAction->setEnabled(true);
 		menuSetVersion->setEnabled(true);
