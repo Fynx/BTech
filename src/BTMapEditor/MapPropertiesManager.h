@@ -23,6 +23,7 @@ This file is part of BTech Project.
 #include "BTCommon/Rules.h"
 #include "BTMapEditor/ManagersUtils.h"
 
+class ColorRect;
 class Map;
 
 /**
@@ -62,6 +63,7 @@ private:
 	QPushButton *removePlayerButton;
 	QLineEdit *playerName;
 	QTextEdit *playerDescription;
+	ColorRect *playerColor;
 	QPushButton *confirmSavePlayerButton;
 
 	QTextEdit *mapDescription;
@@ -78,8 +80,35 @@ private slots:
 	void addNewPlayer();
 	void removePlayer();
 	void savePlayer();
+	void editPlayerColor();
 	void saveMapDescription();
 	void editVersions();
+};
+
+/**
+ * \class ColorRect
+ */
+//TODO this should be a QWidget and implement paintEvent.
+class ColorRect : public QLabel
+{
+Q_OBJECT;
+
+public:
+	ColorRect(const QColor &color = QColor());
+
+	QColor getColor() const;
+	void setColor(const QColor &color);
+
+signals:
+	void clicked();
+
+private:
+	virtual void mousePressEvent(QMouseEvent *event);
+
+	static constexpr qreal SIZE = 50.0;
+
+
+	QColor color;
 };
 
 /**
@@ -98,6 +127,7 @@ public:
 	bool isChecked(BTech::GameVersion version) const;
 
 private:
+
 	static const int DEFAULT_WIDTH  = 200;
 	static const int DEFAULT_HEIGHT = 300;
 

@@ -192,7 +192,7 @@ void Map::endMove()
 		do
 			currentPlayer = nextPlayer();
 		while (playerEnded(getCurrentPlayer()));
-		sendMessage(getCurrentPlayer()->getName(), playerNameToColor[getCurrentPlayer()->getName()]);
+		sendMessage(getCurrentPlayer()->getName(), getCurrentPlayer()->getColor());
 		emit playerTurn();
 	}
 }
@@ -268,7 +268,7 @@ void Map::endGame()
 	} else {
 		QString winner = getWinner()->getName();
 		sendMessage(BTech::Messages::WinMessage);
-		sendMessage(winner, playerNameToColor[winner]);
+		sendMessage(winner, getWinner()->getColor());
 	}
 
 	emit gameEnded();
@@ -278,6 +278,15 @@ void Map::endGame()
 QVector <Player *> & Map::getPlayers()
 {
 	return players;
+}
+
+Player * Map::getPlayer(const QString &name) const
+{
+	for (Player *player : players)
+		if (player->getName() == name)
+			return player;
+	qDebug() << "No player found.";
+	return nullptr;
 }
 
 QVector <Hex *> & Map::getHexes()
@@ -441,20 +450,7 @@ void Map::initMap()
 }
 
 void Map::initPlayers()
-{
-	//TODO these colors definitely do not belong in here
-	QColor colors[] = {
-		Qt::red,
-		Qt::green,
-		Qt::blue,
-		Qt::yellow,
-		Qt::magenta,
-		Qt::gray,
-	};
-	int index = 0;
-	for (Player *player : players)
-		playerNameToColor[player->getName()] = colors[index++];
-}
+{}
 
 void Map::initUnits()
 {
@@ -602,7 +598,7 @@ void Map::initiativePhase()
 	}
 	for (int i = 0; i < players.size(); ++i)
 		sendMessage(QString(char(i) + '1') + ": " + players[i]->getName(),
-		            playerNameToColor[players[i]->getName()]);
+		            players[i]->getColor());
 	endThisPhase();
 }
 
@@ -735,7 +731,7 @@ void Map::endThisPhase()
 			while (playerEnded(getCurrentPlayer()))
 				currentPlayer = nextPlayer();
 			sendMessage(getCurrentPlayer()->getName(),
-			            playerNameToColor[getCurrentPlayer()->getName()]);
+			            getCurrentPlayer()->getColor());
 			emit playerTurn();
 	}
 }
@@ -775,17 +771,17 @@ void Map::mechInfoReceived()
 {
 	MechEntity *mech = static_cast<MechEntity *>(sender());
 	if (mech->getInfo().isEmpty())
-		sendMessage(QString(*mech), playerNameToColor[mech->getOwnerName()]);
+		sendMessage(QString(*mech), getPlayer(mech->getOwnerName())->getColor());
 	else
 		sendMessage(mech->getName() + ": " + mech->getInfo(),
-		            playerNameToColor[mech->getOwnerName()]);
+		            getPlayer(mech->getOwnerName())->getColor());
 }
 
 void Map::mechExtensiveInfoReceived()
 {
 	MechEntity *mech = static_cast<MechEntity *>(sender());
 	if (mech->getInfo().isEmpty())
-		sendExtensiveInfo(QString(*mech), playerNameToColor[mech->getOwnerName()]); /** signature */
+		sendExtensiveInfo(QString(*mech), getPlayer(mech->getOwnerName())->getColor()); /** signature */
 	else
 		sendExtensiveInfo(mech->getInfo());
 }
@@ -793,7 +789,7 @@ void Map::mechExtensiveInfoReceived()
 void Map::mechStateInfoReceived()
 {
 	sendMessage(getCurrentUnit()->getOwnerName() + ": " + getCurrentUnit()->getName() + ": " + getCurrentUnit()->getInfo(),
-	            playerNameToColor[getCurrentUnit()->getOwnerName()]);
+	            getPlayer(getCurrentUnit()->getOwnerName())->getColor());
 }
 
 const QHash <BTech::GamePhase, void (Map::*)()> Map::phaseToFunction {

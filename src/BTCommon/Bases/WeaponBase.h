@@ -35,7 +35,7 @@ public:
 	WeaponBase(const QString &name, UID uid = EmptyUid);
 	WeaponBase(const WeaponBase &weapon);
 	WeaponBase(const QString &name,
-		   BTech::WeaponType weaponType,
+	           BTech::WeaponType weaponType,
 	           int minRange,
 	           int maxShortRange,
 	           int maxMediumRange,
@@ -96,7 +96,7 @@ public:
 
 private:
 	void load(const QString &name,
-		  BTech::WeaponType weaponType,
+	          BTech::WeaponType weaponType,
 	          int minRange,
 	          int maxShortRange,
 	          int maxMediumRange,

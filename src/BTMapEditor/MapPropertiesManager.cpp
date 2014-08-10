@@ -39,11 +39,17 @@ MapPropertiesManager::MapPropertiesManager(Map *map)
 	connect(removePlayerButton, &QPushButton::pressed, this, &MapPropertiesManager::removePlayer);
 
 	QLabel *playerNameLabel = new QLabel(BTech::Strings::LabelName);
+	QLabel *playerColorLabel = new QLabel(BTech::Strings::LabelColor);
 
+	//TODO fix memleak
+	playerColor = new ColorRect();
 	playerName = new QLineEdit;
 	playerDescription = new QTextEdit;
 	playerDescription->setFixedHeight(200);
 	playerNameLabel->setBuddy(playerName);
+	playerColorLabel->setBuddy(playerColor);
+
+	connect(playerColor, &ColorRect::clicked, this, &MapPropertiesManager::editPlayerColor);
 
 	confirmSavePlayerButton = new QPushButton(BTech::Strings::ButtonSavePlayerDescription);
 	confirmSavePlayerButton->setFixedWidth(200);
@@ -72,6 +78,10 @@ MapPropertiesManager::MapPropertiesManager(Map *map)
 	playerNameLayout->addWidget(playerNameLabel);
 	playerNameLayout->addSpacerItem(new QSpacerItem(BTech::SMALL_SPACER_SIZE, BTech::SYMBOLIC_SPACER_SIZE));
 	playerNameLayout->addWidget(playerName);
+	playerNameLayout->addSpacerItem(new QSpacerItem(BTech::SMALL_SPACER_SIZE, BTech::SYMBOLIC_SPACER_SIZE));
+	playerNameLayout->addWidget(playerColorLabel);
+	playerNameLayout->addSpacerItem(new QSpacerItem(BTech::SMALL_SPACER_SIZE, BTech::SYMBOLIC_SPACER_SIZE));
+	playerNameLayout->addWidget(playerColor);
 
 	QHBoxLayout *savePlayerButtonLayout = new QHBoxLayout;
 	savePlayerButtonLayout->addSpacerItem(new QSpacerItem(BTech::ENORMOUS_SPACER_SIZE, BTech::SYMBOLIC_SPACER_SIZE));
@@ -122,6 +132,7 @@ void MapPropertiesManager::refresh()
 	if (getCurrentPlayer() != nullptr) {
 		playerName->setText(getCurrentPlayer()->getName());
 		playerDescription->setText(getCurrentPlayer()->getDescription());
+		playerColor->setColor(getCurrentPlayer()->getColor());
 	}
 
 	mapDescription->setText(map->getDescription());
@@ -178,6 +189,7 @@ void MapPropertiesManager::onPlayerChosen()
 {
 	playerName->setText(getCurrentPlayer()->getName());
 	playerDescription->setText(getCurrentPlayer()->getDescription());
+	playerColor->setColor(getCurrentPlayer()->getColor());
 	emit playerChosen(getCurrentPlayer());
 }
 
@@ -194,6 +206,12 @@ void MapPropertiesManager::addNewPlayer()
 	Player *player = new Player;
 	player->setName(newName);
 
+	QColor randomColor =
+		QColor(BTech::randomInt(256),
+		       BTech::randomInt(256),
+		       BTech::randomInt(256));
+	player->setColor(randomColor);
+
 	map->getPlayers().append(player);
 	refresh();
 	emit playerAdded();
@@ -209,8 +227,15 @@ void MapPropertiesManager::savePlayer()
 {
 	getCurrentPlayer()->setDescription(playerDescription->document()->toPlainText());
 	getCurrentPlayer()->setName(playerName->text());
+	getCurrentPlayer()->setColor(playerColor->getColor());
 	refresh();
 	emit playerInfoChanged();
+}
+
+void MapPropertiesManager::editPlayerColor()
+{
+	QColorDialog dialog;
+	playerColor->setColor(dialog.getColor());
 }
 
 void MapPropertiesManager::saveMapDescription()
@@ -226,6 +251,35 @@ void MapPropertiesManager::editVersions()
 		dialog.setChecked(gameVersion, map->getAllowedVersions().contains(gameVersion));
 	if (dialog.exec())
 		map->setAllowedVersions(dialog.getAllowedVersions());
+}
+
+/**
+ * \class ColorRect
+ */
+
+ColorRect::ColorRect(const QColor &color)
+{
+	setAutoFillBackground(true);
+	setColor(color);
+	setText("      ");
+}
+
+QColor ColorRect::getColor() const
+{
+	return color;
+}
+
+void ColorRect::setColor(const QColor &color)
+{
+	this->color = color;
+	QPalette palette;
+	palette.setColor(QPalette::Background, color);
+	setPalette(palette);
+}
+
+void ColorRect::mousePressEvent(QMouseEvent *event)
+{
+	emit clicked();
 }
 
 /**

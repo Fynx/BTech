@@ -121,6 +121,7 @@ namespace BTech {
 		const QString DialogBTechMapFiles          = QObject::tr("BTech Map files (*.%1)").arg(DialogBTechMapFilesExtension);
 
 		const QString LabelArmor      = QObject::tr("Armor");
+		const QString LabelColor      = QObject::tr("Color");
 		const QString LabelDamage     = QObject::tr("Damage");
 		const QString LabelHeight     = QObject::tr("Height");
 		const QString LabelHex        = QObject::tr("Hex");

@@ -71,6 +71,7 @@ public:
 	void endGame();
 
 	QVector <Player *> & getPlayers();
+	Player * getPlayer(const QString &name) const;
 	QVector <Hex *> & getHexes();
 
 	const Grid * getGrid() const;
@@ -87,7 +88,6 @@ public:
 	void setCurrentHex(Hex *hex);
 
 	//TODO this should Not be here
-	QHash <QString, QColor> playerNameToColor;
 	static const QColor DefaultMessageColor;
 
 	//TODO push it somewhere

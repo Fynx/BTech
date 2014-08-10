@@ -130,9 +130,9 @@ signals:
 private:
 	static const QColor DefaultLogColor;
 
-	static const int MAX_WIDTH = 300;
+	static const int MAX_WIDTH  = 300;
 	static const int MAX_HEIGHT = 2000;
-	static const int MIN_WIDTH = 300;
+	static const int MIN_WIDTH  = 300;
 	static const int MIN_HEIGHT = 600;
 
 	QImage *image;

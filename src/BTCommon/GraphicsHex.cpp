@@ -181,7 +181,6 @@ void GraphicsHex::addGridGraphicsObjects()
 		                       graphicsObjects.MouseMoveZValue);
 }
 
-// TODO that bounding rect problem
 QRectF GraphicsHex::boundingRect() const
 {
 	return QRectF(-getSize(),     -getSize(),
