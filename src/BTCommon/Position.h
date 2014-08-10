@@ -138,7 +138,7 @@ public:
 	constexpr Coordinate(QPoint p = QPoint{0, 0}) : QPoint(p) {}
 	constexpr Coordinate(int x, int y) : Coordinate(QPoint(x, y)) {}
 
-	QString toString() const {return QString("[%1, %2]").arg(y()).arg(x());}
+	QString toString() const {return QString("[%1, %2]").arg(x()).arg(y());}
 };
 
 inline uint qHash(const Coordinate &c, uint seed)

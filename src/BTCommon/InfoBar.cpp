@@ -122,7 +122,7 @@ void InfoBar::updateHexWindow()
 {
 	hexWindow->setText(QString());
 	if (curHex != nullptr) {
-		hexWindow->append(BTech::Strings::LabelHex + tr(" [%1, %2]").arg(curHex->getCoordinate().y()).arg(curHex->getCoordinate().x()));
+		hexWindow->append(BTech::Strings::LabelHex + curHex->getCoordinate().toString());
 		hexWindow->append(BTech::Strings::LabelTerrain + tr(": %1").arg(BTech::terrainStringChange[curHex->getTerrain()]));
 		hexWindow->append(BTech::Strings::LabelHeight + tr(": %1").arg(curHex->getHeight()));
 		hexWindow->append(BTech::Strings::LabelUnits + ":");
