@@ -202,4 +202,6 @@ void Hex::clearData()
 	clear();
 	removeMech();
 	setTerrain(BTech::Terrain::Clear);
+	setDepth(0);
+	setHeight(0);
 }
