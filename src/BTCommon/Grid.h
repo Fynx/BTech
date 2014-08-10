@@ -38,7 +38,7 @@ class Grid
 {
 
 public:
-	Grid();
+	Grid() = default;
 
 	void initGrid(const QVector <Hex *> &hexes);
 

@@ -25,10 +25,6 @@ This file is part of BTech Project.
 #include "BTCommon/MechEntity.h"
 #include "BTCommon/Player.h"
 
-Grid::Grid()
-{
-}
-
 void Grid::initGrid(const QVector <Hex *> &hexes)
 {
 	coordinateToHex.clear();
