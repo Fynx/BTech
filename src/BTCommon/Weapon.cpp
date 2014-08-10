@@ -125,12 +125,12 @@ int Weapon::getMissilesNumberShot() const
 	return base->getMissilesPerShot();
 }
 
-const WeaponHolder * Weapon::getWeaponHolder() const
+WeaponHolder * Weapon::getWeaponHolder() const
 {
 	return weaponHolder;
 }
 
-void Weapon::setWeaponHolder(const WeaponHolder *weaponHolder)
+void Weapon::setWeaponHolder(WeaponHolder *weaponHolder)
 {
 	this->weaponHolder = weaponHolder;
 }

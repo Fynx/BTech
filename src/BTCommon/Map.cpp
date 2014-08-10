@@ -202,48 +202,39 @@ void Map::trigger()
 	(this->*Map::phaseToFunction[getCurrentPhase()])();
 }
 
-void Map::chooseAction(const Action *action)
+void Map::chooseAction(const Action &action)
 {
 	getCurrentUnit()->setCurrentAction(action);
-	if (getCurrentAction() != nullptr) {
-		if (getCurrentAction()->getActionType() == Action::Type::Movement) {
-			BTech::MovementAction movementAction =
-				static_cast<const MovementAction *>(getCurrentAction())->getType();
-			switch (movementAction) {
-				case BTech::MovementAction::Idle:
-					break;
-				case BTech::MovementAction::Walk:
-				case BTech::MovementAction::Run:
-				case BTech::MovementAction::Jump:
-					currentMovement = MovementObject(
-						getCurrentUnit()->getCurrentPosition(),
-						getCurrentUnit()->getMovePoints(movementAction),
-						movementAction
-					);
-					emit movementRangeNeeded();
-					break;
-				case BTech::MovementAction::TurnLeft:
-					getCurrentUnit()->turnLeft();
-					getCurrentUnit()->setCurrentAction(nullptr);
-					break;
-				case BTech::MovementAction::TurnRight:
-					getCurrentUnit()->turnRight();
-					getCurrentUnit()->setCurrentAction(nullptr);
-					break;
-			}
-		} else {
-			BTech::CombatAction combatAction =
-				static_cast<const CombatAction *>(getCurrentAction())->getType();
-			switch (combatAction) {
-				case BTech::CombatAction::Idle:
-					break;
-				case BTech::CombatAction::SimpleAttack:
-				case BTech::CombatAction::WeaponAttack:
-					emit attackRangeNeeded();
-					break;
-				default:;
-			}
-		}
+
+	switch (getCurrentAction().getActionType()) {
+		case BTech::ActionType::Idle:
+			break;
+
+		case BTech::ActionType::Walk:
+		case BTech::ActionType::Run:
+		case BTech::ActionType::Jump:
+			currentMovement =
+				MovementObject(
+					getCurrentUnit()->getCurrentPosition(),
+					getCurrentUnit()->getMovePoints(),
+					action.getActionType()
+				);
+			emit movementRangeNeeded();
+			break;
+		case BTech::ActionType::TurnLeft:
+			getCurrentUnit()->turnLeft();
+			getCurrentUnit()->setCurrentAction(Action());
+			break;
+		case BTech::ActionType::TurnRight:
+			getCurrentUnit()->turnRight();
+			getCurrentUnit()->setCurrentAction(Action());
+			break;
+
+		case BTech::ActionType::SimpleAttack:
+		case BTech::ActionType::WeaponAttack:
+			emit attackRangeNeeded();
+			break;
+		default:;
 	}
 
 	if (getCurrentUnit() != nullptr)
@@ -254,9 +245,7 @@ void Map::chooseAction(const Action *action)
 void Map::startGame()
 {
 	sendExtensiveInfo(BTech::Messages::GameStarted);
-	qDebug() << "sending message that game started: " << BTech::Messages::GameStarted;
 	sendMessage(BTech::Messages::GameStarted);
-	qDebug() << "AND WHERE THE FUCK IS THAT MESSAGE?!";
 	sendMessage(BTech::Messages::Separator);
 	emit gameStarted();
 
@@ -321,7 +310,7 @@ Player * Map::getCurrentPlayer() const
 	return currentPlayer;
 }
 
-const Action * Map::getCurrentAction() const
+Action Map::getCurrentAction() const
 {
 	return currentUnit->getCurrentAction();
 }
@@ -489,7 +478,7 @@ void Map::initUnit(MechEntity *unit)
 void Map::resetCurrentValues()
 {
 	subphase      = GameSubphase::None;
-	currentAction = nullptr;
+	currentAction = Action();
 	currentUnit   = nullptr;
 	currentHex    = nullptr;
 }
@@ -626,7 +615,8 @@ void Map::movementPhase()
 			break;
 		case GameSubphase::MechChosen:
 			MoveObject moveObject = getCurrentHex()->getMoveObject();
-			if (getCurrentAction() == nullptr || moveObject.getAction() == BTech::MovementAction::Idle) {
+			if (getCurrentAction().getActionType() == BTech::ActionType::Idle
+			    || moveObject.getActionType() == BTech::ActionType::Idle) {
 				qDebug() << "\tno existing move object";
 				break;
 			}
@@ -636,8 +626,8 @@ void Map::movementPhase()
 			emit mechInfoNeeded();
 			currentMovement =
 				MovementObject(moveObject.getDest(),
-				               getCurrentUnit()->getMovePoints(moveObject.getAction()),
-				               moveObject.getAction());
+				               getCurrentUnit()->getMovePoints(moveObject.getActionType()),
+				               moveObject.getActionType());
 			emit movementRangeNeeded();
 			break;
 	}
@@ -655,7 +645,7 @@ void Map::weaponAttackPhase()
 				emit mechActionsNeeded();
 			break;
 		case GameSubphase::MechChosen:
-			if (getCurrentAction() == nullptr)
+			if (getCurrentAction().getActionType() == BTech::ActionType::Idle)
 				break;
 			if (tryToChooseEnemy())
 				attackEnemy();
@@ -671,7 +661,7 @@ void Map::physicalAttackPhase()
 				emit mechActionsNeeded();
 			break;
 		case GameSubphase::MechChosen:
-			if (getCurrentAction() == nullptr)
+			if (getCurrentAction().getActionType() == BTech::ActionType::Idle)
 				break;
 			if (tryToChooseEnemy())
 				attackEnemy();
@@ -687,7 +677,7 @@ void Map::combatPhase()
 				emit mechActionsNeeded();
 			break;
 		case GameSubphase::MechChosen:
-			if (getCurrentAction() == nullptr)
+			if (getCurrentAction().getActionType() == BTech::ActionType::Idle)
 				break;
 			if (tryToChooseEnemy())
 				attackEnemy();

@@ -65,13 +65,14 @@ void AttackObject::setDirection(Direction direction)
 	this->direction = direction;
 }
 
-BTech::CombatAction AttackObject::getActionType() const
+BTech::ActionType AttackObject::getActionType() const
 {
 	return actionType;
 }
 
-void AttackObject::setActionType(const BTech::CombatAction actionType)
+void AttackObject::setActionType(BTech::ActionType actionType)
 {
+	Q_ASSERT(BTech::combatActions.contains(actionType));
 	this->actionType = actionType;
 }
 

@@ -21,7 +21,9 @@ This file is part of BTech Project.
 
 #include <QtWidgets>
 #include "BTCommon/Utils.h"
-#include "BTCommon/Weapon.h"
+
+class Weapon;
+class WeaponHolder;
 
 /**
  * \class Action
@@ -30,64 +32,33 @@ This file is part of BTech Project.
 class Action {
 
 public:
-	virtual ~Action();
+	Action(BTech::ActionType actionType = BTech::ActionType::Idle, WeaponHolder *weaponHolder = nullptr);
+	Action(BTech::ActionType actionType, Weapon *weapon);
 
-	bool operator == (const Action *rhs) const;
+	inline bool operator==(const Action &rhs) const;
 
-	enum class Type {
-		Movement,
-		Combat,
-	};
+	BTech::ActionType getActionType() const;
+	bool isCombat() const;
+	bool isMovement() const;
 
-	virtual Type getActionType() const = 0;
-};
+	Weapon * getWeapon() const;
+	void setWeapon(Weapon *weapon);
 
-/**
- * \class MovementAction
- * Represents an action that includes changing position.
- */
-class MovementAction : public Action {
-
-public:
-	MovementAction(BTech::MovementAction type);
-
-	bool operator == (const MovementAction *rhs) const;
-
-	Action::Type getActionType() const;
-	BTech::MovementAction getType() const;
+	WeaponHolder * getWeaponHolder() const;
+	void setWeaponHolder(WeaponHolder *weaponHolder);
 
 private:
-	BTech::MovementAction type;
+	BTech::ActionType actionType;
+
+	Weapon *weapon;
+	WeaponHolder *weaponHolder;
 };
 
-/**
- * \class CombatAction
- * Represents an action that includes hurting other things.
- */
-class CombatAction : public Action {
-
-public:
-	CombatAction(BTech::CombatAction type,
-	             const WeaponHolder *weaponHolder = nullptr,
-	             BTech::MechPartSide = BTech::MechPartSide::Front);
-
-	bool operator == (const CombatAction *rhs) const;
-
-	Action::Type getActionType() const;
-	BTech::CombatAction getType() const;
-
-	const WeaponHolder * getWeaponHolder() const;
-	void setWeaponHolder(const WeaponHolder *weaponHolder);
-
-	const Weapon * getWeapon() const;
-	bool hasWeapon() const;
-
-	BTech::MechPartSide getMechPartSide() const;
-
-private:
-	BTech::CombatAction type;
-	const WeaponHolder *weaponHolder;
-	BTech::MechPartSide side;
-};
+bool Action::operator==(const Action &rhs) const
+{
+	return this->actionType == rhs.actionType
+	    && this->weapon == rhs.weapon
+	    && this->weaponHolder == rhs.weaponHolder;
+}
 
 #endif // ACTION_H

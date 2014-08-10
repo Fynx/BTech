@@ -58,7 +58,7 @@ public slots:
 	void incScale(int steps = 1);
 	void decScale(int steps = 1);
 
-	void onChooseAction(const Action *action);
+	void onChooseAction(const Action &action);
 	void onEndMove();
 
 signals:

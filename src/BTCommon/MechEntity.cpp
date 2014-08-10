@@ -93,21 +93,21 @@ void MechEntity::turnTorsoLeft()
 
 void MechEntity::move(const MoveObject &moveObject)
 {
-	switch (moveObject.getAction()) {
-		case BTech::MovementAction::Idle:
+	switch (moveObject.getActionType()) {
+		case BTech::ActionType::Idle:
 			qCritical() << "Error: move object with action 'Idle'";
 			exit(EXIT_FAILURE);
-		case BTech::MovementAction::Walk:
+		case BTech::ActionType::Walk:
 			movePointsUsed += moveObject.getMovePoints();
 			runPointsUsed  = getMaxRunPoints();
 			jumpPointsUsed = getMaxJumpPoints();
 			break;
-		case BTech::MovementAction::Run:
+		case BTech::ActionType::Run:
 			runPointsUsed += moveObject.getMovePoints();
 			movePointsUsed = getMaxMovePoints();
 			jumpPointsUsed = getMaxJumpPoints();
 			break;
-		case BTech::MovementAction::Jump:
+		case BTech::ActionType::Jump:
 			jumpPointsUsed += moveObject.getMovePoints();
 			movePointsUsed = getMaxMovePoints();
 			runPointsUsed  = getMaxRunPoints();
@@ -118,14 +118,14 @@ void MechEntity::move(const MoveObject &moveObject)
 	setMoveObject(moveObject);
 	setDestinationPosition(moveObject.getDest());
 
-	switch (moveObject.getAction()) {
-		case BTech::MovementAction::Walk:
+	switch (moveObject.getActionType()) {
+		case BTech::ActionType::Walk:
 			addEffect(Effect(BTech::EffectType::Walked, BTech::EffectSource::Movement, 1, moveObject.getDistance()));
 			break;
-		case BTech::MovementAction::Run:
+		case BTech::ActionType::Run:
 			addEffect(Effect(BTech::EffectType::Run, BTech::EffectSource::Movement, 1, moveObject.getDistance()));
 			break;
-		case BTech::MovementAction::Jump:
+		case BTech::ActionType::Jump:
 			addEffect(Effect(BTech::EffectType::Jumped, BTech::EffectSource::Movement, 1, moveObject.getDistance()));
 			break;
 		default:;
@@ -148,7 +148,7 @@ void MechEntity::turnLeft()
 int MechEntity::getDistanceCrossed() const
 {
 	return getEffect(BTech::EffectType::Walked).getValue() * (int)hasEffect(BTech::EffectType::Walked)
-	     + getEffect(BTech::EffectType::Run).getValue()    * (int)hasEffect(BTech::EffectType::Run)
+	     + getEffect(BTech::EffectType::Run).getValue() * (int)hasEffect(BTech::EffectType::Run)
 	     + getEffect(BTech::EffectType::Jumped).getValue() * (int)hasEffect(BTech::EffectType::Jumped);
 }
 
@@ -206,9 +206,7 @@ void MechEntity::resolveHeat()
 
 const Weapon * MechEntity::getCurrentWeapon() const
 {
-	if (getCurrentCombatAction()->hasWeapon() == false)
-		return nullptr;
-	return getCurrentCombatAction()->getWeapon();
+	return getCurrentAction().getWeapon();
 }
 
 QList <const Weapon *> MechEntity::getReadyWeapons() const
@@ -217,7 +215,7 @@ QList <const Weapon *> MechEntity::getReadyWeapons() const
 	return Mech::getWeapons();
 }
 
-QList <const Action *> MechEntity::getActions(BTech::GamePhase gamePhase) const
+QList <Action> MechEntity::getActions(BTech::GamePhase gamePhase)
 {
 	switch (Rules::getVersion()) {
 		case BTech::GameVersion::BasicBattleDroids:
@@ -225,53 +223,18 @@ QList <const Action *> MechEntity::getActions(BTech::GamePhase gamePhase) const
 		case BTech::GameVersion::AdvancedBattleDroids:
 			return getActions_ABD(gamePhase);
 		default:
-			return QList <const Action *>();
+			return {};
 	}
 }
 
-const Action * MechEntity::getCurrentAction() const
+Action MechEntity::getCurrentAction() const
 {
-	return (getCurrentMovementAction() == nullptr)
-		? static_cast<const Action *>(getCurrentCombatAction())
-		: static_cast<const Action *>(getCurrentMovementAction());
+	return currentAction;
 }
 
-void MechEntity::setCurrentAction(const Action *action)
+void MechEntity::setCurrentAction(const Action &action)
 {
-	const MovementAction *movementAction = nullptr;
-	const CombatAction *combatAction = nullptr;
-	if (action != nullptr) {
-		switch (action->getActionType()) {
-			case Action::Type::Movement:
-				movementAction = static_cast<const MovementAction *>(action);
-				break;
-			case Action::Type::Combat:
-				combatAction = static_cast<const CombatAction *>(action);
-				break;
-		}
-	}
-	setCurrentMovementAction(movementAction);
-	setCurrentCombatAction(combatAction);
-}
-
-const MovementAction * MechEntity::getCurrentMovementAction() const
-{
-	return currentMovementAction;
-}
-
-void MechEntity::setCurrentMovementAction(const MovementAction *action)
-{
-	currentMovementAction = action;
-}
-
-const CombatAction * MechEntity::getCurrentCombatAction() const
-{
-	return currentCombatAction;
-}
-
-void MechEntity::setCurrentCombatAction(const CombatAction *action)
-{
-	currentCombatAction = action;
+	currentAction = action;
 }
 
 int MechEntity::getMovePoints() const
@@ -291,13 +254,13 @@ int MechEntity::getJumpPoints() const
 	return getMaxJumpPoints() - jumpPointsUsed;
 }
 
-int MechEntity::getMovePoints(BTech::MovementAction action)
+int MechEntity::getMovePoints(BTech::ActionType action)
 {
 	switch (action) {
-		case BTech::MovementAction::Walk: return getMovePoints();
-		case BTech::MovementAction::Run:  return getRunPoints();
-		case BTech::MovementAction::Jump: return getJumpPoints();
-		default:                          return 0;
+		case BTech::ActionType::Walk: return getMovePoints();
+		case BTech::ActionType::Run:  return getRunPoints();
+		case BTech::ActionType::Jump: return getJumpPoints();
+		default:                      return 0;
 	}
 }
 
@@ -398,8 +361,7 @@ void MechEntity::init()
 
 void MechEntity::clear()
 {
-	setCurrentMovementAction(new MovementAction(BTech::MovementAction::Idle));
-	setCurrentCombatAction(new CombatAction(BTech::CombatAction::Idle));
+	setCurrentAction(Action());
 	setActive(false);
 	setFriendly(false);
 	attacked = false;
@@ -564,27 +526,27 @@ void MechEntity::sendExtensiveInfo(const QString &info)
 	emit extensiveInfoSent();
 }
 
-QList <const Action *> MechEntity::getActions_BBD(BTech::GamePhase phase) const
+QList <Action> MechEntity::getActions_BBD(BTech::GamePhase phase)
 {
-	QList <const Action *> result;
+	QList <Action> result;
 
 	switch (phase) {
 		case BTech::GamePhase::Movement:
 			if (hasEffect(BTech::EffectType::Immobilised))
 				break;
 
-			result.append(new const MovementAction(BTech::MovementAction::Walk));
+			result.append(Action(BTech::ActionType::Walk));
 
 			if (!hasEffect(BTech::EffectType::CannotRun)) {
 				result.append({
-					new const MovementAction(BTech::MovementAction::Run),
-					new const MovementAction(BTech::MovementAction::Jump),
+					Action(BTech::ActionType::Run),
+					Action(BTech::ActionType::Jump),
 				});
 			}
 			break;
 		case BTech::GamePhase::Combat:
 			if (!hasEffect(BTech::EffectType::CannotAttack))
-				result.append(new const CombatAction(BTech::CombatAction::SimpleAttack));
+				result.append(Action(BTech::ActionType::SimpleAttack));
 			break;
 		default:;
 	}
@@ -592,9 +554,9 @@ QList <const Action *> MechEntity::getActions_BBD(BTech::GamePhase phase) const
 	return result;
 }
 
-QList <const Action *> MechEntity::getActions_ABD(BTech::GamePhase phase) const
+QList <Action> MechEntity::getActions_ABD(BTech::GamePhase phase)
 {
-	QList <const Action *> result;
+	QList <Action> result;
 
 	switch (phase) {
 		case BTech::GamePhase::Movement:
@@ -602,18 +564,18 @@ QList <const Action *> MechEntity::getActions_ABD(BTech::GamePhase phase) const
 			if (hasEffect(BTech::EffectType::Immobilised))
 				break;
 
-			result.append(new const MovementAction(BTech::MovementAction::Walk));
+			result.append(Action(BTech::ActionType::Walk));
 
 			if (!hasEffect(BTech::EffectType::CannotRun)) {
 				result.append({
-					new const MovementAction(BTech::MovementAction::Run),
-					new const MovementAction(BTech::MovementAction::Jump),
+					Action(BTech::ActionType::Run),
+					Action(BTech::ActionType::Jump),
 				});
 			}
 
 			result.append({
-				new const MovementAction(BTech::MovementAction::TurnLeft),
-				new const MovementAction(BTech::MovementAction::TurnRight),
+				Action(BTech::ActionType::TurnLeft),
+				Action(BTech::ActionType::TurnRight),
 			});
 			break;
 
@@ -622,23 +584,16 @@ QList <const Action *> MechEntity::getActions_ABD(BTech::GamePhase phase) const
 			if (hasEffect(BTech::EffectType::CannotAttack))
 				break;
 
-			for (const MechPart *mechPart : getMechParts(BTech::MechPartType::Arm))
-				result.append(new const CombatAction(BTech::CombatAction::Punch,
-				                                     this,
-				                                     mechPart->getSide()));
-			result.append({
-				new const CombatAction(BTech::CombatAction::Kick),
-				new const CombatAction(BTech::CombatAction::Punch),
-			});
+			//TODO effects
+			for (MechPart *mechPart : findMechParts(BTech::MechPartType::Arm))
+				result.append(Action(BTech::ActionType::Punch, mechPart));
+			for (MechPart *mechPart : findMechParts(BTech::MechPartType::Leg))
+				result.append(Action(BTech::ActionType::Kick, mechPart));
 
 			//TODO check if everything
-			if (!hasEffect(BTech::EffectType::CannotShoot)) {
-				for (const Weapon *weapon : getWeapons()) {
-					setCurrentWeapon(weapon);
-					result.append(new const CombatAction(BTech::CombatAction::WeaponAttack,
-					                                     this));
-				}
-			}
+			if (!hasEffect(BTech::EffectType::CannotShoot))
+				for (Weapon *weapon : editWeapons())
+					result.append(Action(BTech::ActionType::WeaponAttack, weapon));
 			break;
 
 		default:;
@@ -839,11 +794,11 @@ const QHash <QPair <BTech::DiceRoll, BTech::MechPartSide>, QPair <BTech::MechPar
  * BattleDroids (Basic)
  * Movement Modifiers Table - Attacker, page 5
  */
-const QHash <BTech::MovementAction, int> BTech::attackerMovementModifierTable {
-	{BTech::MovementAction::Idle, 0},
-	{BTech::MovementAction::Walk, 1},
-	{BTech::MovementAction::Run,  2},
-	{BTech::MovementAction::Jump, 3},
+const QHash <BTech::ActionType, int> BTech::attackerMovementModifierTable {
+	{BTech::ActionType::Idle, 0},
+	{BTech::ActionType::Walk, 1},
+	{BTech::ActionType::Run,  2},
+	{BTech::ActionType::Jump, 3},
 };
 
 /*

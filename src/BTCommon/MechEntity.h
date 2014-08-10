@@ -20,13 +20,12 @@ This file is part of BTech Project.
 #define MECH_ENTITY_H
 
 #include <QtWidgets>
+#include "BTCommon/Action.h"
 #include "BTCommon/AttackObject.h"
 #include "BTCommon/Mech.h"
 #include "BTCommon/Objects.h"
 #include "BTCommon/Weapon.h"
 
-class Action;
-class CombatAction;
 class MechWarrior;
 class MovementAction;
 
@@ -75,20 +74,14 @@ public:
 	const Weapon * getCurrentWeapon() const;
 	QList <const Weapon *> getReadyWeapons() const;
 
-	QList <const Action *> getActions(BTech::GamePhase phase) const;
-	const Action * getCurrentAction() const;
-	void setCurrentAction(const Action *action);
-
-	const MovementAction * getCurrentMovementAction() const;
-	void setCurrentMovementAction(const MovementAction *action);
-
-	const CombatAction * getCurrentCombatAction() const;
-	void setCurrentCombatAction(const CombatAction *action);
+	QList <Action> getActions(BTech::GamePhase phase);
+	Action getCurrentAction() const;
+	void setCurrentAction(const Action &action);
 
 	int getMovePoints() const;
 	int getRunPoints() const;
 	int getJumpPoints() const;
-	int getMovePoints(BTech::MovementAction action);
+	int getMovePoints(BTech::ActionType actionType);
 
 	int getFireRange() const;
 	int getHeatLevel() const;
@@ -158,16 +151,15 @@ private:
 	QString info;
 	QString extensiveInfo;
 
-	const MovementAction *currentMovementAction;
-	const CombatAction *currentCombatAction;
+	Action currentAction;
 
 	static const QHash <BTech::GameVersion, void (MechEntity::*)()> resolveAttacks_version;
 
 	void resolveAttacks_BBD();
 	void resolveAttacks_ABD();
 
-	QList <const Action *> getActions_BBD(BTech::GamePhase phase) const;
-	QList <const Action *> getActions_ABD(BTech::GamePhase phase) const;
+	QList <Action> getActions_BBD(BTech::GamePhase phase);
+	QList <Action> getActions_ABD(BTech::GamePhase phase);
 
 	int getDistanceAttackModifier(int distance) const;
 
@@ -180,7 +172,7 @@ namespace BTech {
 
 	extern const QHash <Direction, MechPartSide> directionToMechPartSide;
 	extern const QHash <QPair <BTech::DiceRoll, MechPartSide>, QPair <MechPartType, MechPartSide> > hitLocationTable;
-	extern const QHash <BTech::MovementAction, int> attackerMovementModifierTable;
+	extern const QHash <BTech::ActionType, int> attackerMovementModifierTable;
 	extern const QHash <int, int> targetMovementModifierTable;
 	extern const int armorPenetrationTable[MAX_POSSIBLE_DAMAGE + 1][MAX_POSSIBLE_ARMOR_VALUE + 1];
 }

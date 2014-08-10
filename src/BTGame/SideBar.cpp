@@ -31,17 +31,17 @@ static const QColor ColorHighlighted    = Qt::darkYellow;
 static const QColor ColorNotHighlighted = BTech::Colors::CornflowerBlue;
 
 /* constructor */
-ActionLabel::ActionLabel(QWidget *parent, QString text, int number, const Action *action)
+ActionLabel::ActionLabel(QWidget *parent, QString text, int number, const Action &action)
 {
 	setParent(parent);
 	QString lText = QString("%1 %2").arg(number).arg(text);
 	QString wText = QString();
-	if (action->getActionType() == Action::Type::Combat) {
-		const CombatAction *combatAction = static_cast<const CombatAction *>(action);
-		if (combatAction->getWeapon() != nullptr)
-			wText += static_cast<QString>(*(combatAction->getWeapon()));
-		if (combatAction->getWeaponHolder() != nullptr)
-		        wText += " (" + combatAction->getWeaponHolder()->getUnitName() + ")";
+
+	if (action.isCombat()) {
+		if (action.getWeapon() != nullptr)
+			wText += action.getWeapon()->getName();
+		if (action.getWeaponHolder() != nullptr)
+		        wText += " (" + action.getWeaponHolder()->getUnitName() + ")";
 	}
 	setText(lText + " " + wText);
 
@@ -56,9 +56,7 @@ ActionLabel::ActionLabel(QWidget *parent, QString text, int number, const Action
 
 /* destructor */
 ActionLabel::~ActionLabel()
-{
-	delete action;
-}
+{}
 
 void ActionLabel::activate()
 {
@@ -134,7 +132,6 @@ ActionWindow::ActionWindow(QWidget* parent)
 	initLayout();
 	setBackgroundRole(QPalette::Window);
 	setPalette(Qt::lightGray);
-	currentAction = nullptr;
 	setMouseTracking(true);
 }
 
@@ -159,18 +156,18 @@ void ActionWindow::keyPressEvent(QKeyEvent *event)
 	QWidget::keyPressEvent(event);
 }
 
-void ActionWindow::insertActions(const BTech::GamePhase &phase, const MechEntity *mech)
+void ActionWindow::insertActions(const BTech::GamePhase &phase, MechEntity *mech)
 {
 	insertActions(mech->getActions(phase));
 }
 
-void ActionWindow::insertActions(QList <const Action *> actions)
+void ActionWindow::insertActions(const QList <Action> &actions)
 {
-	for (const Action *action : actions)
+	for (const Action &action : actions)
 		insertAction(action);
 }
 
-void ActionWindow::insertAction(const Action *action)
+void ActionWindow::insertAction(const Action &action)
 {
 	QString text = actionToString(action);
 	int num = list.size() + 1;
@@ -182,19 +179,19 @@ void ActionWindow::insertAction(const Action *action)
 	layout->addWidget(l);
 }
 
-void ActionWindow::onActivateAction(const Action *action)
+void ActionWindow::onActivateAction(const Action &action)
 {
-	if (currentAction != nullptr) {
+	if (currentAction.getActionType() != BTech::ActionType::Idle) {
 		getActionLabel(currentAction)->deactivate();
 		currentAction = (currentAction == action)
-			 ? nullptr
+			 ? Action()
 			 : action;
 	} else {
 		currentAction = action;
 	}
 	emit actionActivated(currentAction);
-	if (currentAction != nullptr && !isActionCheckable(currentAction))
-		currentAction = nullptr;
+	if (currentAction.getActionType() != BTech::ActionType::Idle && !isActionCheckable(currentAction))
+		currentAction = Action();
 }
 
 void ActionWindow::clear()
@@ -203,63 +200,31 @@ void ActionWindow::clear()
 	for (ActionLabel *label : actionList)
 		delete label;
 	actionList.clear();
-	currentAction = nullptr;
+	currentAction = Action();
 }
 
-QString ActionWindow::actionToString(const Action *action) const
+QString ActionWindow::actionToString(const Action &action) const
 {
-	switch (action->getActionType()) {
-		case Action::Type::Movement:
-			return movementActionToString[static_cast<const MovementAction *>(action)->getType()];
-		case Action::Type::Combat:
-			return combatActionToString[static_cast<const CombatAction *>(action)->getType()];
-		default:
-			return QString();
-	}
+	return BTech::actionTypeToString[action.getActionType()];
 }
 
-bool ActionWindow::isActionCheckable(const Action *action) const
+bool ActionWindow::isActionCheckable(const Action &action) const
 {
-	switch (action->getActionType()) {
-		case Action::Type::Movement:
-			return movementActionCheckable[static_cast<const MovementAction *>(action)->getType()];
-		case Action::Type::Combat:
-			return combatActionCheckable[static_cast<const CombatAction *>(action)->getType()];
-		default:
-			return false;
-	}
+	return actionTypeCheckable[action.getActionType()];
 }
 
-const QHash <BTech::MovementAction, QString> ActionWindow::movementActionToString {
-	{BTech::MovementAction::Idle,         BTech::Strings::None      },
-	{BTech::MovementAction::Walk,         BTech::Strings::Walk      },
-	{BTech::MovementAction::Run,          BTech::Strings::Run       },
-	{BTech::MovementAction::Jump,         BTech::Strings::Jump      },
-	{BTech::MovementAction::TurnRight,    BTech::Strings::TurnRight },
-	{BTech::MovementAction::TurnLeft,     BTech::Strings::TurnLeft  },
-};
+const QHash <BTech::ActionType, bool> ActionWindow::actionTypeCheckable {
+	{ BTech::ActionType::Idle,         false },
+	{ BTech::ActionType::Walk,         true  },
+	{ BTech::ActionType::Run,          true  },
+	{ BTech::ActionType::Jump,         true  },
+	{ BTech::ActionType::TurnRight,    false },
+	{ BTech::ActionType::TurnLeft,     false },
 
-const QHash <BTech::CombatAction, QString> ActionWindow::combatActionToString {
-	{BTech::CombatAction::SimpleAttack, BTech::Strings::Attack},
-	{BTech::CombatAction::Kick,         BTech::Strings::Kick},
-	{BTech::CombatAction::Punch,        BTech::Strings::Punch},
-	{BTech::CombatAction::Push,         BTech::Strings::Push}
-};
-
-const QHash <BTech::MovementAction, bool> ActionWindow::movementActionCheckable {
-	{ BTech::MovementAction::Idle,         false },
-	{ BTech::MovementAction::Walk,         true  },
-	{ BTech::MovementAction::Run,          true  },
-	{ BTech::MovementAction::Jump,         true  },
-	{ BTech::MovementAction::TurnRight,    false },
-	{ BTech::MovementAction::TurnLeft,     false },
-};
-
-const QHash <BTech::CombatAction, bool> ActionWindow::combatActionCheckable {
-	{ BTech::CombatAction::SimpleAttack, true },
-	{ BTech::CombatAction::WeaponAttack, true },
-	{ BTech::CombatAction::Kick,         true },
-	{ BTech::CombatAction::Punch,        true },
+	{ BTech::ActionType::SimpleAttack, true },
+	{ BTech::ActionType::WeaponAttack, true },
+	{ BTech::ActionType::Kick,         true },
+	{ BTech::ActionType::Punch,        true },
 };
 
 void ActionWindow::initLayout()
@@ -270,7 +235,7 @@ void ActionWindow::initLayout()
 	setLayout(layout);
 }
 
-ActionLabel * ActionWindow::getActionLabel(const Action *action)
+ActionLabel * ActionWindow::getActionLabel(const Action &action)
 {
 	for (ActionLabel *label : actionList)
 		if (label->action == action)

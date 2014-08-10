@@ -78,8 +78,8 @@ public:
 	int getAmmoShotsPerTon() const;
 	int getMissilesNumberShot() const;
 
-	const WeaponHolder * getWeaponHolder() const;
-	void setWeaponHolder(const WeaponHolder *weaponHolder);
+	WeaponHolder * getWeaponHolder() const;
+	void setWeaponHolder(WeaponHolder *weaponHolder);
 
 	void setUsed(bool used);
 	bool isUsed() const;
@@ -92,7 +92,7 @@ public:
 private:
 	const WeaponBase *base;
 
-	const WeaponHolder *weaponHolder;
+	WeaponHolder *weaponHolder;
 
 	bool used;
 

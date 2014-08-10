@@ -41,8 +41,8 @@ public:
 	Direction getDirection() const;
 	void setDirection(Direction direction);
 
-	BTech::CombatAction getActionType() const;
-	void setActionType(const BTech::CombatAction actionType);
+	BTech::ActionType getActionType() const;
+	void setActionType(BTech::ActionType actionType);
 
 	int getDamage() const;
 	void setDamage(int damage);
@@ -74,7 +74,7 @@ private:
 
 	int distance;
 	Direction direction;
-	BTech::CombatAction actionType;
+	BTech::ActionType actionType;
 	int damage;
 	const WeaponHolder *weaponHolder;
 	QHash <QPair <BTech::ModifierType, BTech::Modifier>, int> modifiers;

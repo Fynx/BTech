@@ -78,6 +78,8 @@ protected:
 	QList <MechPart *> findMechParts(BTech::MechPartType type);
 	MechPart * findMechPart(BTech::MechPartType type, BTech::MechPartSide side);
 
+	QList <Weapon *> editWeapons() const;
+
 	const MechBase *base;
 
 	int armorValue;

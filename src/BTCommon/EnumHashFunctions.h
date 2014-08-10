@@ -39,6 +39,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		return qHash(toUnderlying(enumVar), 0); \
 	} \
 
+EnumHashFunctionBTech(ActionType,       quint8);
 EnumHashFunctionBTech(CombatAction,     quint8);
 EnumHashFunctionBTech(EffectType,       quint16);
 EnumHashFunctionBTech(EntityType,       quint8);
